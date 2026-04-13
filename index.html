@@ -1,0 +1,3219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="theme-color" content="#0F1B2D"/>
+<title>MuniVault — Municipal Data Collection</title>
+
+<!-- Fonts: Clean modern civic -->
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<style>
+/* ============================================
+   CSS TOKEN SYSTEM — MuniVault Civic Theme
+   Mood: Professional, trustworthy, clean
+   North Star: "Government meets modern SaaS"
+   ============================================ */
+:root {
+  --color-primary:       #1E3A5F;
+  --color-primary-light: #2A5082;
+  --color-primary-dark:  #0F1B2D;
+  --color-accent:        #3B82F6;
+  --color-accent-light:  #60A5FA;
+  --color-success:       #10B981;
+  --color-success-light: #D1FAE5;
+  --color-warning:       #F59E0B;
+  --color-warning-light: #FEF3C7;
+  --color-danger:        #EF4444;
+  --color-danger-light:  #FEE2E2;
+
+  --bg-base:       #F8FAFC;
+  --bg-surface:    #FFFFFF;
+  --bg-elevated:   #FFFFFF;
+  --bg-muted:      #F1F5F9;
+  --bg-dark:       #162A46;
+  --bg-dark-surface: #1E3A5F;
+
+  --text-primary:   #0F172A;
+  --text-secondary: #475569;
+  --text-muted:     #94A3B8;
+  --text-inverse:   #FFFFFF;
+
+  --border:        #E2E8F0;
+  --border-focus:  #3B82F6;
+
+  --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-full: 9999px;
+
+  --shadow-sm:  0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md:  0 4px 6px -1px rgba(0,0,0,0.1);
+  --shadow-lg:  0 10px 15px -3px rgba(0,0,0,0.1);
+  --shadow-xl:  0 20px 25px -5px rgba(0,0,0,0.1);
+
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration: 200ms;
+}
+
+/* ============ RESET & BASE ============ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #root {
+  height: 100%; width: 100%;
+  font-family: var(--font-main);
+  background: var(--bg-base);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+/* ============ SCROLLBAR ============ */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 2px; }
+
+/* ============ APP SHELL ============ */
+.app-container {
+  display: flex; flex-direction: column;
+  height: 100vh; max-width: 480px; margin: 0 auto;
+  position: relative; overflow: hidden;
+  background: var(--bg-base);
+}
+
+/* ============ SPLASH SCREEN ============ */
+.splash-screen {
+  position: fixed; inset: 0; z-index: 9999;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background: var(--bg-dark);
+  transition: opacity 0.6s var(--ease);
+}
+.splash-screen.fade-out { opacity: 0; pointer-events: none; }
+.splash-logo {
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid rgba(255,255,255,0.2);
+  margin-bottom: 24px;
+  animation: splash-pulse 2s infinite var(--ease);
+}
+.splash-logo-placeholder {
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: var(--bg-dark-surface);
+  border: 3px solid rgba(255,255,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 24px;
+  animation: splash-pulse 2s infinite var(--ease);
+}
+.splash-logo-placeholder svg { width: 48px; height: 48px; }
+@keyframes splash-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+}
+.splash-brand {
+  font-size: 28px; font-weight: 800;
+  color: var(--text-inverse);
+  letter-spacing: -0.5px;
+}
+.splash-tagline {
+  font-size: 13px; font-weight: 400;
+  color: var(--text-muted);
+  margin-top: 8px; letter-spacing: 0.5px;
+}
+.splash-spinner {
+  width: 32px; height: 32px;
+  border: 3px solid rgba(255,255,255,0.1);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-top: 32px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ============ HEADER ============ */
+.app-header {
+  background: var(--color-primary);
+  padding: 14px 16px 12px;
+  flex-shrink: 0;
+  display: flex; align-items: center; gap: 12px;
+}
+.header-logo {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,0.3);
+  flex-shrink: 0;
+}
+.header-logo-placeholder {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--color-primary-light);
+  border: 2px solid rgba(255,255,255,0.3);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 16px; color: rgba(255,255,255,0.7);
+}
+.header-text { flex: 1; min-width: 0; }
+.header-city {
+  font-size: 16px; font-weight: 700;
+  color: var(--text-inverse);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.header-sub {
+  font-size: 11px; font-weight: 400;
+  color: rgba(255,255,255,0.6);
+}
+.header-actions { display: flex; gap: 8px; }
+.header-btn {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: var(--text-inverse);
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  transition: all var(--duration) var(--ease);
+}
+.header-btn:hover { background: rgba(255,255,255,0.2); }
+
+/* ============ MAIN CONTENT ============ */
+.main-content {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+  padding: 16px; padding-bottom: 100px;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ============ BOTTOM NAV ============ */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 480px;
+  display: flex;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border);
+  z-index: 50;
+  padding-bottom: max(8px, env(safe-area-inset-bottom, 8px));
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+}
+.nav-btn {
+  flex: 1; padding: 8px 4px 6px;
+  background: none; border: none;
+  color: var(--text-muted);
+  font-size: 10px; font-weight: 600;
+  text-align: center; cursor: pointer;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 2px;
+  transition: color var(--duration) var(--ease);
+}
+.nav-btn.active { color: var(--color-primary); }
+.nav-icon { font-size: 20px; }
+.nav-badge {
+  position: absolute; top: 4px; right: calc(50% - 16px);
+  background: var(--color-danger);
+  color: white; font-size: 9px; font-weight: 700;
+  min-width: 16px; height: 16px;
+  border-radius: var(--radius-full);
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 4px;
+}
+
+/* ============ CARDS ============ */
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-sm);
+}
+.card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.card-title {
+  font-size: 14px; font-weight: 700;
+  color: var(--text-primary);
+  display: flex; align-items: center; gap: 8px;
+}
+.card-title-icon { font-size: 18px; }
+
+/* ============ STATS ============ */
+.stats-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 10px; margin-bottom: 16px;
+}
+.stat-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 10px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: all var(--duration) var(--ease);
+}
+.stat-card:hover { border-color: var(--color-accent); transform: translateY(-1px); }
+.stat-number {
+  font-size: 28px; font-weight: 800;
+  color: var(--color-primary);
+  line-height: 1;
+}
+.stat-label {
+  font-size: 10px; font-weight: 600;
+  color: var(--text-muted);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ============ BUTTONS ============ */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px 20px;
+  border: none; border-radius: var(--radius-md);
+  font-family: var(--font-main);
+  font-size: 14px; font-weight: 600;
+  cursor: pointer;
+  transition: all var(--duration) var(--ease);
+}
+.btn-primary {
+  background: var(--color-primary);
+  color: var(--text-inverse);
+}
+.btn-primary:hover { background: var(--color-primary-light); }
+.btn-primary:active { transform: scale(0.98); }
+.btn-accent {
+  background: var(--color-accent);
+  color: var(--text-inverse);
+}
+.btn-accent:hover { background: var(--color-accent-light); }
+.btn-outline {
+  background: transparent;
+  border: 2px solid var(--border);
+  color: var(--text-primary);
+}
+.btn-outline:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.btn-danger {
+  background: var(--color-danger);
+  color: var(--text-inverse);
+}
+.btn-success {
+  background: var(--color-success);
+  color: var(--text-inverse);
+}
+.btn-block { width: 100%; }
+.btn-sm { padding: 8px 14px; font-size: 13px; }
+.btn-lg { padding: 16px 24px; font-size: 16px; }
+
+/* ============ FORMS ============ */
+.form-group { margin-bottom: 16px; }
+.form-label {
+  display: block; font-size: 13px; font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+.form-input, .form-textarea, .form-select {
+  width: 100%; padding: 12px 14px;
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  font-size: 14px;
+  outline: none;
+  transition: border-color var(--duration) var(--ease);
+}
+.form-input:focus, .form-textarea:focus, .form-select:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+}
+.form-input::placeholder, .form-textarea::placeholder { color: var(--text-muted); }
+.form-textarea { min-height: 100px; resize: vertical; }
+
+/* ============ BADGES ============ */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 11px; font-weight: 600;
+}
+.badge-primary { background: rgba(30,58,95,0.1); color: var(--color-primary); }
+.badge-success { background: var(--color-success-light); color: #065F46; }
+.badge-warning { background: var(--color-warning-light); color: #92400E; }
+.badge-danger { background: var(--color-danger-light); color: #991B1B; }
+.badge-muted { background: var(--bg-muted); color: var(--text-secondary); }
+
+/* ============ DEPARTMENT CHIPS ============ */
+.dept-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  font-size: 13px; font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--duration) var(--ease);
+  white-space: nowrap;
+}
+.dept-chip.active {
+  background: var(--color-primary);
+  color: var(--text-inverse);
+  border-color: var(--color-primary);
+}
+.dept-chip:hover:not(.active) { border-color: var(--color-primary); }
+
+/* ============ ENTRY CARDS ============ */
+.entry-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all var(--duration) var(--ease);
+  box-shadow: var(--shadow-sm);
+}
+.entry-card:hover { border-color: var(--color-accent); box-shadow: var(--shadow-md); }
+.entry-header {
+  display: flex; align-items: flex-start; gap: 10px;
+  margin-bottom: 8px;
+}
+.entry-dept-icon {
+  width: 36px; height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--bg-muted);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.entry-info { flex: 1; min-width: 0; }
+.entry-title {
+  font-size: 14px; font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.entry-meta {
+  font-size: 12px; color: var(--text-muted);
+  margin-top: 2px;
+  display: flex; gap: 8px; align-items: center;
+}
+.entry-desc {
+  font-size: 13px; color: var(--text-secondary);
+  line-height: 1.5;
+  display: -webkit-box; -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical; overflow: hidden;
+}
+.entry-photos-strip {
+  display: flex; gap: 6px; margin-top: 8px;
+  overflow-x: auto; -webkit-overflow-scrolling: touch;
+}
+.entry-photo-thumb {
+  width: 56px; height: 56px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+}
+.entry-footer {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 8px;
+}
+.entry-attachment-count {
+  font-size: 11px; color: var(--text-muted);
+  display: flex; align-items: center; gap: 4px;
+}
+
+/* ============ MEDIA CAPTURE ============ */
+.media-row {
+  display: flex; gap: 8px; margin-bottom: 12px;
+}
+.media-btn {
+  flex: 1; padding: 14px 8px;
+  background: var(--bg-base);
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-lg);
+  color: var(--color-primary);
+  font-family: var(--font-main);
+  font-size: 12px; font-weight: 600;
+  text-align: center; cursor: pointer;
+  transition: all var(--duration) var(--ease);
+  display: flex; flex-direction: column;
+  align-items: center; gap: 6px;
+}
+.media-btn:hover { border-color: var(--color-accent); color: var(--color-accent); }
+.media-btn.recording {
+  background: var(--color-danger-light);
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+  border-style: solid;
+  animation: pulse-rec 1s infinite;
+}
+.media-btn-icon { font-size: 24px; }
+@keyframes pulse-rec {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.photo-grid {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.photo-thumb-wrapper {
+  position: relative;
+  width: 72px; height: 72px;
+}
+.photo-thumb {
+  width: 100%; height: 100%;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  border: 1px solid var(--border);
+}
+.photo-remove {
+  position: absolute; top: -6px; right: -6px;
+  width: 22px; height: 22px;
+  background: var(--color-danger);
+  color: white; border: 2px solid white;
+  border-radius: 50%;
+  font-size: 12px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ============ CREW LIST ============ */
+.crew-card {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  margin-bottom: 8px;
+}
+.crew-avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--bg-muted);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 700;
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+.crew-info { flex: 1; min-width: 0; }
+.crew-name {
+  font-size: 14px; font-weight: 600;
+  color: var(--text-primary);
+}
+.crew-email {
+  font-size: 12px; color: var(--text-muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.crew-status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ============ DETAIL / FORM VIEW ============ */
+.detail-view {
+  position: fixed; inset: 0;
+  background: var(--bg-base);
+  z-index: 100;
+  display: flex; flex-direction: column;
+  max-width: 480px; margin: 0 auto;
+}
+.detail-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px;
+  background: var(--color-primary);
+  flex-shrink: 0;
+}
+.detail-back {
+  background: none; border: none;
+  color: var(--text-inverse);
+  font-size: 24px; cursor: pointer;
+  padding: 4px;
+}
+.detail-title {
+  font-size: 16px; font-weight: 700;
+  color: var(--text-inverse);
+  flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.detail-body {
+  flex: 1; overflow-y: auto; padding: 16px;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 100px;
+}
+
+/* ============ MODAL ============ */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.modal-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-xl);
+  padding: 28px 24px;
+  width: 100%; max-width: 380px;
+  box-shadow: var(--shadow-xl);
+}
+.modal-card h2 {
+  font-size: 20px; font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+.modal-card p {
+  font-size: 14px; color: var(--text-secondary);
+  margin-bottom: 20px; line-height: 1.5;
+}
+
+/* ============ TOAST ============ */
+.toast {
+  position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+  background: var(--color-primary);
+  color: var(--text-inverse);
+  padding: 12px 24px;
+  border-radius: var(--radius-full);
+  font-size: 14px; font-weight: 600;
+  z-index: 9000;
+  animation: toast-in 0.3s var(--ease);
+  box-shadow: var(--shadow-lg);
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ============ EMPTY STATE ============ */
+.empty-state {
+  text-align: center; padding: 48px 24px;
+}
+.empty-icon {
+  font-size: 48px; margin-bottom: 16px;
+  opacity: 0.4;
+}
+.empty-title {
+  font-size: 16px; font-weight: 700;
+  color: var(--text-primary); margin-bottom: 8px;
+}
+.empty-desc {
+  font-size: 14px; color: var(--text-muted);
+  line-height: 1.5; margin-bottom: 20px;
+}
+
+/* ============ PROGRESS BAR ============ */
+.progress-container {
+  background: var(--bg-muted);
+  border-radius: var(--radius-full);
+  height: 8px; overflow: hidden;
+  margin: 8px 0;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+  border-radius: var(--radius-full);
+  transition: width 0.6s var(--ease);
+}
+
+/* ============ SECTION HEADERS ============ */
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.section-title {
+  font-size: 16px; font-weight: 700;
+  color: var(--text-primary);
+}
+.section-action {
+  font-size: 13px; font-weight: 600;
+  color: var(--color-accent);
+  cursor: pointer; background: none; border: none;
+}
+
+/* ============ AUTH SCREENS ============ */
+.auth-screen {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; flex-direction: column;
+  align-items: center;
+  padding: 32px 24px 40px;
+  background: var(--bg-dark);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.auth-logo {
+  width: 80px; height: 80px;
+  margin-bottom: 16px;
+}
+.auth-brand {
+  font-size: 32px; font-weight: 800;
+  color: var(--text-inverse);
+  letter-spacing: -0.5px;
+  margin-bottom: 4px;
+}
+.auth-subtitle {
+  font-size: 14px; color: var(--text-muted);
+  margin-bottom: 32px;
+}
+.auth-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-xl);
+  padding: 28px 24px;
+  width: 100%; max-width: 380px;
+  box-shadow: var(--shadow-xl);
+}
+.auth-card h2 {
+  font-size: 20px; font-weight: 700;
+  margin-bottom: 4px;
+}
+.auth-card .subtitle {
+  font-size: 14px; color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+.auth-divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 20px 0; color: var(--text-muted); font-size: 13px;
+}
+.auth-divider::before, .auth-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+.auth-link {
+  color: var(--color-accent); cursor: pointer;
+  font-weight: 600; font-size: 14px;
+  background: none; border: none;
+  text-align: center; display: block;
+  margin-top: 16px; width: 100%;
+}
+
+/* ============ SETTINGS SHEET ============ */
+.settings-overlay {
+  position: fixed; inset: 0; z-index: 2000;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  display: flex; align-items: flex-end; justify-content: center;
+}
+.settings-sheet {
+  background: var(--bg-surface);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  width: 100%; max-width: 480px;
+  max-height: 90vh; overflow-y: auto;
+  padding: 24px 16px 32px;
+  box-shadow: var(--shadow-xl);
+}
+.settings-title {
+  font-size: 18px; font-weight: 700;
+  text-align: center; margin-bottom: 20px;
+}
+.settings-section {
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px; margin-bottom: 12px;
+}
+.settings-section-label {
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+/* ============ MAP ============ */
+.map-container {
+  width: 100%; height: 300px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin-bottom: 12px;
+}
+#map { width: 100%; height: 100%; }
+
+/* ============ EXPORT ============ */
+.export-btn {
+  width: 100%; padding: 16px;
+  background: var(--bg-surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  font-size: 14px; font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: all var(--duration) var(--ease);
+  display: flex; align-items: center; gap: 12px;
+  text-align: left;
+}
+.export-btn:hover { border-color: var(--color-primary); }
+.export-btn-icon { font-size: 24px; }
+.export-btn-text { flex: 1; }
+.export-btn-desc {
+  font-size: 12px; color: var(--text-muted);
+  font-weight: 400; margin-top: 2px;
+}
+
+/* ============ DEPT MANAGEMENT ============ */
+.dept-list-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-bottom: 6px;
+}
+.dept-list-icon { font-size: 20px; }
+.dept-list-name { flex: 1; font-size: 14px; font-weight: 500; }
+.dept-remove-btn {
+  background: none; border: none;
+  color: var(--color-danger);
+  font-size: 18px; cursor: pointer;
+  padding: 4px;
+}
+
+/* ============ FILTER ROW ============ */
+.filter-row {
+  display: flex; gap: 6px;
+  overflow-x: auto; -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px; margin-bottom: 12px;
+}
+
+/* ============ ACTIVITY FEED ============ */
+.activity-item {
+  display: flex; gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.activity-item:last-child { border-bottom: none; }
+.activity-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+.activity-content { flex: 1; }
+.activity-text {
+  font-size: 13px; color: var(--text-primary); line-height: 1.4;
+}
+.activity-time {
+  font-size: 11px; color: var(--text-muted); margin-top: 2px;
+}
+
+/* ============ LOGO UPLOAD ============ */
+.logo-upload-area {
+  width: 120px; height: 120px;
+  border: 2px dashed var(--border);
+  border-radius: 50%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  cursor: pointer; margin: 0 auto 16px;
+  transition: all var(--duration) var(--ease);
+  overflow: hidden;
+}
+.logo-upload-area:hover { border-color: var(--color-accent); }
+.logo-upload-area img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+.logo-upload-text {
+  font-size: 11px; color: var(--text-muted);
+  text-align: center; margin-top: 4px;
+}
+
+/* ============ REDUCED MOTION ============ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- Runtime Config (keys loaded separately so they're not in source control) -->
+<script src="/config.js"></script>
+
+<!-- React 18 -->
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<!-- Supabase JS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback, useMemo, createContext, useContext } = React;
+
+// ============ SUPABASE CONFIG ============
+const SUPABASE_URL = 'https://ghkiaxshupxssnzdzsiw.supabase.co';
+// Supabase anon key - set via config
+const SUPABASE_ANON_KEY = window.__MUNIVAULT_CONFIG__?.supabaseKey || '';
+
+let supabase;
+try {
+  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+} catch(e) {
+  console.warn('Supabase init failed, running in offline mode:', e);
+  supabase = null;
+}
+
+// ============ CONSTANTS ============
+const APP_NAME = 'MuniVault';
+const APP_TAGLINE = 'Your city\'s year, captured.';
+// OpenAI key loaded from server-side config (never exposed in client)
+const OPENAI_API_KEY = window.__MUNIVAULT_CONFIG__?.openaiKey || '';
+const SUPER_ADMIN_EMAIL = 'wilsons043@gmail.com';
+
+// ============ TIER SYSTEM ============
+const TIERS = {
+  basic: {
+    id: 'basic',
+    name: 'Basic',
+    price: 75,
+    maxSeats: 5,
+    maxDepartments: 3,
+    features: {
+      voiceRecording: false,
+      aiCleanup: false,
+      gpsTagging: false,
+      mapView: false,
+      jsonExport: false,
+      pdfReports: false,
+      reportSubscribers: 0,
+      reportFrequency: [],
+      customBranding: false,
+      customSubdomain: false,
+      autoArchive: false,
+      archiveReminder: false,
+      auditLog: false,
+      sso: false,
+      apiAccess: false,
+      slaUptime: null,
+      emailSupport: false,
+      onboarding: 'self-serve',
+      dataRetentionYears: 1,
+      aiCleanupLimit: 0
+    }
+  },
+  starter: {
+    id: 'starter',
+    name: 'Starter',
+    price: 125,
+    maxSeats: 10,
+    maxDepartments: 5,
+    features: {
+      voiceRecording: true,
+      aiCleanup: true,
+      gpsTagging: true,
+      mapView: true,
+      jsonExport: true,
+      pdfReports: false,
+      reportSubscribers: 5,
+      reportFrequency: ['weekly', 'monthly'],
+      customBranding: true,
+      customSubdomain: true,
+      autoArchive: true,
+      archiveReminder: true,
+      auditLog: false,
+      sso: false,
+      apiAccess: false,
+      slaUptime: '99.5%',
+      emailSupport: true,
+      onboarding: 'video-call',
+      dataRetentionYears: 1,
+      aiCleanupLimit: 100
+    }
+  },
+  enterprise: {
+    id: 'enterprise',
+    name: 'Enterprise',
+    price: 175,
+    maxSeats: 25,
+    maxDepartments: Infinity,
+    maxDepartmentsDisplay: 'Unlimited',
+    features: {
+      voiceRecording: true,
+      aiCleanup: true,
+      gpsTagging: true,
+      mapView: true,
+      jsonExport: true,
+      pdfReports: true,
+      reportSubscribers: Infinity,
+      reportFrequency: ['daily', 'weekly', 'monthly'],
+      customBranding: true,
+      customSubdomain: true,
+      autoArchive: true,
+      archiveReminder: true,
+      auditLog: true,
+      sso: true,
+      apiAccess: true,
+      slaUptime: '99.9%',
+      emailSupport: true,
+      onboarding: 'virtual-training',
+      dataRetentionYears: 2,
+      aiCleanupLimit: Infinity
+    }
+  }
+};
+
+const EXTRA_SEAT_PRICE = 10; // $10/seat/month
+
+// Stripe Configuration
+const STRIPE_PRICE_IDS = {
+  basic: 'price_1TLpAiFZkMkR5LSvlJIVt1WN',
+  starter: 'price_1TLpAiFZkMkR5LSvEWwZBrgl',
+  enterprise: 'price_1TLpAjFZkMkR5LSvOIENMO59',
+  extraSeat: 'price_1TLpAjFZkMkR5LSvoJuf8qIr'
+};
+// Stripe publishable key - set via config
+const STRIPE_PUBLISHABLE_KEY = window.__MUNIVAULT_CONFIG__?.stripeKey || '';
+const STRIPE_PORTAL_CONFIG = 'bpc_1TLpBSFZkMkR5LSv238LmY78';
+// Webhook secret is server-side only (Supabase Edge Function)
+const STRIPE_WEBHOOK_SECRET = 'SERVER_SIDE_ONLY';
+
+// Stripe Checkout — creates a checkout session via Edge Function
+async function createCheckoutSession(tierId, cityName, adminEmail, extraSeats) {
+  const priceId = STRIPE_PRICE_IDS[tierId];
+  if (!priceId) return null;
+
+  const lineItems = [{ price: priceId, quantity: 1 }];
+  if (extraSeats > 0) {
+    lineItems.push({ price: STRIPE_PRICE_IDS.extraSeat, quantity: extraSeats });
+  }
+
+  try {
+    const res = await fetch('https://ghkiaxshupxssnzdzsiw.supabase.co/functions/v1/create-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        priceId, tierId, cityName, adminEmail, extraSeats,
+        lineItems,
+        successUrl: window.location.origin + '?checkout=success',
+        cancelUrl: window.location.origin + '?checkout=cancel',
+        billingAnchor: 1 // 1st of month
+      })
+    });
+    const data = await res.json();
+    if (data.url) window.location.href = data.url;
+    return data;
+  } catch (err) {
+    console.error('Checkout error:', err);
+    return null;
+  }
+}
+
+// Stripe Billing Portal — let customers manage their subscription
+async function openBillingPortal(customerEmail) {
+  try {
+    const res = await fetch('https://ghkiaxshupxssnzdzsiw.supabase.co/functions/v1/billing-portal', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: customerEmail, returnUrl: window.location.origin })
+    });
+    const data = await res.json();
+    if (data.url) window.location.href = data.url;
+  } catch (err) {
+    console.error('Billing portal error:', err);
+  }
+}
+
+// Get the active tier config for a city
+function getCityTier(cityConfig) {
+  const tierId = cityConfig?.tier || 'starter';
+  return TIERS[tierId] || TIERS.starter;
+}
+
+// Check if a specific feature is available for a city
+function hasFeature(cityConfig, featureName) {
+  const tier = getCityTier(cityConfig);
+  return !!tier.features[featureName];
+}
+
+// Get max seats (base + additional purchased)
+function getMaxSeats(cityConfig) {
+  const tier = getCityTier(cityConfig);
+  const extraSeats = cityConfig?.extraSeats || 0;
+  return tier.maxSeats + extraSeats;
+}
+
+// Check if city is in trial
+function getTrialStatus(cityConfig) {
+  if (!cityConfig?.trialCode) return null;
+  const trialStart = new Date(cityConfig.trialStart);
+  const trialEnd = new Date(trialStart);
+  trialEnd.setDate(trialEnd.getDate() + 14);
+  const now = new Date();
+  const daysLeft = Math.ceil((trialEnd - now) / (1000 * 60 * 60 * 24));
+  return {
+    active: daysLeft > 0,
+    daysLeft: Math.max(0, daysLeft),
+    endDate: trialEnd.toISOString(),
+    expired: daysLeft <= 0
+  };
+}
+
+// Check if city subscription is active (paid or trial)
+function isSubscriptionActive(cityConfig) {
+  if (!cityConfig) return false;
+  // Trial check
+  const trial = getTrialStatus(cityConfig);
+  if (trial && trial.active) return true;
+  // Paid subscription
+  if (cityConfig.subscriptionStatus === 'active') return true;
+  // Grace period for failed payments (14 days)
+  if (cityConfig.subscriptionStatus === 'past_due') {
+    const failedDate = new Date(cityConfig.paymentFailedAt || Date.now());
+    const graceDays = Math.ceil((Date.now() - failedDate) / (1000 * 60 * 60 * 24));
+    return graceDays <= 14;
+  }
+  return false;
+}
+
+const DEFAULT_DEPT_ICONS = {
+  'Police': '🚔', 'Fire': '🚒', 'EMS': '🚑',
+  'Roads & Streets': '🛣️', 'Utilities': '⚡', 'Water': '💧',
+  'Wastewater': '🏭', 'Parks & Recreation': '🌳', 'Building Inspections': '🏗️',
+  'Planning & Zoning': '📋', 'Municipal Court': '⚖️', 'City Administration': '🏛️',
+  'Finance': '💰', 'City Clerk': '📝', 'Economic Development': '📈',
+  'Animal Control': '🐾', 'IT': '💻', 'Public Works': '🔧',
+  'Code Enforcement': '📎', 'Human Resources': '👥'
+};
+
+const STORAGE_KEYS = {
+  session: 'munivault_session',
+  cityConfig: 'munivault_city_config',
+  entries: 'munivault_entries',
+  crewMembers: 'munivault_crew'
+};
+
+// ============ AI GRAMMAR CLEANUP ============
+async function cleanUpText(rawText) {
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${OPENAI_API_KEY}`
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a professional editor for municipal government reports. Fix grammar, punctuation, and spelling in the following voice transcription. Make it clear and professional while preserving the original meaning. Do not add information that is not there. Return only the corrected text, nothing else.'
+        },
+        { role: 'user', content: rawText }
+      ],
+      temperature: 0.3,
+      max_tokens: 1000
+    })
+  });
+  const data = await response.json();
+  if (data.error) throw new Error(data.error.message);
+  return data.choices[0].message.content.trim();
+}
+
+// ============ UTILITY FUNCTIONS ============
+function generateId() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function formatTime(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+
+function timeAgo(dateStr) {
+  if (!dateStr) return '';
+  const now = new Date();
+  const d = new Date(dateStr);
+  const diff = Math.floor((now - d) / 1000);
+  if (diff < 60) return 'Just now';
+  if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff/3600)}h ago`;
+  if (diff < 604800) return `${Math.floor(diff/86400)}d ago`;
+  return formatDate(dateStr);
+}
+
+function getDeptIcon(name) {
+  return DEFAULT_DEPT_ICONS[name] || '📁';
+}
+
+function getInitials(name) {
+  if (!name) return '?';
+  return name.split(' ').map(w => w[0]).join('').toUpperCase().substr(0, 2);
+}
+
+// ============ IMAGE COMPRESSION ============
+function compressImage(file, maxWidth = 1200, quality = 0.7) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let w = img.width, h = img.height;
+        if (w > maxWidth) { h = (maxWidth / w) * h; w = maxWidth; }
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// ============ CONTEXT ============
+const AppContext = createContext(null);
+
+// ============ TOAST COMPONENT ============
+function Toast({ message, onDone }) {
+  useEffect(() => {
+    const t = setTimeout(onDone, 3000);
+    return () => clearTimeout(t);
+  }, []);
+  return <div className="toast">{message}</div>;
+}
+
+// ============ SPLASH SCREEN ============
+function SplashScreen({ cityConfig, fadeOut }) {
+  const logoUrl = cityConfig?.logoUrl;
+  return (
+    <div className={`splash-screen ${fadeOut ? 'fade-out' : ''}`}>
+      {logoUrl ? (
+        <img src={logoUrl} alt="City Logo" className="splash-logo" />
+      ) : (
+        <div className="splash-logo-placeholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+      )}
+      <div className="splash-brand">{cityConfig?.cityName || APP_NAME}</div>
+      <div className="splash-tagline">{APP_TAGLINE}</div>
+      <div className="splash-spinner"></div>
+    </div>
+  );
+}
+
+// ============ AUTH: LOGIN SCREEN ============
+function LoginScreen({ onLogin, onSwitchToJoin, onSwitchToSetup, cityConfig }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    if (!email || !password) { setError('Please enter email and password'); return; }
+    setLoading(true); setError('');
+
+    // Try Supabase auth first
+    let supabaseHandled = false;
+    if (supabase) {
+      try {
+        const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
+        if (authError) throw authError;
+        onLogin({ id: data.user.id, email: data.user.email, name: data.user.user_metadata?.name || email.split('@')[0] });
+        return;
+      } catch(err) {
+        // Fall through to localStorage if Supabase has issues
+        console.warn('Supabase login failed, trying offline:', err.message);
+      }
+    }
+
+    // Offline fallback — check localStorage
+    const crew = JSON.parse(localStorage.getItem(STORAGE_KEYS.crewMembers) || '[]');
+    const match = crew.find(c => c.email === email && c.password === password);
+    if (match && match.status === 'active') {
+      localStorage.setItem(STORAGE_KEYS.session, JSON.stringify(match));
+      onLogin(match);
+    } else if (match && match.status === 'deactivated') {
+      setError('Your account has been deactivated. Contact your city administrator.');
+    } else {
+      setError('Invalid email or password');
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="auth-screen">
+      <div className="splash-logo-placeholder" style={{ width: 64, height: 64, marginBottom: 16, animation: 'none' }}>
+        <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" style={{ width: 28, height: 28 }}>
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <div className="auth-brand">{APP_NAME}</div>
+      <div className="auth-subtitle">{APP_TAGLINE}</div>
+      <div className="auth-card">
+        <h2>Sign In</h2>
+        <p className="subtitle">Access your city's vault</p>
+        <form onSubmit={handleLogin}>
+          {error && <div style={{ background: 'var(--color-danger-light)', color: '#991B1B', padding: '10px 14px', borderRadius: 'var(--radius-md)', fontSize: 13, marginBottom: 16 }}>{error}</div>}
+          <div className="form-group">
+            <label className="form-label">Email</label>
+            <input type="email" className="form-input" placeholder="you@city.gov"
+              value={email} onChange={e => setEmail(e.target.value)} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Password</label>
+            <input type="password" className="form-input" placeholder="Your password"
+              value={password} onChange={e => setPassword(e.target.value)} />
+          </div>
+          <button type="submit" className="btn btn-primary btn-block btn-lg" disabled={loading}>
+            {loading ? 'Signing in...' : 'Sign In'}
+          </button>
+        </form>
+        <button className="auth-link" onClick={onSwitchToJoin}>
+          Have an invite code? Join here
+        </button>
+        {!cityConfig && (
+          <React.Fragment>
+            <div className="auth-divider">or</div>
+            <button className="auth-link" onClick={onSwitchToSetup} style={{ color: 'var(--text-muted)' }}>
+              Set up a new city
+            </button>
+          </React.Fragment>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ============ AUTH: JOIN WITH INVITE CODE ============
+function JoinScreen({ onJoin, onSwitchToLogin, cityConfig }) {
+  const [code, setCode] = useState('');
+  const [password, setPassword] = useState('');
+  const [foundMember, setFoundMember] = useState(null);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState('code'); // 'code' or 'password'
+
+  const depts = cityConfig?.departments || [];
+
+  const handleLookupCode = (e) => {
+    e.preventDefault();
+    if (!code.trim()) { setError('Please enter your invite code'); return; }
+    setError('');
+
+    // Look up invite code in crew list
+    const crewList = JSON.parse(localStorage.getItem(STORAGE_KEYS.crewMembers) || '[]');
+    const member = crewList.find(c => c.inviteCode === code.trim().toUpperCase() && c.status === 'invited');
+    if (!member) {
+      setError('Invalid or expired invite code. Check with your city administrator.');
+      return;
+    }
+    setFoundMember(member);
+    setStep('password');
+  };
+
+  const handleSetPassword = async (e) => {
+    e.preventDefault();
+    if (password.length < 6) { setError('Password must be at least 6 characters'); return; }
+    setLoading(true); setError('');
+
+    // Activate the crew member
+    const crewList = JSON.parse(localStorage.getItem(STORAGE_KEYS.crewMembers) || '[]');
+    const updated = crewList.map(c => {
+      if (c.id === foundMember.id) {
+        return { ...c, status: 'active', password, joinedAt: new Date().toISOString() };
+      }
+      return c;
+    });
+    localStorage.setItem(STORAGE_KEYS.crewMembers, JSON.stringify(updated));
+
+    const activatedMember = updated.find(c => c.id === foundMember.id);
+    localStorage.setItem(STORAGE_KEYS.session, JSON.stringify(activatedMember));
+    onJoin(activatedMember);
+    setLoading(false);
+  };
+
+  const dept = foundMember ? depts.find(d => d.id === foundMember.departmentId) : null;
+
+  return (
+    <div className="auth-screen">
+      <div className="auth-brand" style={{ fontSize: 24, marginBottom: 24 }}>{APP_NAME}</div>
+      <div className="auth-card">
+        <h2>Join Your City</h2>
+        <p className="subtitle">Enter the invite code from your administrator</p>
+
+        {step === 'code' && (
+          <form onSubmit={handleLookupCode}>
+            {error && <div style={{ background: 'var(--color-danger-light)', color: '#991B1B', padding: '10px 14px', borderRadius: 'var(--radius-md)', fontSize: 13, marginBottom: 16 }}>{error}</div>}
+            <div className="form-group">
+              <label className="form-label">Invite Code</label>
+              <input type="text" className="form-input" placeholder="e.g. A3F9X2"
+                value={code} onChange={e => setCode(e.target.value.toUpperCase())}
+                style={{ fontSize: 20, textAlign: 'center', letterSpacing: 4, fontWeight: 700 }}
+                autoFocus />
+            </div>
+            <button type="submit" className="btn btn-primary btn-block btn-lg">
+              Continue
+            </button>
+          </form>
+        )}
+
+        {step === 'password' && foundMember && (
+          <form onSubmit={handleSetPassword}>
+            {error && <div style={{ background: 'var(--color-danger-light)', color: '#991B1B', padding: '10px 14px', borderRadius: 'var(--radius-md)', fontSize: 13, marginBottom: 16 }}>{error}</div>}
+
+            <div style={{ background: 'var(--bg-muted)', borderRadius: 'var(--radius-md)', padding: 16, marginBottom: 16 }}>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 8 }}>Your Profile</div>
+              <div style={{ fontSize: 16, fontWeight: 700 }}>{foundMember.name}</div>
+              <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{foundMember.email}</div>
+              {dept && (
+                <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span>{dept.icon}</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-primary)' }}>{dept.name}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Create Your Password</label>
+              <input type="password" className="form-input" placeholder="At least 6 characters"
+                value={password} onChange={e => setPassword(e.target.value)} autoFocus />
+            </div>
+            <button type="submit" className="btn btn-primary btn-block btn-lg" disabled={loading}>
+              {loading ? 'Setting up...' : 'Activate Account'}
+            </button>
+
+            {/* Save to phone instructions */}
+            <div style={{ marginTop: 20, padding: 14, background: 'var(--bg-muted)', borderRadius: 'var(--radius-md)', fontSize: 12, color: 'var(--text-secondary)' }}>
+              <div style={{ fontWeight: 700, marginBottom: 6 }}>Save to Your Phone</div>
+              <div><strong>iPhone:</strong> Tap the Share button (box with arrow), then "Add to Home Screen"</div>
+              <div style={{ marginTop: 4 }}><strong>Android:</strong> Tap the menu (3 dots), then "Add to Home screen" or "Install app"</div>
+            </div>
+          </form>
+        )}
+
+        <button className="auth-link" onClick={onSwitchToLogin}>
+          Already have an account? Sign in
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ============ ADMIN SETUP ============
+function AdminSetupScreen({ user, onComplete }) {
+  const isNewUser = !user || user.id === 'setup';
+  const [step, setStep] = useState(isNewUser ? 'account' : 'city');
+  const [adminName, setAdminName] = useState('');
+  const [adminEmail, setAdminEmail] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [realUser, setRealUser] = useState(isNewUser ? null : user);
+
+  const [cityName, setCityName] = useState('');
+  const [logoUrl, setLogoUrl] = useState('');
+  const [departments, setDepartments] = useState([
+    'Police', 'Fire', 'Roads & Streets', 'Utilities', 'Water',
+    'Parks & Recreation', 'City Administration'
+  ]);
+  const [newDept, setNewDept] = useState('');
+  const fileRef = useRef(null);
+
+  const handleCreateAccount = async (e) => {
+    e.preventDefault();
+    if (!adminName.trim() || !adminEmail || !adminPassword) {
+      setError('Please fill in all fields'); return;
+    }
+    if (adminPassword.length < 6) {
+      setError('Password must be at least 6 characters'); return;
+    }
+    setLoading(true); setError('');
+
+    let supabaseSuccess = false;
+    if (supabase) {
+      try {
+        const { data, error: authError } = await supabase.auth.signUp({
+          email: adminEmail,
+          password: adminPassword,
+          options: { data: { name: adminName.trim() } }
+        });
+        if (authError) throw authError;
+        setRealUser({ id: data.user.id, email: data.user.email, name: adminName.trim(), role: 'admin', status: 'active' });
+        supabaseSuccess = true;
+        setStep('city');
+      } catch(err) {
+        console.warn('Supabase signup failed, using offline mode:', err.message);
+      }
+    }
+    if (!supabaseSuccess) {
+      // Offline / fallback — create local admin account
+      const offlineUser = { id: generateId(), email: adminEmail, name: adminName.trim(), role: 'admin', status: 'active', password: adminPassword };
+      const crew = JSON.parse(localStorage.getItem(STORAGE_KEYS.crewMembers) || '[]');
+      crew.push(offlineUser);
+      localStorage.setItem(STORAGE_KEYS.crewMembers, JSON.stringify(crew));
+      localStorage.setItem(STORAGE_KEYS.session, JSON.stringify(offlineUser));
+      setRealUser(offlineUser);
+      setStep('city');
+    }
+    setLoading(false);
+  };
+
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const compressed = await compressImage(file, 400, 0.8);
+    setLogoUrl(compressed);
+  };
+
+  const addDept = () => {
+    if (!newDept.trim() || departments.includes(newDept.trim())) return;
+    setDepartments([...departments, newDept.trim()]);
+    setNewDept('');
+  };
+
+  const removeDept = (name) => {
+    setDepartments(departments.filter(d => d !== name));
+  };
+
+  const handleSubmit = () => {
+    if (!cityName.trim()) return;
+    const activeUser = realUser || user;
+    const config = {
+      cityName: cityName.trim(),
+      logoUrl,
+      departments: departments.map((name, i) => ({
+        id: generateId(), name, icon: getDeptIcon(name), sortOrder: i
+      })),
+      inviteCode: Math.random().toString(36).substr(2, 6).toUpperCase(),
+      createdBy: activeUser.id,
+      createdAt: new Date().toISOString()
+    };
+    localStorage.setItem(STORAGE_KEYS.cityConfig, JSON.stringify(config));
+
+    // Set the creating user as admin
+    const crew = JSON.parse(localStorage.getItem(STORAGE_KEYS.crewMembers) || '[]');
+    let adminUser = crew.find(c => c.id === activeUser.id);
+    if (!adminUser) {
+      adminUser = { id: activeUser.id, email: activeUser.email, name: activeUser.name, role: 'admin', status: 'active' };
+      crew.push(adminUser);
+    } else {
+      adminUser.role = 'admin';
+    }
+    localStorage.setItem(STORAGE_KEYS.crewMembers, JSON.stringify(crew));
+    localStorage.setItem(STORAGE_KEYS.session, JSON.stringify(adminUser));
+
+    onComplete(config, activeUser);
+  };
+
+  if (step === 'account') {
+    return (
+      <div className="auth-screen">
+        <div className="auth-brand" style={{ fontSize: 24, marginBottom: 4 }}>{APP_NAME}</div>
+        <div className="auth-subtitle" style={{ marginBottom: 24 }}>Create your admin account</div>
+        <div className="auth-card" style={{ maxWidth: 380 }}>
+          <h2>Admin Account</h2>
+          <p className="subtitle">You'll manage your city's MuniVault</p>
+          <form onSubmit={handleCreateAccount}>
+            {error && <div style={{ background: 'var(--color-danger-light)', color: '#991B1B', padding: '10px 14px', borderRadius: 'var(--radius-md)', fontSize: 13, marginBottom: 16 }}>{error}</div>}
+            <div className="form-group">
+              <label className="form-label">Your Name</label>
+              <input type="text" className="form-input" placeholder="Jane Smith"
+                value={adminName} onChange={e => setAdminName(e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Email</label>
+              <input type="email" className="form-input" placeholder="jane@waynesville.gov"
+                value={adminEmail} onChange={e => setAdminEmail(e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Password</label>
+              <input type="password" className="form-input" placeholder="6+ characters"
+                value={adminPassword} onChange={e => setAdminPassword(e.target.value)} />
+            </div>
+            <button type="submit" className="btn btn-primary btn-block btn-lg" disabled={loading}>
+              {loading ? 'Creating...' : 'Create Account & Continue'}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="auth-screen">
+      <div className="auth-brand" style={{ fontSize: 24, marginBottom: 4 }}>{APP_NAME}</div>
+      <div className="auth-subtitle" style={{ marginBottom: 24 }}>Set up your city</div>
+      <div className="auth-card" style={{ maxWidth: 420 }}>
+        <h2>City Configuration</h2>
+        <p className="subtitle">Customize MuniVault for your municipality</p>
+
+        <div style={{ textAlign: 'center', marginBottom: 20 }}>
+          <div className="logo-upload-area" onClick={() => fileRef.current?.click()}>
+            {logoUrl ? (
+              <img src={logoUrl} alt="City logo" />
+            ) : (
+              <>
+                <span style={{ fontSize: 32 }}>🏛️</span>
+                <span className="logo-upload-text">Upload Logo</span>
+              </>
+            )}
+          </div>
+          <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }}
+            onChange={handleLogoUpload} />
+        </div>
+
+        <div className="form-group">
+          <label className="form-label">City Name</label>
+          <input type="text" className="form-input" placeholder="City of Waynesville"
+            value={cityName} onChange={e => setCityName(e.target.value)} />
+        </div>
+
+        <div className="form-group">
+          <label className="form-label">Departments</label>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
+            {departments.map(d => (
+              <div key={d} className="dept-list-item" style={{ padding: '6px 10px', marginBottom: 0 }}>
+                <span className="dept-list-icon">{getDeptIcon(d)}</span>
+                <span className="dept-list-name" style={{ fontSize: 13 }}>{d}</span>
+                <button className="dept-remove-btn" onClick={() => removeDept(d)}>×</button>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <input type="text" className="form-input" placeholder="Add department..."
+              value={newDept} onChange={e => setNewDept(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addDept())} />
+            <button className="btn btn-outline btn-sm" onClick={addDept}>Add</button>
+          </div>
+        </div>
+
+        <button className="btn btn-primary btn-block btn-lg" onClick={handleSubmit}
+          disabled={!cityName.trim() || departments.length === 0}>
+          Launch MuniVault
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ============ DASHBOARD VIEW ============
+function DashboardView({ entries, cityConfig, crew, onCaptureClick, user }) {
+  // Crew members only see entries from their department
+  const isAdmin = user?.role === 'admin';
+  const visibleEntries = isAdmin ? entries : entries.filter(e => e.departmentId === user?.departmentId);
+  const totalEntries = visibleEntries.length;
+  const totalPhotos = visibleEntries.reduce((sum, e) => sum + (e.photos?.length || 0), 0);
+  const activeCrew = crew.filter(c => c.status === 'active').length;
+  const depts = cityConfig?.departments || [];
+
+  const recentEntries = useMemo(() =>
+    [...visibleEntries].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5)
+  , [visibleEntries]);
+
+  const deptStats = useMemo(() => {
+    const stats = {};
+    depts.forEach(d => { stats[d.id] = { ...d, count: 0 }; });
+    visibleEntries.forEach(e => {
+      if (stats[e.departmentId]) stats[e.departmentId].count++;
+    });
+    return Object.values(stats).sort((a, b) => b.count - a.count);
+  }, [entries, depts]);
+
+  return (
+    <div>
+      <div style={{ marginBottom: 16 }}>
+        <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 4 }}>Dashboard</h2>
+        <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+          {cityConfig?.cityName || APP_NAME} Overview
+        </p>
+      </div>
+
+      <div className="stats-grid">
+        <div className="stat-card">
+          <div className="stat-number">{totalEntries}</div>
+          <div className="stat-label">Entries</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-number">{totalPhotos}</div>
+          <div className="stat-label">Photos</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-number">{activeCrew}</div>
+          <div className="stat-label">Crew</div>
+        </div>
+      </div>
+
+      {/* Department Activity */}
+      <div className="card">
+        <div className="card-header">
+          <div className="card-title"><span className="card-title-icon">📊</span> Department Activity</div>
+        </div>
+        {deptStats.slice(0, 5).map(d => (
+          <div key={d.id} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+            <span style={{ fontSize: 18 }}>{d.icon}</span>
+            <span style={{ flex: 1, fontSize: 13, fontWeight: 500 }}>{d.name}</span>
+            <span className="badge badge-primary">{d.count}</span>
+          </div>
+        ))}
+        {deptStats.length === 0 && (
+          <p style={{ fontSize: 13, color: 'var(--text-muted)', textAlign: 'center', padding: 12 }}>
+            No departments configured yet
+          </p>
+        )}
+      </div>
+
+      {/* Quick Capture Button */}
+      <button className="btn btn-primary btn-block btn-lg" onClick={onCaptureClick}
+        style={{ marginBottom: 16, fontSize: 15 }}>
+        <span>📸</span> New Capture
+      </button>
+
+      {/* Recent Activity */}
+      <div className="card">
+        <div className="card-header">
+          <div className="card-title"><span className="card-title-icon">🕐</span> Recent Activity</div>
+        </div>
+        {recentEntries.map(entry => {
+          const dept = depts.find(d => d.id === entry.departmentId);
+          return (
+            <div key={entry.id} className="activity-item">
+              <div className="activity-dot" style={{ background: 'var(--color-accent)' }}></div>
+              <div className="activity-content">
+                <div className="activity-text">
+                  <strong>{entry.createdByName || 'Unknown'}</strong> added "{entry.title}" to {dept?.name || 'Unknown'}
+                </div>
+                <div className="activity-time">{timeAgo(entry.createdAt)}</div>
+              </div>
+            </div>
+          );
+        })}
+        {recentEntries.length === 0 && (
+          <div className="empty-state" style={{ padding: '24px 12px' }}>
+            <div className="empty-icon">📭</div>
+            <div className="empty-desc">No captures yet. Start documenting!</div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ============ CAPTURE VIEW ============
+function CaptureView({ cityConfig, user, onSave, existingEntry, onClose }) {
+  const allDepts = cityConfig?.departments || [];
+  // Crew members can only capture for their assigned department
+  const isAdmin = user.role === 'admin';
+  const depts = isAdmin ? allDepts : allDepts.filter(d => d.id === user.departmentId);
+  const [selectedDept, setSelectedDept] = useState(existingEntry?.departmentId || user.departmentId || (depts[0]?.id || ''));
+  const [title, setTitle] = useState(existingEntry?.title || '');
+  const [description, setDescription] = useState(existingEntry?.description || '');
+  const [photos, setPhotos] = useState(existingEntry?.photos || []);
+  const [audioUrl, setAudioUrl] = useState(existingEntry?.audioUrl || '');
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const [isCleaning, setIsCleaning] = useState(false);
+  const [locationData, setLocationData] = useState(existingEntry?.location || null);
+
+  const fileRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
+  const recognitionRef = useRef(null);
+  const descBeforeRecordRef = useRef('');
+
+  // Get GPS location (gated by tier) — uses watchPosition for better accuracy
+  useEffect(() => {
+    if (!hasFeature(cityConfig, 'gpsTagging')) return;
+    if (!navigator.geolocation) return;
+    let watchId;
+    let bestAccuracy = Infinity;
+    // Use watchPosition to get the most accurate reading, then stop
+    watchId = navigator.geolocation.watchPosition(
+      (pos) => {
+        if (pos.coords.accuracy < bestAccuracy) {
+          bestAccuracy = pos.coords.accuracy;
+          setLocationData({
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+            accuracy: Math.round(pos.coords.accuracy)
+          });
+        }
+        // Stop watching once we have good accuracy (< 20 meters)
+        if (pos.coords.accuracy < 20 && watchId) {
+          navigator.geolocation.clearWatch(watchId);
+        }
+      },
+      () => {},
+      { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 }
+    );
+    // Stop watching after 10 seconds regardless
+    const timeout = setTimeout(() => {
+      if (watchId) navigator.geolocation.clearWatch(watchId);
+    }, 10000);
+    return () => { if (watchId) navigator.geolocation.clearWatch(watchId); clearTimeout(timeout); };
+  }, []);
+
+  const handlePhotos = async (e) => {
+    const files = Array.from(e.target.files);
+    for (const file of files) {
+      const compressed = await compressImage(file);
+      setPhotos(prev => [...prev, { id: generateId(), dataUrl: compressed, capturedAt: new Date().toISOString() }]);
+    }
+    e.target.value = '';
+  };
+
+  const removePhoto = (photoId) => {
+    setPhotos(prev => prev.filter(p => p.id !== photoId));
+  };
+
+  const handleCleanUp = async () => {
+    if (!description.trim() || isCleaning) return;
+    setIsCleaning(true);
+    try {
+      const cleaned = await cleanUpText(description);
+      setDescription(cleaned);
+    } catch (err) {
+      console.error('Cleanup failed:', err);
+    }
+    setIsCleaning(false);
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      audioChunksRef.current = [];
+      recorder.ondataavailable = (e) => audioChunksRef.current.push(e.data);
+      recorder.onstop = () => {
+        const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const url = URL.createObjectURL(blob);
+        setAudioUrl(url);
+        stream.getTracks().forEach(t => t.stop());
+      };
+      recorder.start();
+      mediaRecorderRef.current = recorder;
+      setIsRecording(true);
+
+      // Start speech recognition — transcript goes directly into description
+      descBeforeRecordRef.current = description;
+      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SR();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+        let finalTranscript = '';
+        recognition.onresult = (event) => {
+          let interim = '';
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            if (event.results[i].isFinal) {
+              finalTranscript += event.results[i][0].transcript + ' ';
+            } else {
+              interim += event.results[i][0].transcript;
+            }
+          }
+          const base = descBeforeRecordRef.current;
+          const sep = base.trim() ? '\n\n' : '';
+          setDescription(base + sep + finalTranscript + interim);
+        };
+        recognition.start();
+        recognitionRef.current = recognition;
+        setIsTranscribing(true);
+      }
+    } catch(err) {
+      console.error('Recording error:', err);
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+    }
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+    }
+    setIsRecording(false);
+    setIsTranscribing(false);
+  };
+
+  const handleSave = () => {
+    if (!title.trim() || !selectedDept) return;
+    const entry = {
+      id: existingEntry?.id || generateId(),
+      departmentId: selectedDept,
+      title: title.trim(),
+      description: description.trim(),
+      photos,
+      audioUrl,
+      location: locationData,
+      createdBy: user.id,
+      createdByName: user.name,
+      createdByEmail: user.email,
+      createdAt: existingEntry?.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    onSave(entry);
+  };
+
+  return (
+    <div className="detail-view">
+      <div className="detail-header">
+        <button className="detail-back" onClick={onClose}>←</button>
+        <div className="detail-title">{existingEntry ? 'Edit Capture' : 'New Capture'}</div>
+        <button className="btn btn-sm" style={{ background: 'rgba(255,255,255,0.2)', color: 'white', border: 'none' }}
+          onClick={handleSave} disabled={!title.trim() || !selectedDept}>
+          Save
+        </button>
+      </div>
+      <div className="detail-body">
+        {/* Department Selection */}
+        <div className="form-group">
+          <label className="form-label">Department</label>
+          <div className="filter-row">
+            {depts.map(d => (
+              <div key={d.id} className={`dept-chip ${selectedDept === d.id ? 'active' : ''}`}
+                onClick={() => setSelectedDept(d.id)}>
+                <span>{d.icon}</span> {d.name}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Title */}
+        <div className="form-group">
+          <label className="form-label">Title</label>
+          <input type="text" className="form-input" placeholder="What happened?"
+            value={title} onChange={e => setTitle(e.target.value)} />
+        </div>
+
+        {/* Description (voice transcript also goes here) */}
+        <div className="form-group">
+          <label className="form-label">
+            Description {isTranscribing && <span className="badge badge-warning" style={{ marginLeft: 6 }}>🎙️ Listening...</span>}
+          </label>
+          <textarea className="form-textarea" placeholder={hasFeature(cityConfig, 'voiceRecording') ? "Describe the activity — or tap Record to dictate..." : "Describe the activity..."}
+            value={description} onChange={e => setDescription(e.target.value)}
+            style={{ minHeight: isTranscribing ? 120 : 80 }} />
+          {hasFeature(cityConfig, 'aiCleanup') && description.trim() && !isRecording && !isTranscribing && (
+            <button className="btn btn-sm"
+              style={{ marginTop: 6, background: 'var(--bg-muted)', color: 'var(--text-secondary)', border: '1px solid var(--border)', fontSize: 12 }}
+              onClick={handleCleanUp} disabled={isCleaning}>
+              {isCleaning ? '✨ Cleaning up...' : '✨ Clean Up Grammar'}
+            </button>
+          )}
+        </div>
+
+        {/* Media Capture */}
+        <div className="form-group">
+          <label className="form-label">Capture Media</label>
+          <div className="media-row">
+            <div className="media-btn" onClick={() => fileRef.current?.click()}>
+              <span className="media-btn-icon">📷</span>
+              Photos
+            </div>
+            {hasFeature(cityConfig, 'voiceRecording') && (
+              <div className={`media-btn ${isRecording ? 'recording' : ''}`}
+                onClick={isRecording ? stopRecording : startRecording}>
+                <span className="media-btn-icon">{isRecording ? '⏹️' : '🎙️'}</span>
+                {isRecording ? 'Stop' : 'Record'}
+              </div>
+            )}
+          </div>
+          <input ref={fileRef} type="file" accept="image/*" multiple capture="environment"
+            style={{ display: 'none' }} onChange={handlePhotos} />
+        </div>
+
+        {/* Photo Grid */}
+        {photos.length > 0 && (
+          <div className="photo-grid">
+            {photos.map(p => (
+              <div key={p.id} className="photo-thumb-wrapper">
+                <img src={p.dataUrl} alt="" className="photo-thumb" />
+                <button className="photo-remove" onClick={() => removePhoto(p.id)}>×</button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Audio Player */}
+        {audioUrl && (
+          <div style={{ marginBottom: 12 }}>
+            <audio src={audioUrl} controls style={{ width: '100%', height: 40 }} />
+          </div>
+        )}
+
+
+        {/* Location */}
+        {locationData && (
+          <div className="form-group">
+            <label className="form-label">📍 Location Captured</label>
+            <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+              {locationData.lat.toFixed(6)}, {locationData.lng.toFixed(6)}
+              {locationData.accuracy && <span style={{ marginLeft: 8 }}>(±{locationData.accuracy}m)</span>}
+            </p>
+          </div>
+        )}
+
+        {/* Attribution */}
+        <div style={{ background: 'var(--bg-muted)', borderRadius: 'var(--radius-md)', padding: 12, marginTop: 8 }}>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+            Captured by <strong style={{ color: 'var(--text-primary)' }}>{user.name}</strong>
+          </div>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{user.email}</div>
+        </div>
+
+        {/* Save Button (bottom) */}
+        <button className="btn btn-primary btn-block btn-lg" style={{ marginTop: 20 }}
+          onClick={handleSave} disabled={!title.trim() || !selectedDept}>
+          {existingEntry ? 'Update Capture' : 'Save Capture'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ============ DEPARTMENTS VIEW ============
+function DepartmentsView({ entries, cityConfig, onEntryClick, onCaptureClick, user }) {
+  const allDepts = cityConfig?.departments || [];
+  const isAdmin = user?.role === 'admin';
+  // Crew members only see their assigned department
+  const depts = isAdmin ? allDepts : allDepts.filter(d => d.id === user?.departmentId);
+  const [selectedDept, setSelectedDept] = useState(isAdmin ? 'all' : (user?.departmentId || 'all'));
+  const [search, setSearch] = useState('');
+  const [showMap, setShowMap] = useState(false);
+  const mapRef = useRef(null);
+  const mapInstanceRef = useRef(null);
+
+  const filtered = useMemo(() => {
+    let result = entries;
+    if (selectedDept !== 'all') result = result.filter(e => e.departmentId === selectedDept);
+    if (search) {
+      const q = search.toLowerCase();
+      result = result.filter(e =>
+        e.title?.toLowerCase().includes(q) ||
+        e.description?.toLowerCase().includes(q) ||
+        e.createdByName?.toLowerCase().includes(q)
+      );
+    }
+    return result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  }, [entries, selectedDept, search]);
+
+  // Map rendering
+  useEffect(() => {
+    if (!showMap || !mapRef.current) return;
+    if (mapInstanceRef.current) { mapInstanceRef.current.remove(); }
+
+    const entriesWithLocation = filtered.filter(e => e.location?.lat && e.location?.lng);
+    const center = entriesWithLocation.length > 0
+      ? [entriesWithLocation[0].location.lat, entriesWithLocation[0].location.lng]
+      : [37.8284, -92.2007]; // Waynesville default
+
+    const map = L.map(mapRef.current).setView(center, 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+
+    entriesWithLocation.forEach(e => {
+      const dept = depts.find(d => d.id === e.departmentId);
+      L.marker([e.location.lat, e.location.lng])
+        .addTo(map)
+        .bindPopup(`<b>${e.title}</b><br>${dept?.name || ''}<br><small>${formatDate(e.createdAt)}</small>`);
+    });
+
+    mapInstanceRef.current = map;
+    setTimeout(() => map.invalidateSize(), 100);
+
+    return () => { if (mapInstanceRef.current) { mapInstanceRef.current.remove(); mapInstanceRef.current = null; } };
+  }, [showMap, filtered, depts]);
+
+  return (
+    <div>
+      <div className="section-header">
+        <h2 className="section-title">Departments</h2>
+        {hasFeature(cityConfig, 'mapView') && (
+          <button className="section-action" onClick={() => setShowMap(!showMap)}>
+            {showMap ? '📋 List' : '🗺️ Map'}
+          </button>
+        )}
+      </div>
+
+      {/* Department Filter */}
+      <div className="filter-row">
+        {isAdmin && (
+          <div className={`dept-chip ${selectedDept === 'all' ? 'active' : ''}`}
+            onClick={() => setSelectedDept('all')}>
+            All ({entries.length})
+          </div>
+        )}
+        {depts.map(d => {
+          const count = entries.filter(e => e.departmentId === d.id).length;
+          return (
+            <div key={d.id} className={`dept-chip ${selectedDept === d.id ? 'active' : ''}`}
+              onClick={() => setSelectedDept(d.id)}>
+              <span>{d.icon}</span> {d.name} ({count})
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Search */}
+      <div style={{ marginBottom: 12 }}>
+        <input type="text" className="form-input" placeholder="Search entries..."
+          value={search} onChange={e => setSearch(e.target.value)} />
+      </div>
+
+      {/* Map View */}
+      {showMap && (
+        <div className="map-container" style={{ height: 300, marginBottom: 16 }}>
+          <div ref={mapRef} id="map" style={{ width: '100%', height: '100%' }}></div>
+        </div>
+      )}
+
+      {/* Entry List */}
+      {filtered.map(entry => {
+        const dept = depts.find(d => d.id === entry.departmentId);
+        return (
+          <div key={entry.id} className="entry-card" onClick={() => onEntryClick(entry)}>
+            <div className="entry-header">
+              <div className="entry-dept-icon">{dept?.icon || '📁'}</div>
+              <div className="entry-info">
+                <div className="entry-title">{entry.title}</div>
+                <div className="entry-meta">
+                  <span>{dept?.name}</span>
+                  <span>•</span>
+                  <span>{timeAgo(entry.createdAt)}</span>
+                  <span>•</span>
+                  <span>{entry.createdByName}</span>
+                </div>
+              </div>
+            </div>
+            {entry.description && <div className="entry-desc">{entry.description}</div>}
+            {entry.photos?.length > 0 && (
+              <div className="entry-photos-strip">
+                {entry.photos.map(p => (
+                  <img key={p.id} src={p.dataUrl} alt="" className="entry-photo-thumb" />
+                ))}
+              </div>
+            )}
+            <div className="entry-footer">
+              {entry.photos?.length > 0 && (
+                <span className="entry-attachment-count">📷 {entry.photos.length}</span>
+              )}
+              {entry.audioUrl && <span className="entry-attachment-count">🎙️ Audio</span>}
+              {entry.location && <span className="entry-attachment-count">📍 GPS</span>}
+            </div>
+          </div>
+        );
+      })}
+
+      {filtered.length === 0 && (
+        <div className="empty-state">
+          <div className="empty-icon">📭</div>
+          <div className="empty-title">No entries yet</div>
+          <div className="empty-desc">Start capturing activities for this department</div>
+          <button className="btn btn-primary" onClick={onCaptureClick}>📸 New Capture</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============ CREW MANAGEMENT VIEW (ADMIN ONLY) ============
+function CrewView({ crew, user, cityConfig, onInvite, onDeactivate, onReactivate, onDeleteMember, onResendCode }) {
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteName, setInviteName] = useState('');
+  const [inviteDept, setInviteDept] = useState('');
+  const [confirmDelete, setConfirmDelete] = useState(null);
+  const depts = cityConfig?.departments || [];
+  const isAdmin = user.role === 'admin';
+  const activeCount = crew.filter(c => c.status === 'active' || c.status === 'invited').length;
+
+  const handleInvite = () => {
+    if (!inviteEmail.trim() || !inviteName.trim() || !inviteDept) return;
+    if (activeCount >= getMaxSeats(cityConfig)) return;
+    // Generate a unique invite code for this member
+    const code = Math.random().toString(36).substr(2, 6).toUpperCase();
+    onInvite({ name: inviteName.trim(), email: inviteEmail.trim(), departmentId: inviteDept, inviteCode: code });
+    setInviteEmail('');
+    setInviteName('');
+    setInviteDept('');
+  };
+
+  if (!isAdmin) return null;
+
+  return (
+    <div>
+      <div className="section-header">
+        <h2 className="section-title">Capture Crew</h2>
+        <span className="badge badge-primary">{activeCount} / {getMaxSeats(cityConfig)} seats</span>
+      </div>
+
+      {/* Invite Form */}
+      {activeCount < getMaxSeats(cityConfig) && (
+        <div className="card" style={{ marginBottom: 16 }}>
+          <div className="card-title" style={{ marginBottom: 12 }}>
+            <span className="card-title-icon">✉️</span> Invite Crew Member
+          </div>
+          <div className="form-group" style={{ marginBottom: 10 }}>
+            <label className="form-label">Full Name</label>
+            <input type="text" className="form-input" placeholder="Jane Smith"
+              value={inviteName} onChange={e => setInviteName(e.target.value)} />
+          </div>
+          <div className="form-group" style={{ marginBottom: 10 }}>
+            <label className="form-label">City Email</label>
+            <input type="email" className="form-input" placeholder="jane@city.gov"
+              value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} />
+          </div>
+          <div className="form-group" style={{ marginBottom: 10 }}>
+            <label className="form-label">Assign Department</label>
+            <select className="form-input" value={inviteDept} onChange={e => setInviteDept(e.target.value)}>
+              <option value="">Select department...</option>
+              {depts.map(d => (
+                <option key={d.id} value={d.id}>{d.icon} {d.name}</option>
+              ))}
+            </select>
+          </div>
+          <button className="btn btn-accent btn-block" onClick={handleInvite}
+            disabled={!inviteName.trim() || !inviteEmail.trim() || !inviteDept}>
+            Generate Invite Code
+          </button>
+        </div>
+      )}
+
+      {activeCount >= getMaxSeats(cityConfig) && (
+        <div className="card" style={{ marginBottom: 16, background: 'var(--color-warning-light)' }}>
+          <p style={{ fontSize: 13, color: '#92400E' }}>
+            You've reached the {getMaxSeats(cityConfig)}-member limit. Deactivate a member to add someone new.
+          </p>
+        </div>
+      )}
+
+      {/* Crew List */}
+      {crew.length === 0 && (
+        <div className="card" style={{ textAlign: 'center', padding: 32 }}>
+          <div style={{ fontSize: 32, marginBottom: 8 }}>👥</div>
+          <div style={{ fontSize: 14, color: 'var(--text-muted)' }}>No crew members yet. Invite someone above!</div>
+        </div>
+      )}
+      {crew.map(member => {
+        const dept = depts.find(d => d.id === member.departmentId);
+        return (
+          <div key={member.id} className="crew-card" style={{ flexWrap: 'wrap' }}>
+            <div className="crew-avatar">{getInitials(member.name)}</div>
+            <div className="crew-info" style={{ flex: 1 }}>
+              <div className="crew-name">
+                {member.name}
+                {member.role === 'admin' && <span className="badge badge-primary" style={{ marginLeft: 6 }}>Admin</span>}
+              </div>
+              <div className="crew-email">{member.email}</div>
+              {dept && <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>{dept.icon} {dept.name}</div>}
+              {member.inviteCode && member.status === 'invited' && (
+                <div style={{ fontSize: 11, color: 'var(--color-accent)', marginTop: 4, fontWeight: 600 }}>
+                  Invite Code: {member.inviteCode}
+                </div>
+              )}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div className="crew-status-dot" style={{
+                background: member.status === 'active' ? 'var(--color-success)' :
+                  member.status === 'invited' ? 'var(--color-warning)' : 'var(--color-danger)'
+              }}></div>
+              <span style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'capitalize' }}>{member.status}</span>
+            </div>
+            {member.id !== user.id && (
+              <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8, paddingLeft: 48 }}>
+                {/* Resend Code button for invited members */}
+                {member.status === 'invited' && member.inviteCode && (
+                  <button className="btn btn-sm"
+                    style={{ background: 'var(--color-accent)', color: 'white', border: 'none', fontSize: 11, width: '100%' }}
+                    onClick={() => onResendCode(member)}>
+                    📧 Resend Invite Code
+                  </button>
+                )}
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {member.status === 'active' || member.status === 'invited' ? (
+                    <button className="btn btn-sm"
+                      style={{ background: 'var(--color-danger-light)', color: '#991B1B', border: 'none', fontSize: 11, flex: 1 }}
+                      onClick={() => onDeactivate(member.id)}>
+                      Deactivate
+                    </button>
+                  ) : (
+                    <button className="btn btn-sm"
+                      style={{ background: 'var(--color-success-light)', color: '#065F46', border: 'none', fontSize: 11, flex: 1 }}
+                      onClick={() => onReactivate(member.id)}>
+                      Reactivate
+                    </button>
+                  )}
+                  {confirmDelete === member.id ? (
+                    <button className="btn btn-sm"
+                      style={{ background: 'var(--color-danger)', color: 'white', border: 'none', fontSize: 11, flex: 1 }}
+                      onClick={() => { onDeleteMember(member.id); setConfirmDelete(null); }}>
+                      Confirm Delete
+                    </button>
+                  ) : (
+                    <button className="btn btn-sm"
+                      style={{ background: 'transparent', color: 'var(--color-danger)', border: '1px solid var(--color-danger)', fontSize: 11, flex: 1 }}
+                      onClick={() => setConfirmDelete(member.id)}>
+                      Delete
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ============ EXPORT VIEW ============
+function ExportView({ entries, cityConfig }) {
+  const depts = cityConfig?.departments || [];
+
+  const exportCSV = (filterDeptId) => {
+    let data = entries;
+    if (filterDeptId) data = data.filter(e => e.departmentId === filterDeptId);
+    if (data.length === 0) return;
+
+    const rows = [['ID', 'Department', 'Title', 'Description', 'Captured By', 'Email', 'Date', 'Latitude', 'Longitude', 'Photo Count', 'Photo URLs'].join(',')];
+    data.forEach(e => {
+      const dept = depts.find(d => d.id === e.departmentId);
+      const photoUrls = (e.photos || []).map((p, i) => `photo_${i+1}`).join('; ');
+      rows.push([
+        e.id,
+        `"${dept?.name || ''}"`,
+        `"${(e.title || '').replace(/"/g, '""')}"`,
+        `"${(e.description || '').replace(/"/g, '""')}"`,
+        `"${e.createdByName || ''}"`,
+        `"${e.createdByEmail || ''}"`,
+        e.createdAt,
+        e.location?.lat || '',
+        e.location?.lng || '',
+        e.photos?.length || 0,
+        `"${photoUrls}"`
+      ].join(','));
+    });
+
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `munivault_export_${filterDeptId || 'all'}_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const exportAllPhotos = () => {
+    // Export all photos as individual downloads
+    entries.forEach(entry => {
+      if (!entry.photos?.length) return;
+      const dept = depts.find(d => d.id === entry.departmentId);
+      entry.photos.forEach((photo, idx) => {
+        const a = document.createElement('a');
+        a.href = photo.dataUrl;
+        a.download = `${dept?.name || 'unknown'}_${entry.title}_photo${idx + 1}_${new Date(entry.createdAt).toISOString().split('T')[0]}.jpg`;
+        a.click();
+      });
+    });
+  };
+
+  const exportJSON = () => {
+    const exportData = {
+      city: cityConfig?.cityName,
+      exportDate: new Date().toISOString(),
+      totalEntries: entries.length,
+      departments: depts.map(d => ({
+        ...d,
+        entries: entries.filter(e => e.departmentId === d.id).map(e => ({
+          ...e,
+          photos: e.photos?.map(p => ({ id: p.id, capturedAt: p.capturedAt })) // exclude base64 for size
+        }))
+      }))
+    };
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `munivault_${cityConfig?.cityName || 'export'}_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const totalPhotos = entries.reduce((sum, e) => sum + (e.photos?.length || 0), 0);
+
+  return (
+    <div>
+      <h2 className="section-title" style={{ marginBottom: 16 }}>Export Data</h2>
+
+      <div className="card" style={{ marginBottom: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+          <span style={{ fontSize: 14, fontWeight: 600 }}>Total Entries</span>
+          <span className="badge badge-primary">{entries.length}</span>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+          <span style={{ fontSize: 14, fontWeight: 600 }}>Total Photos</span>
+          <span className="badge badge-primary">{totalPhotos}</span>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: 14, fontWeight: 600 }}>Departments</span>
+          <span className="badge badge-primary">{depts.length}</span>
+        </div>
+      </div>
+
+      <div className="export-btn" onClick={() => exportCSV()}>
+        <span className="export-btn-icon">📊</span>
+        <div className="export-btn-text">
+          <div>Export All as CSV</div>
+          <div className="export-btn-desc">All departments, all entries</div>
+        </div>
+      </div>
+
+      {hasFeature(cityConfig, 'jsonExport') && (
+        <div className="export-btn" onClick={exportJSON}>
+          <span className="export-btn-icon">📦</span>
+          <div className="export-btn-text">
+            <div>Export as JSON</div>
+            <div className="export-btn-desc">Structured data for archival</div>
+          </div>
+        </div>
+      )}
+
+      <div className="export-btn" onClick={exportAllPhotos}>
+        <span className="export-btn-icon">🖼️</span>
+        <div className="export-btn-text">
+          <div>Download All Photos ({totalPhotos})</div>
+          <div className="export-btn-desc">Every photo from every entry</div>
+        </div>
+      </div>
+
+      <div style={{ marginTop: 16 }}>
+        <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 10 }}>Export by Department</h3>
+        {depts.map(d => {
+          const count = entries.filter(e => e.departmentId === d.id).length;
+          return (
+            <div key={d.id} className="export-btn" onClick={() => exportCSV(d.id)}>
+              <span className="export-btn-icon">{d.icon}</span>
+              <div className="export-btn-text">
+                <div>{d.name}</div>
+                <div className="export-btn-desc">{count} entries</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ============ SETTINGS VIEW ============
+function SettingsView({ cityConfig, user, onClose, onUpdateConfig, onLogout }) {
+  const [cityName, setCityName] = useState(cityConfig?.cityName || '');
+  const [logoUrl, setLogoUrl] = useState(cityConfig?.logoUrl || '');
+  const [departments, setDepartments] = useState(cityConfig?.departments || []);
+  const [newDept, setNewDept] = useState('');
+  const fileRef = useRef(null);
+  const isAdmin = user.role === 'admin';
+
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const compressed = await compressImage(file, 400, 0.8);
+    setLogoUrl(compressed);
+  };
+
+  const addDept = () => {
+    if (!newDept.trim()) return;
+    const dept = { id: generateId(), name: newDept.trim(), icon: getDeptIcon(newDept.trim()), sortOrder: departments.length };
+    setDepartments([...departments, dept]);
+    setNewDept('');
+  };
+
+  const removeDept = (id) => {
+    setDepartments(departments.filter(d => d.id !== id));
+  };
+
+  const handleSave = () => {
+    onUpdateConfig({ ...cityConfig, cityName: cityName.trim(), logoUrl, departments });
+    onClose();
+  };
+
+  return (
+    <div className="settings-overlay" onClick={onClose}>
+      <div className="settings-sheet" onClick={e => e.stopPropagation()}>
+        <div className="settings-title">Settings</div>
+
+        {isAdmin && (
+          <>
+            <div className="settings-section">
+              <div className="settings-section-label">City Branding</div>
+              <div style={{ textAlign: 'center', marginBottom: 12 }}>
+                <div className="logo-upload-area" style={{ width: 80, height: 80, margin: '0 auto 8px' }}
+                  onClick={() => fileRef.current?.click()}>
+                  {logoUrl ? <img src={logoUrl} alt="Logo" /> : <span style={{ fontSize: 28 }}>🏛️</span>}
+                </div>
+                <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }}
+                  onChange={handleLogoUpload} />
+              </div>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label">City Name</label>
+                <input type="text" className="form-input" value={cityName}
+                  onChange={e => setCityName(e.target.value)} />
+              </div>
+            </div>
+
+            <div className="settings-section">
+              <div className="settings-section-label">Departments</div>
+              {departments.map(d => (
+                <div key={d.id} className="dept-list-item">
+                  <span className="dept-list-icon">{d.icon}</span>
+                  <span className="dept-list-name">{d.name}</span>
+                  <button className="dept-remove-btn" onClick={() => removeDept(d.id)}>×</button>
+                </div>
+              ))}
+              <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                <input type="text" className="form-input" placeholder="Add department..."
+                  value={newDept} onChange={e => setNewDept(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addDept())} />
+                <button className="btn btn-outline btn-sm" onClick={addDept}>Add</button>
+              </div>
+            </div>
+
+            <div className="settings-section">
+              <div className="settings-section-label">Invite Code</div>
+              <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-primary)', letterSpacing: 2 }}>
+                {cityConfig?.inviteCode || 'N/A'}
+              </div>
+            </div>
+          </>
+        )}
+
+        <div className="settings-section">
+          <div className="settings-section-label">Account</div>
+          <div style={{ fontSize: 14, fontWeight: 600 }}>{user.name}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{user.email}</div>
+          <div style={{ marginTop: 4 }}>
+            <span className="badge badge-primary">{user.role}</span>
+          </div>
+        </div>
+
+        {isAdmin && (
+          <button className="btn btn-primary btn-block" onClick={handleSave} style={{ marginBottom: 8 }}>
+            Save Changes
+          </button>
+        )}
+
+        {/* Subscription Management */}
+        {isAdmin && (
+          <div style={{ marginBottom: 16 }}>
+            <div className="settings-section-label" style={{ marginBottom: 8 }}>Subscription</div>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8 }}>
+              Plan: <strong>{getCityTier(cityConfig).name}</strong> — ${getCityTier(cityConfig).price}/month
+              {cityConfig.extraSeats > 0 && <span> + {cityConfig.extraSeats} extra seat{cityConfig.extraSeats > 1 ? 's' : ''} (${cityConfig.extraSeats * EXTRA_SEAT_PRICE}/mo)</span>}
+            </div>
+            <button className="btn btn-outline btn-block" style={{ marginBottom: 8 }}
+              onClick={() => openBillingPortal(user.email)}>
+              Manage Subscription & Billing
+            </button>
+          </div>
+        )}
+
+        <button className="btn btn-outline btn-block" onClick={onLogout}
+          style={{ color: 'var(--color-danger)', borderColor: 'var(--color-danger)' }}>
+          Sign Out
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ============ ENTRY DETAIL VIEW ============
+function EntryDetailView({ entry, cityConfig, onClose, onEdit, onDelete, user }) {
+  const dept = cityConfig?.departments?.find(d => d.id === entry.departmentId);
+  const canEdit = user.id === entry.createdBy || user.role === 'admin';
+
+  return (
+    <div className="detail-view">
+      <div className="detail-header">
+        <button className="detail-back" onClick={onClose}>←</button>
+        <div className="detail-title">{entry.title}</div>
+        {canEdit && (
+          <button className="btn btn-sm" style={{ background: 'rgba(255,255,255,0.2)', color: 'white', border: 'none' }}
+            onClick={() => onEdit(entry)}>
+            Edit
+          </button>
+        )}
+      </div>
+      <div className="detail-body">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+          <div className="entry-dept-icon" style={{ width: 44, height: 44, fontSize: 22 }}>{dept?.icon || '📁'}</div>
+          <div>
+            <div style={{ fontWeight: 600, fontSize: 15 }}>{dept?.name || 'Unknown Department'}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{formatDate(entry.createdAt)} at {formatTime(entry.createdAt)}</div>
+          </div>
+        </div>
+
+        <div className="card">
+          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>Captured by</div>
+          <div style={{ fontWeight: 600 }}>{entry.createdByName}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{entry.createdByEmail}</div>
+        </div>
+
+        {entry.description && (
+          <div className="card">
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 6 }}>Description</div>
+            <p style={{ fontSize: 14, lineHeight: 1.6 }}>{entry.description}</p>
+          </div>
+        )}
+
+        {entry.photos?.length > 0 && (
+          <div className="card">
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 8 }}>📷 Photos ({entry.photos.length})</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {entry.photos.map(p => (
+                <img key={p.id} src={p.dataUrl} alt=""
+                  style={{ width: '100%', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {entry.audioUrl && (
+          <div className="card">
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 8 }}>🎙️ Audio Recording</div>
+            <audio src={entry.audioUrl} controls style={{ width: '100%' }} />
+          </div>
+        )}
+
+        {entry.location && (
+          <div className="card">
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>📍 Location</div>
+            <div style={{ fontSize: 13 }}>{entry.location.lat.toFixed(5)}, {entry.location.lng.toFixed(5)}</div>
+          </div>
+        )}
+
+        {canEdit && (
+          <button className="btn btn-outline btn-block" onClick={() => onDelete(entry.id)}
+            style={{ color: 'var(--color-danger)', borderColor: 'var(--color-danger)', marginTop: 16 }}>
+            Delete Entry
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ============ SUPER ADMIN DASHBOARD ============
+function SuperAdminDashboard({ onClose }) {
+  const [cities, setCities] = useState([]);
+  const [trialCode, setTrialCode] = useState('');
+  const [trialCityName, setTrialCityName] = useState('');
+  const [trialEmail, setTrialEmail] = useState('');
+  const [tab, setTab] = useState('cities'); // cities, trials, revenue
+
+  useEffect(() => {
+    // Load all cities from a super admin storage key
+    const stored = JSON.parse(localStorage.getItem('munivault_super_cities') || '[]');
+    setCities(stored);
+  }, []);
+
+  const saveCities = (updated) => {
+    setCities(updated);
+    localStorage.setItem('munivault_super_cities', JSON.stringify(updated));
+  };
+
+  const generateTrialCode = () => {
+    if (!trialCityName.trim() || !trialEmail.trim()) return;
+    const code = 'TRIAL-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+    const newCity = {
+      id: generateId(),
+      cityName: trialCityName.trim(),
+      adminEmail: trialEmail.trim(),
+      tier: 'starter',
+      subscriptionStatus: 'trial',
+      trialCode: code,
+      trialStart: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      extraSeats: 0,
+      seatCount: 0,
+      deptCount: 0
+    };
+    saveCities([...cities, newCity]);
+    setTrialCityName('');
+    setTrialEmail('');
+  };
+
+  const extendTrial = (cityId, days) => {
+    saveCities(cities.map(c => {
+      if (c.id === cityId) {
+        const currentStart = new Date(c.trialStart);
+        currentStart.setDate(currentStart.getDate() - days);
+        return { ...c, trialStart: currentStart.toISOString() };
+      }
+      return c;
+    }));
+  };
+
+  const revokeTrial = (cityId) => {
+    saveCities(cities.map(c =>
+      c.id === cityId ? { ...c, subscriptionStatus: 'expired', trialCode: null } : c
+    ));
+  };
+
+  const changeTier = (cityId, newTier) => {
+    saveCities(cities.map(c =>
+      c.id === cityId ? { ...c, tier: newTier } : c
+    ));
+  };
+
+  const deactivateCity = (cityId) => {
+    saveCities(cities.map(c =>
+      c.id === cityId ? { ...c, subscriptionStatus: 'deactivated' } : c
+    ));
+  };
+
+  const activeCities = cities.filter(c => c.subscriptionStatus === 'active');
+  const trialCities = cities.filter(c => c.subscriptionStatus === 'trial');
+  const totalMRR = cities
+    .filter(c => c.subscriptionStatus === 'active')
+    .reduce((sum, c) => {
+      const tier = TIERS[c.tier] || TIERS.starter;
+      return sum + tier.price + (c.extraSeats || 0) * EXTRA_SEAT_PRICE;
+    }, 0);
+
+  return (
+    <div className="detail-view" style={{ background: 'var(--bg-base)' }}>
+      <div className="detail-header" style={{ background: '#0F172A' }}>
+        <button className="detail-back" onClick={onClose}>←</button>
+        <div className="detail-title">Super Admin</div>
+        <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12 }}>Platform Owner</div>
+      </div>
+      <div className="detail-body">
+        {/* Revenue Overview */}
+        <div className="stats-grid" style={{ marginBottom: 16 }}>
+          <div className="stat-card">
+            <div className="stat-number">{cities.length}</div>
+            <div className="stat-label">Total Cities</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-number">{activeCities.length}</div>
+            <div className="stat-label">Active Paid</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-number" style={{ color: 'var(--color-success)' }}>${totalMRR}</div>
+            <div className="stat-label">Monthly MRR</div>
+          </div>
+        </div>
+
+        {/* Tab Switcher */}
+        <div className="filter-row" style={{ marginBottom: 16 }}>
+          {[{ id: 'cities', label: 'All Cities' }, { id: 'trials', label: `Trials (${trialCities.length})` }, { id: 'generate', label: '+ Trial Code' }].map(t => (
+            <div key={t.id} className={`dept-chip ${tab === t.id ? 'active' : ''}`}
+              onClick={() => setTab(t.id)}>{t.label}</div>
+          ))}
+        </div>
+
+        {/* Generate Trial Code */}
+        {tab === 'generate' && (
+          <div className="card" style={{ marginBottom: 16 }}>
+            <div className="card-title" style={{ marginBottom: 12 }}>
+              <span className="card-title-icon">🎟️</span> Generate 14-Day Trial Code
+            </div>
+            <div className="form-group" style={{ marginBottom: 10 }}>
+              <label className="form-label">City / Organization Name</label>
+              <input type="text" className="form-input" placeholder="City of Springfield"
+                value={trialCityName} onChange={e => setTrialCityName(e.target.value)} />
+            </div>
+            <div className="form-group" style={{ marginBottom: 10 }}>
+              <label className="form-label">Admin Email</label>
+              <input type="email" className="form-input" placeholder="admin@springfield.gov"
+                value={trialEmail} onChange={e => setTrialEmail(e.target.value)} />
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 12 }}>
+              Trial gives <strong>Starter tier</strong> features for 14 days. No credit card required.
+            </div>
+            <button className="btn btn-accent btn-block" onClick={generateTrialCode}
+              disabled={!trialCityName.trim() || !trialEmail.trim()}>
+              Generate Trial Code
+            </button>
+          </div>
+        )}
+
+        {/* Cities List */}
+        {(tab === 'cities' || tab === 'trials') && (
+          <div>
+            {(tab === 'trials' ? trialCities : cities).map(city => {
+              const tier = TIERS[city.tier] || TIERS.starter;
+              const trial = city.trialCode ? getTrialStatus(city) : null;
+              const monthlyRevenue = city.subscriptionStatus === 'active'
+                ? tier.price + (city.extraSeats || 0) * EXTRA_SEAT_PRICE : 0;
+
+              return (
+                <div key={city.id} className="card" style={{ marginBottom: 12 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: 15 }}>{city.cityName}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{city.adminEmail}</div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <span className="badge" style={{
+                        background: city.subscriptionStatus === 'active' ? 'var(--color-success-light)' :
+                          city.subscriptionStatus === 'trial' ? 'var(--color-warning-light)' :
+                          city.subscriptionStatus === 'past_due' ? 'var(--color-danger-light)' : 'var(--bg-muted)',
+                        color: city.subscriptionStatus === 'active' ? '#065F46' :
+                          city.subscriptionStatus === 'trial' ? '#92400E' :
+                          city.subscriptionStatus === 'past_due' ? '#991B1B' : 'var(--text-muted)'
+                      }}>
+                        {city.subscriptionStatus === 'trial' && trial ? `Trial: ${trial.daysLeft}d left` : city.subscriptionStatus}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 16, fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>
+                    <span>Tier: <strong>{tier.name}</strong></span>
+                    <span>${monthlyRevenue}/mo</span>
+                    <span>Seats: {city.seatCount || 0}/{tier.maxSeats + (city.extraSeats || 0)}</span>
+                    <span>Depts: {city.deptCount || 0}</span>
+                  </div>
+
+                  {city.trialCode && (
+                    <div style={{ fontSize: 12, color: 'var(--color-accent)', fontWeight: 600, marginBottom: 8 }}>
+                      Trial Code: {city.trialCode}
+                    </div>
+                  )}
+
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                    <select className="form-input" style={{ flex: 1, fontSize: 11, padding: '6px 8px' }}
+                      value={city.tier} onChange={e => changeTier(city.id, e.target.value)}>
+                      <option value="basic">Basic ($75)</option>
+                      <option value="starter">Starter ($125)</option>
+                      <option value="enterprise">Enterprise ($175)</option>
+                    </select>
+                    {trial && trial.active && (
+                      <button className="btn btn-sm" style={{ fontSize: 10, background: 'var(--color-accent)', color: 'white', border: 'none' }}
+                        onClick={() => extendTrial(city.id, 7)}>+7 Days</button>
+                    )}
+                    {trial && trial.active && (
+                      <button className="btn btn-sm" style={{ fontSize: 10, background: 'var(--color-danger-light)', color: '#991B1B', border: 'none' }}
+                        onClick={() => revokeTrial(city.id)}>Revoke</button>
+                    )}
+                    {city.subscriptionStatus !== 'deactivated' && (
+                      <button className="btn btn-sm" style={{ fontSize: 10, background: 'var(--color-danger-light)', color: '#991B1B', border: 'none' }}
+                        onClick={() => deactivateCity(city.id)}>Deactivate</button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+            {(tab === 'trials' ? trialCities : cities).length === 0 && (
+              <div className="card" style={{ textAlign: 'center', padding: 32 }}>
+                <div style={{ fontSize: 32, marginBottom: 8 }}>🏙️</div>
+                <div style={{ fontSize: 14, color: 'var(--text-muted)' }}>
+                  {tab === 'trials' ? 'No active trials' : 'No cities yet. Generate a trial code to get started.'}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ============ MAIN APP ============
+function App() {
+  const [loading, setLoading] = useState(true);
+  const [splashFade, setSplashFade] = useState(false);
+  const [user, setUser] = useState(null);
+  const [authScreen, setAuthScreen] = useState('login'); // login, register, setup
+  const [cityConfig, setCityConfig] = useState(null);
+  const [entries, setEntries] = useState([]);
+  const [crew, setCrew] = useState([]);
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [showSettings, setShowSettings] = useState(false);
+  const [showSuperAdmin, setShowSuperAdmin] = useState(false);
+  const [showCapture, setShowCapture] = useState(false);
+  const [editingEntry, setEditingEntry] = useState(null);
+  const [viewingEntry, setViewingEntry] = useState(null);
+  const [toast, setToast] = useState(null);
+
+  const showToast = (msg) => { setToast(msg); };
+
+  // ---- LOAD FROM LOCALSTORAGE ----
+  useEffect(() => {
+    const session = localStorage.getItem(STORAGE_KEYS.session);
+    const config = localStorage.getItem(STORAGE_KEYS.cityConfig);
+    const storedEntries = localStorage.getItem(STORAGE_KEYS.entries);
+    const storedCrew = localStorage.getItem(STORAGE_KEYS.crewMembers);
+
+    if (session) {
+      const parsed = JSON.parse(session);
+      if (parsed.status === 'deactivated') {
+        localStorage.removeItem(STORAGE_KEYS.session);
+      } else {
+        setUser(parsed);
+      }
+    }
+    if (config) setCityConfig(JSON.parse(config));
+    if (storedEntries) setEntries(JSON.parse(storedEntries));
+    if (storedCrew) setCrew(JSON.parse(storedCrew));
+
+    // Splash timer
+    setTimeout(() => setSplashFade(true), 1500);
+    setTimeout(() => setLoading(false), 2100);
+  }, []);
+
+  // ---- PERSIST ----
+  useEffect(() => {
+    if (entries.length > 0) localStorage.setItem(STORAGE_KEYS.entries, JSON.stringify(entries));
+  }, [entries]);
+  useEffect(() => {
+    if (crew.length > 0) localStorage.setItem(STORAGE_KEYS.crewMembers, JSON.stringify(crew));
+  }, [crew]);
+  useEffect(() => {
+    if (cityConfig) localStorage.setItem(STORAGE_KEYS.cityConfig, JSON.stringify(cityConfig));
+  }, [cityConfig]);
+
+  // ---- AUTH HANDLERS ----
+  const handleLogin = (userData) => {
+    // Check if user is in crew list and not deactivated
+    const crewList = JSON.parse(localStorage.getItem(STORAGE_KEYS.crewMembers) || '[]');
+    const crewMember = crewList.find(c => c.email === userData.email);
+    if (crewMember) {
+      if (crewMember.status === 'deactivated') {
+        showToast('Your account has been deactivated');
+        return;
+      }
+      setUser({ ...crewMember, ...userData });
+      localStorage.setItem(STORAGE_KEYS.session, JSON.stringify({ ...crewMember, ...userData }));
+    } else {
+      setUser(userData);
+      localStorage.setItem(STORAGE_KEYS.session, JSON.stringify(userData));
+    }
+  };
+
+  const handleJoin = (userData) => {
+    setUser(userData);
+    localStorage.setItem(STORAGE_KEYS.session, JSON.stringify(userData));
+  };
+
+  const handleLogout = async () => {
+    if (supabase) {
+      try { await supabase.auth.signOut(); } catch(e) {}
+    }
+    localStorage.removeItem(STORAGE_KEYS.session);
+    setUser(null);
+    setShowSettings(false);
+    setAuthScreen('login');
+  };
+
+  const handleSetupComplete = (config, setupUser) => {
+    setCityConfig(config);
+    // Refresh crew from localStorage (admin was added during setup)
+    const storedCrew = localStorage.getItem(STORAGE_KEYS.crewMembers);
+    if (storedCrew) setCrew(JSON.parse(storedCrew));
+    if (setupUser) {
+      const adminUser = { ...setupUser, role: 'admin', status: 'active' };
+      setUser(adminUser);
+      localStorage.setItem(STORAGE_KEYS.session, JSON.stringify(adminUser));
+    }
+  };
+
+  // ---- ENTRY HANDLERS ----
+  const handleSaveEntry = (entry) => {
+    setEntries(prev => {
+      const idx = prev.findIndex(e => e.id === entry.id);
+      if (idx >= 0) {
+        const updated = [...prev];
+        updated[idx] = entry;
+        return updated;
+      }
+      return [entry, ...prev];
+    });
+    setShowCapture(false);
+    setEditingEntry(null);
+    showToast('Capture saved!');
+  };
+
+  const handleDeleteEntry = (entryId) => {
+    setEntries(prev => prev.filter(e => e.id !== entryId));
+    setViewingEntry(null);
+    showToast('Entry deleted');
+  };
+
+  // ---- CREW HANDLERS ----
+  const handleInvite = ({ name, email, departmentId, inviteCode }) => {
+    const newMember = {
+      id: generateId(), name, email,
+      role: 'crew', status: 'invited',
+      departmentId,
+      inviteCode,
+      invitedBy: user.id,
+      createdAt: new Date().toISOString()
+    };
+    setCrew(prev => [...prev, newMember]);
+    showToast(`Invite created for ${name} — code: ${inviteCode}`);
+  };
+
+  const handleDeactivate = (memberId) => {
+    setCrew(prev => prev.map(c => c.id === memberId ? { ...c, status: 'deactivated' } : c));
+    showToast('Member deactivated');
+  };
+
+  const handleReactivate = (memberId) => {
+    setCrew(prev => prev.map(c => c.id === memberId ? { ...c, status: 'active' } : c));
+    showToast('Member reactivated');
+  };
+
+  const handleDeleteMember = (memberId) => {
+    setCrew(prev => prev.filter(c => c.id !== memberId));
+    showToast('Member removed');
+  };
+
+  const handleResendCode = (member) => {
+    const dept = cityConfig?.departments?.find(d => d.id === member.departmentId);
+    // TODO: Send actual email via EmailJS when configured
+    // For now, show the code and copy-ready info
+    const appUrl = window.location.origin;
+    const message = `Invite resent to ${member.email}\n\nCode: ${member.inviteCode}\nDepartment: ${dept?.name || 'N/A'}\nLink: ${appUrl}`;
+    showToast(`Code resent to ${member.email}: ${member.inviteCode}`);
+    console.log('📧 Invite Email Content:', {
+      to: member.email,
+      name: member.name,
+      code: member.inviteCode,
+      department: dept?.name,
+      link: appUrl
+    });
+  };
+
+  const handleUpdateConfig = (newConfig) => {
+    setCityConfig(newConfig);
+    showToast('Settings saved');
+  };
+
+  // ---- SPLASH ----
+  if (loading) {
+    return <SplashScreen cityConfig={cityConfig} fadeOut={splashFade} />;
+  }
+
+  // ---- AUTH SCREENS ----
+  if (!user) {
+    if (authScreen === 'join') {
+      return <JoinScreen onJoin={handleJoin} onSwitchToLogin={() => setAuthScreen('login')} cityConfig={cityConfig} />;
+    }
+    if (authScreen === 'setup') {
+      return <AdminSetupScreen user={{ id: 'setup' }} onComplete={handleSetupComplete} />;
+    }
+    return <LoginScreen onLogin={handleLogin}
+      onSwitchToJoin={() => setAuthScreen('join')}
+      onSwitchToSetup={() => setAuthScreen('setup')}
+      cityConfig={cityConfig} />;
+  }
+
+  // If no city config, show setup
+  if (!cityConfig) {
+    return <AdminSetupScreen user={user} onComplete={handleSetupComplete} />;
+  }
+
+  // ---- SUBSCRIPTION CHECK ----
+  const trial = getTrialStatus(cityConfig);
+  const subscriptionActive = isSubscriptionActive(cityConfig);
+  const currentTier = getCityTier(cityConfig);
+
+  // Lock screen if subscription expired / trial over / payment failed
+  if (!subscriptionActive && user.role === 'admin' && cityConfig.subscriptionStatus !== undefined) {
+    return (
+      <div className="app-container">
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 32, textAlign: 'center' }}>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
+          <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 8 }}>
+            {trial?.expired ? 'Your Trial Has Ended' : 'Subscription Inactive'}
+          </h2>
+          <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 24, maxWidth: 320 }}>
+            {trial?.expired
+              ? 'Your 14-day trial is over. Subscribe to continue using MuniVault. Your data is safe and will be available once you subscribe.'
+              : 'Please update your payment to continue using MuniVault. Your data is preserved.'}
+          </p>
+          <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16 }}>
+            Current plan: <strong>{currentTier.name}</strong> — ${currentTier.price}/month
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 320 }}>
+            {Object.values(TIERS).map(t => (
+              <button key={t.id} className="btn btn-primary btn-lg" style={{
+                background: t.id === 'starter' ? 'var(--color-accent)' : 'var(--color-primary)',
+                width: '100%'
+              }}
+                onClick={() => createCheckoutSession(t.id, cityConfig.cityName, user.email, 0)}>
+                {t.name} — ${t.price}/mo
+              </button>
+            ))}
+          </div>
+          <button className="btn btn-outline" onClick={handleLogout}>Sign Out</button>
+        </div>
+      </div>
+    );
+  }
+
+  // ---- MAIN APP ----
+  const isAdmin = user.role === 'admin';
+  const tabs = [
+    { id: 'dashboard', label: 'Home', icon: '🏠' },
+    { id: 'capture', label: 'Capture', icon: '📸' },
+    { id: 'departments', label: 'Depts', icon: '📁' },
+    ...(isAdmin ? [{ id: 'crew', label: 'Crew', icon: '👥' }] : []),
+    ...(isAdmin ? [{ id: 'export', label: 'Export', icon: '📤' }] : []),
+  ];
+
+  const handleTabClick = (tabId) => {
+    if (tabId === 'capture') {
+      setShowCapture(true);
+      return;
+    }
+    setActiveTab(tabId);
+  };
+
+  return (
+    <div className="app-container">
+      {/* Header */}
+      <div className="app-header">
+        {cityConfig.logoUrl ? (
+          <img src={cityConfig.logoUrl} alt="Logo" className="header-logo" />
+        ) : (
+          <div className="header-logo-placeholder">🏛️</div>
+        )}
+        <div className="header-text">
+          <div className="header-city">{cityConfig.cityName}</div>
+          <div className="header-sub">{user.name || user.email}</div>
+        </div>
+        <div className="header-actions">
+          {user.email === SUPER_ADMIN_EMAIL && (
+            <button className="header-btn" onClick={() => setShowSuperAdmin(true)} title="Super Admin"
+              style={{ fontSize: 12, background: 'rgba(239,68,68,0.3)', borderColor: 'rgba(239,68,68,0.5)' }}>👑</button>
+          )}
+          {user.role === 'admin' && (
+            <button className="header-btn" onClick={() => setShowSettings(true)} title="Settings">⚙️</button>
+          )}
+          <button className="header-btn" onClick={handleLogout} title="Sign Out"
+            style={{ fontSize: 14 }}>↪</button>
+        </div>
+      </div>
+
+      {/* Trial Banner */}
+      {trial && trial.active && (
+        <div style={{
+          background: trial.daysLeft <= 3 ? 'var(--color-danger)' : trial.daysLeft <= 7 ? 'var(--color-warning)' : 'var(--color-accent)',
+          color: 'white', textAlign: 'center', padding: '8px 16px', fontSize: 13, fontWeight: 600
+        }}>
+          Trial: {trial.daysLeft} day{trial.daysLeft !== 1 ? 's' : ''} remaining
+          {isAdmin && <span style={{ marginLeft: 8, opacity: 0.8, fontWeight: 400 }}>— Subscribe to keep your data</span>}
+        </div>
+      )}
+
+      {/* Main Content */}
+      <div className="main-content">
+        {activeTab === 'dashboard' && (
+          <DashboardView entries={entries} cityConfig={cityConfig} crew={crew} user={user}
+            onCaptureClick={() => setShowCapture(true)} />
+        )}
+        {activeTab === 'departments' && (
+          <DepartmentsView entries={entries} cityConfig={cityConfig} user={user}
+            onEntryClick={setViewingEntry}
+            onCaptureClick={() => setShowCapture(true)} />
+        )}
+        {activeTab === 'crew' && (
+          <CrewView crew={crew} user={user} cityConfig={cityConfig}
+            onInvite={handleInvite}
+            onDeactivate={handleDeactivate}
+            onReactivate={handleReactivate}
+            onDeleteMember={handleDeleteMember}
+            onResendCode={handleResendCode} />
+        )}
+        {activeTab === 'export' && (
+          <ExportView entries={entries} cityConfig={cityConfig} />
+        )}
+      </div>
+
+      {/* Bottom Nav */}
+      <div className="bottom-nav">
+        {tabs.map(tab => (
+          <button key={tab.id}
+            className={`nav-btn ${(tab.id === 'capture' ? showCapture : activeTab === tab.id) ? 'active' : ''}`}
+            onClick={() => handleTabClick(tab.id)}>
+            <span className="nav-icon">{tab.icon}</span>
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Capture View (overlay) */}
+      {showCapture && (
+        <CaptureView
+          cityConfig={cityConfig}
+          user={user}
+          existingEntry={editingEntry}
+          onSave={handleSaveEntry}
+          onClose={() => { setShowCapture(false); setEditingEntry(null); }}
+        />
+      )}
+
+      {/* Entry Detail View (overlay) */}
+      {viewingEntry && (
+        <EntryDetailView
+          entry={viewingEntry}
+          cityConfig={cityConfig}
+          user={user}
+          onClose={() => setViewingEntry(null)}
+          onEdit={(entry) => { setViewingEntry(null); setEditingEntry(entry); setShowCapture(true); }}
+          onDelete={handleDeleteEntry}
+        />
+      )}
+
+      {/* Settings */}
+      {showSettings && (
+        <SettingsView
+          cityConfig={cityConfig}
+          user={user}
+          onClose={() => setShowSettings(false)}
+          onUpdateConfig={handleUpdateConfig}
+          onLogout={handleLogout}
+        />
+      )}
+
+      {/* Super Admin Dashboard */}
+      {showSuperAdmin && (
+        <SuperAdminDashboard onClose={() => setShowSuperAdmin(false)} />
+      )}
+
+      {/* Toast */}
+      {toast && <Toast message={toast} onDone={() => setToast(null)} />}
+    </div>
+  );
+}
+
+// ============ RENDER ============
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+</body>
+</html>

@@ -1,337 +1,562 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MuniVault - Municipal Data Collection</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        body { line-height: 1.6; color: #333; background-color: #f1f5f9; }
-        a { text-decoration: none; color: inherit; }
-        :root {
-            --navy: #2B3A4A;
-            --navy-dark: #1E293B;
-            --slate: #64748B;
-            --orange: #EA580C;
-            --orange-hover: #C2410C;
-            --light-bg: #E2E8F0;
-            --white: #FFFFFF;
-        }
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-        .btn-primary { background: var(--orange); color: var(--white); padding: 10px 20px; border-radius: 4px; font-weight: 600; display: inline-block; transition: background 0.2s; border: none; cursor: pointer; }
-        .btn-primary:hover { background: var(--orange-hover); }
-        .btn-primary.block { display: block; width: 100%; text-align: center; }
-        .btn-outline { border: 2px solid var(--white); color: var(--white); padding: 8px 18px; border-radius: 4px; font-weight: 600; display: inline-block; transition: all 0.2s; }
-        .btn-outline:hover { background: var(--white); color: var(--navy); }
-        .section-title { text-align: center; font-size: 2.2rem; text-transform: uppercase; margin-bottom: 40px; font-weight: 800; letter-spacing: 0.5px; }
-        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--white); border-bottom: 1px solid #e2e8f0; }
-        .logo { font-size: 1.5rem; font-weight: 800; color: var(--navy); display: flex; align-items: center; gap: 8px; }
-        .logo-icon { width: 24px; height: 24px; background: var(--orange); border-radius: 4px; display: inline-block; }
-        nav { display: flex; gap: 24px; align-items: center; }
-        nav a { font-weight: 500; color: var(--navy); font-size: 0.95rem; }
-        nav a:hover { color: var(--orange); }
-        .hero { background: var(--navy); color: var(--white); padding: 80px 0; }
-        .hero-content { display: flex; align-items: center; gap: 50px; }
-        .hero-text { flex: 1; }
-        .hero-text h1 { font-size: 3.5rem; text-transform: uppercase; line-height: 1.05; margin-bottom: 20px; font-weight: 800; }
-        .hero-text p { font-size: 1.1rem; color: #cbd5e1; margin-bottom: 30px; max-width: 450px; }
-        .hero-buttons { display: flex; gap: 15px; align-items: center; }
-        .hero-graphic { flex: 1; min-height: 400px; display: flex; align-items: center; justify-content: center; }
-        .hero-graphic svg { width: 100%; height: auto; max-width: 500px; }
-        .problem { background: var(--slate); color: var(--white); padding: 80px 0; }
-        .problem .section-title { color: var(--white); }
-        .problem-graphic { max-width: 800px; margin: 0 auto; min-height: 360px; display: flex; align-items: center; justify-content: center; }
-        .problem-graphic svg { width: 100%; height: auto; }
-        .how-it-works { background: var(--light-bg); padding: 80px 0; }
-        .how-it-works .section-title { color: var(--navy); }
-        .features-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
-        .feature-card { background: var(--white); padding: 30px; border-radius: 8px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
-        .feature-graphic { height: 120px; background: #f8fafc; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; border-radius: 4px; }
-        .feature-graphic svg { width: 96px; height: 96px; }
-        .feature-card h3 { font-size: 1.1rem; margin-bottom: 10px; color: var(--navy); font-weight: 700; }
-        .feature-card p { color: #475569; font-size: 0.9rem; line-height: 1.5; }
-        .pricing { background: var(--navy); padding: 80px 0; color: var(--white); }
-        .pricing .section-title { color: var(--white); }
-        .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1000px; margin: 0 auto; }
-        .pricing-card { background: var(--white); color: var(--navy); padding: 40px 30px; border-radius: 8px; text-align: center; }
-        .pricing-card h3 { font-size: 1.4rem; margin-bottom: 20px; font-weight: 800; }
-        .pricing-card ul { list-style: none; text-align: left; margin-bottom: 30px; margin-left: 10px; font-size: 0.95rem; font-weight: 500; min-height: 140px; }
-        .pricing-card ul li { margin-bottom: 8px; position: relative; padding-left: 15px; }
-        .pricing-card ul li::before { content: "•"; color: var(--navy); position: absolute; left: 0; font-weight: bold; }
-        .price { font-size: 2.5rem; font-weight: 800; margin-bottom: 25px; }
-        .price span { font-size: 1rem; font-weight: normal; color: #64748b; }
-        .contact { background: var(--light-bg); padding: 80px 0; }
-        .contact .section-title { color: var(--navy); }
-        .contact-form { max-width: 560px; margin: 0 auto; background: var(--white); padding: 36px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.04); }
-        .contact-form label { display: block; font-weight: 600; color: var(--navy); margin-bottom: 6px; font-size: 0.9rem; }
-        .contact-form input, .contact-form textarea { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.95rem; margin-bottom: 16px; font-family: inherit; }
-        .contact-form textarea { min-height: 120px; resize: vertical; }
-        .contact-form button { width: 100%; }
-        footer { background: var(--navy-dark); color: #94a3b8; padding: 25px 20px; font-size: 0.9rem; }
-        .footer-content { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; }
-        .footer-links { display: flex; gap: 20px; }
-        .footer-links a:hover { color: var(--white); text-decoration: underline; }
-        @media (max-width: 900px) {
-            .hero-content { flex-direction: column; text-align: center; }
-            .hero-text h1 { font-size: 2.4rem; }
-            .hero-text p { margin: 0 auto 30px; }
-            .hero-buttons { justify-content: center; }
-            .hero-graphic { width: 100%; }
-            .features-grid { grid-template-columns: 1fr; }
-            .pricing-grid { grid-template-columns: 1fr; max-width: 400px; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MuniVault - Municipal Data Collection</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+body { line-height: 1.6; color: #333; background-color: #f1f5f9; }
+a { text-decoration: none; color: inherit; }
+:root {
+  --navy: #2B3A4A;
+  --navy-dark: #1E293B;
+  --slate: #64748B;
+  --orange: #EA580C;
+  --orange-light: #FB923C;
+  --orange-hover: #C2410C;
+  --light-bg: #E2E8F0;
+  --white: #FFFFFF;
+}
+.container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+.btn-primary { background: var(--orange); color: var(--white); padding: 10px 22px; border-radius: 4px; font-weight: 700; display: inline-block; transition: background 0.2s; border: none; cursor: pointer; font-size: 0.95rem; }
+.btn-primary:hover { background: var(--orange-hover); }
+.btn-primary.block { display: block; width: 100%; text-align: center; }
+.btn-outline { border: 2px solid var(--white); color: var(--white); padding: 8px 20px; border-radius: 4px; font-weight: 700; display: inline-block; transition: all 0.2s; font-size: 0.95rem; }
+.btn-outline:hover { background: var(--white); color: var(--navy); }
+.section-title { text-align: center; font-size: 2rem; text-transform: uppercase; margin-bottom: 40px; font-weight: 800; letter-spacing: 1px; }
+
+header { display: flex; justify-content: space-between; align-items: center; padding: 14px 36px; background: var(--white); border-bottom: 1px solid #e2e8f0; }
+.logo { font-size: 1.4rem; font-weight: 800; color: var(--navy); display: flex; align-items: center; gap: 10px; }
+.logo-icon { width: 28px; height: 28px; }
+nav { display: flex; gap: 28px; align-items: center; }
+nav a { font-weight: 600; color: var(--navy); font-size: 0.92rem; }
+nav a:hover { color: var(--orange); }
+
+.hero { background: var(--navy); color: var(--white); padding: 70px 0; }
+.hero-content { display: flex; align-items: center; gap: 40px; }
+.hero-text { flex: 1; }
+.hero-text h1 { font-size: 3.4rem; text-transform: uppercase; line-height: 1.0; margin-bottom: 22px; font-weight: 800; letter-spacing: -0.5px; }
+.hero-text p { font-size: 1.05rem; color: #cbd5e1; margin-bottom: 28px; max-width: 460px; line-height: 1.6; }
+.hero-buttons { display: flex; gap: 14px; align-items: center; }
+.hero-graphic { flex: 1.1; display: flex; align-items: center; justify-content: center; }
+.hero-graphic svg { width: 100%; height: auto; max-width: 560px; }
+
+.problem { background: var(--slate); color: var(--white); padding: 70px 0; }
+.problem .section-title { color: var(--white); }
+.problem-graphic { max-width: 880px; margin: 0 auto; display: flex; align-items: center; justify-content: center; }
+.problem-graphic svg { width: 100%; height: auto; }
+
+.how-it-works { background: var(--light-bg); padding: 70px 0; }
+.how-it-works .section-title { color: var(--navy); }
+.features-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; max-width: 1000px; margin: 0 auto; }
+.feature-card { background: var(--white); padding: 32px 28px; border-radius: 8px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.04); }
+.feature-graphic { height: 110px; margin-bottom: 18px; display: flex; align-items: center; justify-content: center; }
+.feature-graphic svg { max-width: 200px; max-height: 110px; }
+.feature-card h3 { font-size: 1.05rem; margin-bottom: 8px; color: var(--navy); font-weight: 800; }
+.feature-card p { color: #475569; font-size: 0.88rem; line-height: 1.55; }
+
+.pricing { background: var(--navy); padding: 70px 0; color: var(--white); }
+.pricing .section-title { color: var(--white); }
+.pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1000px; margin: 0 auto; }
+.pricing-card { background: var(--white); color: var(--navy); padding: 36px 28px; border-radius: 8px; text-align: center; }
+.pricing-card h3 { font-size: 1.3rem; margin-bottom: 18px; font-weight: 800; }
+.pricing-card ul { list-style: none; text-align: left; margin: 0 auto 24px; font-size: 0.92rem; font-weight: 500; min-height: 130px; display: inline-block; }
+.pricing-card ul li { margin-bottom: 6px; position: relative; padding-left: 14px; }
+.pricing-card ul li::before { content: "•"; color: var(--navy); position: absolute; left: 0; font-weight: bold; }
+.price { font-size: 2.4rem; font-weight: 800; margin-bottom: 22px; }
+.price span { font-size: 0.95rem; font-weight: normal; color: #64748b; }
+
+.contact { background: var(--light-bg); padding: 70px 0; }
+.contact .section-title { color: var(--navy); }
+.contact-form { max-width: 560px; margin: 0 auto; background: var(--white); padding: 36px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.04); }
+.contact-form label { display: block; font-weight: 600; color: var(--navy); margin-bottom: 6px; font-size: 0.9rem; }
+.contact-form input, .contact-form textarea { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.95rem; margin-bottom: 16px; font-family: inherit; }
+.contact-form textarea { min-height: 110px; resize: vertical; }
+
+footer { background: var(--navy-dark); color: #94a3b8; padding: 22px 36px; font-size: 0.88rem; }
+.footer-content { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; }
+.footer-links { display: flex; gap: 22px; }
+.footer-links a:hover { color: var(--white); text-decoration: underline; }
+
+@media (max-width: 900px) {
+  header { padding: 14px 18px; }
+  nav { gap: 14px; }
+  nav a:not(.btn-primary) { display: none; }
+  .hero-content { flex-direction: column; text-align: center; }
+  .hero-text h1 { font-size: 2.3rem; }
+  .hero-text p { margin: 0 auto 28px; }
+  .hero-buttons { justify-content: center; flex-wrap: wrap; }
+  .features-grid { grid-template-columns: 1fr; }
+  .pricing-grid { grid-template-columns: 1fr; max-width: 400px; }
+}
+</style>
 </head>
 <body>
 
-    <header>
-        <div class="logo">
-            <span class="logo-icon"></span> MuniVault
+<header>
+  <div class="logo">
+    <svg class="logo-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+      <rect x="4" y="8" width="32" height="26" rx="3" fill="#EA580C"/>
+      <rect x="8" y="12" width="24" height="18" rx="2" fill="#FB923C"/>
+      <circle cx="20" cy="21" r="5" fill="none" stroke="#fff" stroke-width="2"/>
+      <circle cx="20" cy="21" r="1.2" fill="#fff"/>
+      <line x1="20" y1="21" x2="20" y2="17" stroke="#fff" stroke-width="2"/>
+    </svg>
+    MuniVault
+  </div>
+  <nav>
+    <a href="#problem">Problem</a>
+    <a href="#how-it-works">Solution</a>
+    <a href="#how-it-works">How It Works</a>
+    <a href="#pricing">Pricing</a>
+    <a href="/app" class="btn-primary" style="padding: 7px 18px;">Start Free Trial</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="container hero-content">
+    <div class="hero-text">
+      <h1>Stop chasing your city's paperwork.</h1>
+      <p>Turn scattered photos, group texts, and paper logs into one organized, searchable vault. Built strictly for local government.</p>
+      <div class="hero-buttons">
+        <a href="/app" class="btn-primary">Start 14-Day Free Trial</a>
+        <a href="#how-it-works" class="btn-outline">See How It Works</a>
+      </div>
+    </div>
+    <div class="hero-graphic">
+      <svg viewBox="0 0 600 460" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="glowG" cx="50%" cy="55%" r="55%">
+            <stop offset="0%" stop-color="#EA580C" stop-opacity="0.55"/>
+            <stop offset="60%" stop-color="#EA580C" stop-opacity="0.12"/>
+            <stop offset="100%" stop-color="#EA580C" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="vaultFace" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#FB923C"/>
+            <stop offset="100%" stop-color="#C2410C"/>
+          </linearGradient>
+          <linearGradient id="vaultTop" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#FDBA74"/>
+            <stop offset="100%" stop-color="#EA580C"/>
+          </linearGradient>
+          <linearGradient id="vaultSide" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#C2410C"/>
+            <stop offset="100%" stop-color="#9A3412"/>
+          </linearGradient>
+          <linearGradient id="bldgL" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#475569"/>
+            <stop offset="100%" stop-color="#334155"/>
+          </linearGradient>
+          <linearGradient id="bldgR" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#3F4E63"/>
+            <stop offset="100%" stop-color="#293548"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Glow -->
+        <ellipse cx="300" cy="270" rx="280" ry="170" fill="url(#glowG)"/>
+
+        <!-- Ground / road -->
+        <path d="M60 380 L540 380 L600 460 L0 460 Z" fill="#1E293B" opacity="0.6"/>
+        <line x1="80" y1="420" x2="520" y2="420" stroke="#FB923C" stroke-width="2" stroke-dasharray="14,10" opacity="0.6"/>
+
+        <!-- City buildings left -->
+        <g>
+          <rect x="60" y="220" width="60" height="160" fill="url(#bldgL)"/>
+          <rect x="125" y="180" width="55" height="200" fill="url(#bldgL)"/>
+          <rect x="185" y="240" width="50" height="140" fill="url(#bldgL)"/>
+          <g fill="#FB923C" opacity="0.55">
+            <rect x="68" y="240" width="6" height="8"/><rect x="80" y="240" width="6" height="8"/><rect x="92" y="240" width="6" height="8"/><rect x="104" y="240" width="6" height="8"/>
+            <rect x="68" y="260" width="6" height="8"/><rect x="80" y="260" width="6" height="8"/><rect x="104" y="260" width="6" height="8"/>
+            <rect x="68" y="280" width="6" height="8"/><rect x="92" y="280" width="6" height="8"/><rect x="104" y="280" width="6" height="8"/>
+            <rect x="68" y="300" width="6" height="8"/><rect x="80" y="300" width="6" height="8"/><rect x="92" y="300" width="6" height="8"/>
+            <rect x="133" y="200" width="6" height="8"/><rect x="145" y="200" width="6" height="8"/><rect x="157" y="200" width="6" height="8"/><rect x="169" y="200" width="6" height="8"/>
+            <rect x="133" y="220" width="6" height="8"/><rect x="157" y="220" width="6" height="8"/><rect x="169" y="220" width="6" height="8"/>
+            <rect x="133" y="240" width="6" height="8"/><rect x="145" y="240" width="6" height="8"/><rect x="169" y="240" width="6" height="8"/>
+            <rect x="133" y="260" width="6" height="8"/><rect x="145" y="260" width="6" height="8"/><rect x="157" y="260" width="6" height="8"/>
+            <rect x="193" y="260" width="6" height="8"/><rect x="205" y="260" width="6" height="8"/><rect x="217" y="260" width="6" height="8"/>
+            <rect x="193" y="280" width="6" height="8"/><rect x="217" y="280" width="6" height="8"/>
+            <rect x="193" y="300" width="6" height="8"/><rect x="205" y="300" width="6" height="8"/>
+          </g>
+        </g>
+
+        <!-- City buildings right -->
+        <g>
+          <rect x="395" y="240" width="50" height="140" fill="url(#bldgR)"/>
+          <rect x="450" y="200" width="55" height="180" fill="url(#bldgR)"/>
+          <rect x="510" y="230" width="45" height="150" fill="url(#bldgR)"/>
+          <g fill="#FDBA74" opacity="0.5">
+            <rect x="403" y="260" width="6" height="8"/><rect x="415" y="260" width="6" height="8"/><rect x="427" y="260" width="6" height="8"/>
+            <rect x="403" y="280" width="6" height="8"/><rect x="427" y="280" width="6" height="8"/>
+            <rect x="403" y="300" width="6" height="8"/><rect x="415" y="300" width="6" height="8"/>
+            <rect x="458" y="220" width="6" height="8"/><rect x="470" y="220" width="6" height="8"/><rect x="482" y="220" width="6" height="8"/><rect x="494" y="220" width="6" height="8"/>
+            <rect x="458" y="240" width="6" height="8"/><rect x="482" y="240" width="6" height="8"/>
+            <rect x="458" y="260" width="6" height="8"/><rect x="470" y="260" width="6" height="8"/><rect x="494" y="260" width="6" height="8"/>
+            <rect x="458" y="280" width="6" height="8"/><rect x="482" y="280" width="6" height="8"/><rect x="494" y="280" width="6" height="8"/>
+            <rect x="518" y="250" width="6" height="8"/><rect x="530" y="250" width="6" height="8"/><rect x="542" y="250" width="6" height="8"/>
+            <rect x="518" y="270" width="6" height="8"/><rect x="542" y="270" width="6" height="8"/>
+            <rect x="518" y="290" width="6" height="8"/><rect x="530" y="290" width="6" height="8"/>
+          </g>
+        </g>
+
+        <!-- Isometric vault in center -->
+        <g>
+          <!-- Top face -->
+          <polygon points="240,240 300,210 360,240 300,270" fill="url(#vaultTop)"/>
+          <!-- Front face -->
+          <polygon points="240,240 300,270 300,360 240,330" fill="url(#vaultFace)"/>
+          <!-- Right face -->
+          <polygon points="300,270 360,240 360,330 300,360" fill="url(#vaultSide)"/>
+          <!-- Vault dial on front -->
+          <ellipse cx="270" cy="305" rx="18" ry="22" fill="none" stroke="#fff" stroke-width="2.5"/>
+          <ellipse cx="270" cy="305" rx="2.5" ry="3" fill="#fff"/>
+          <line x1="270" y1="305" x2="270" y2="288" stroke="#fff" stroke-width="2.5"/>
+          <!-- Label -->
+          <text x="300" y="345" text-anchor="middle" fill="#fff" font-size="11" font-family="sans-serif" font-weight="800">CITY</text>
+          <text x="300" y="357" text-anchor="middle" fill="#fff" font-size="11" font-family="sans-serif" font-weight="800">VAULT</text>
+        </g>
+
+        <!-- Floating icons with orange flow lines -->
+        <g stroke="#FB923C" stroke-width="2" fill="none" stroke-linecap="round">
+          <path d="M150 110 Q 230 180 270 230" opacity="0.85"/>
+          <path d="M300 70 Q 300 150 300 215" opacity="0.85"/>
+          <path d="M450 110 Q 380 180 340 230" opacity="0.85"/>
+          <path d="M500 280 Q 420 290 365 295" opacity="0.85"/>
+          <path d="M100 280 Q 180 290 235 295" opacity="0.85"/>
+        </g>
+
+        <!-- Microphone icon (top) -->
+        <g transform="translate(282 50)">
+          <circle r="22" fill="#1E293B" stroke="#FB923C" stroke-width="2"/>
+          <rect x="-5" y="-12" width="10" height="16" rx="5" fill="#FB923C"/>
+          <path d="M-9 -2 a9 9 0 0 0 18 0" fill="none" stroke="#FB923C" stroke-width="2"/>
+          <line x1="0" y1="7" x2="0" y2="13" stroke="#FB923C" stroke-width="2"/>
+        </g>
+
+        <!-- Camera icon (top-left) -->
+        <g transform="translate(140 90)">
+          <circle r="22" fill="#1E293B" stroke="#FB923C" stroke-width="2"/>
+          <rect x="-13" y="-7" width="26" height="18" rx="2" fill="none" stroke="#FB923C" stroke-width="2"/>
+          <circle cx="0" cy="2" r="5" fill="none" stroke="#FB923C" stroke-width="2"/>
+          <rect x="-5" y="-10" width="10" height="3" fill="#FB923C"/>
+        </g>
+
+        <!-- Photo icon (top-right) -->
+        <g transform="translate(460 90)">
+          <circle r="22" fill="#1E293B" stroke="#FB923C" stroke-width="2"/>
+          <rect x="-13" y="-10" width="26" height="20" rx="2" fill="none" stroke="#FB923C" stroke-width="2"/>
+          <path d="M-13 6 L-3 -4 L4 3 L8 -1 L13 4 L13 10 Z" fill="#FB923C"/>
+          <circle cx="6" cy="-4" r="2" fill="#FB923C"/>
+        </g>
+
+        <!-- GPS pin (right) -->
+        <g transform="translate(510 270)">
+          <circle r="22" fill="#1E293B" stroke="#FB923C" stroke-width="2"/>
+          <path d="M0 -12 a8 8 0 0 1 8 8 c0 6 -8 14 -8 14 s-8 -8 -8 -14 a8 8 0 0 1 8 -8 z" fill="#FB923C"/>
+          <circle cx="0" cy="-4" r="3" fill="#1E293B"/>
+        </g>
+
+        <!-- Truck icon (left) -->
+        <g transform="translate(90 270)">
+          <circle r="22" fill="#1E293B" stroke="#FB923C" stroke-width="2"/>
+          <rect x="-13" y="-5" width="14" height="11" fill="#FB923C"/>
+          <path d="M1 -2 L8 -2 L13 4 L13 6 L1 6 Z" fill="#FB923C"/>
+          <circle cx="-7" cy="9" r="3" fill="#1E293B" stroke="#FB923C" stroke-width="1.5"/>
+          <circle cx="8" cy="9" r="3" fill="#1E293B" stroke="#FB923C" stroke-width="1.5"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section id="problem" class="problem">
+  <div class="container">
+    <h2 class="section-title">Where do your public records actually live?</h2>
+    <div class="problem-graphic">
+      <svg viewBox="0 0 880 420" xmlns="http://www.w3.org/2000/svg" font-family="'Caveat', 'Comic Sans MS', cursive, sans-serif">
+        <defs>
+          <filter id="rough" x="-10%" y="-10%" width="120%" height="120%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2"/>
+            <feDisplacementMap in="SourceGraphic" scale="1.5"/>
+          </filter>
+        </defs>
+
+        <!-- Group text bubbles -->
+        <g transform="translate(70 110)">
+          <path d="M0 20 Q0 0 20 0 L100 0 Q120 0 120 20 L120 50 Q120 70 100 70 L40 70 L20 88 L26 70 L20 70 Q0 70 0 50 Z" fill="#fff" stroke="#1E293B" stroke-width="2"/>
+          <line x1="15" y1="20" x2="105" y2="20" stroke="#94a3b8" stroke-width="2"/>
+          <line x1="15" y1="32" x2="95" y2="32" stroke="#94a3b8" stroke-width="2"/>
+          <line x1="15" y1="44" x2="100" y2="44" stroke="#94a3b8" stroke-width="2"/>
+          <path d="M70 65 Q70 50 85 50 L155 50 Q170 50 170 65 L170 90 Q170 105 155 105 L100 105 L85 122 L90 105 Q70 105 70 90 Z" fill="#FB923C" stroke="#1E293B" stroke-width="2"/>
+          <line x1="82" y1="68" x2="160" y2="68" stroke="#fff" stroke-width="2"/>
+          <line x1="82" y1="80" x2="155" y2="80" stroke="#fff" stroke-width="2"/>
+          <line x1="82" y1="92" x2="150" y2="92" stroke="#fff" stroke-width="2"/>
+          <text x="60" y="155" fill="#fff" font-size="20" font-weight="700">group text</text>
+        </g>
+
+        <!-- Spreadsheet -->
+        <g transform="translate(240 80)">
+          <rect x="0" y="0" width="150" height="100" fill="#fff" stroke="#1E293B" stroke-width="2.5" rx="3"/>
+          <line x1="0" y1="20" x2="150" y2="20" stroke="#1E293B" stroke-width="2"/>
+          <line x1="0" y1="40" x2="150" y2="40" stroke="#94a3b8" stroke-width="1.5"/>
+          <line x1="0" y1="60" x2="150" y2="60" stroke="#94a3b8" stroke-width="1.5"/>
+          <line x1="0" y1="80" x2="150" y2="80" stroke="#94a3b8" stroke-width="1.5"/>
+          <line x1="50" y1="0" x2="50" y2="100" stroke="#94a3b8" stroke-width="1.5"/>
+          <line x1="100" y1="0" x2="100" y2="100" stroke="#94a3b8" stroke-width="1.5"/>
+          <rect x="0" y="0" width="50" height="20" fill="#FB923C"/>
+          <rect x="50" y="0" width="50" height="20" fill="#FB923C"/>
+          <rect x="100" y="0" width="50" height="20" fill="#FB923C"/>
+          <text x="75" y="125" text-anchor="middle" fill="#fff" font-size="20" font-weight="700">spreadsheet</text>
+        </g>
+
+        <!-- Voice memo / mic note -->
+        <g transform="translate(420 90)">
+          <rect x="0" y="0" width="100" height="80" fill="#fff" stroke="#1E293B" stroke-width="2.5" rx="3"/>
+          <rect x="35" y="10" width="14" height="22" rx="7" fill="#FB923C"/>
+          <path d="M28 24 a14 14 0 0 0 28 0" fill="none" stroke="#FB923C" stroke-width="2"/>
+          <line x1="42" y1="38" x2="42" y2="46" stroke="#FB923C" stroke-width="2"/>
+          <line x1="35" y1="46" x2="49" y2="46" stroke="#FB923C" stroke-width="2"/>
+          <line x1="10" y1="60" x2="90" y2="60" stroke="#94a3b8" stroke-width="1.5"/>
+          <line x1="10" y1="68" x2="75" y2="68" stroke="#94a3b8" stroke-width="1.5"/>
+        </g>
+
+        <!-- Photos stack -->
+        <g transform="translate(80 220)">
+          <rect x="10" y="10" width="110" height="80" fill="#fff" stroke="#1E293B" stroke-width="2.5" rx="2" transform="rotate(-6 65 50)"/>
+          <rect x="0" y="0" width="110" height="80" fill="#fff" stroke="#1E293B" stroke-width="2.5" rx="2"/>
+          <path d="M5 60 L30 35 L50 50 L70 30 L90 50 L105 40 L105 75 L5 75 Z" fill="#94a3b8"/>
+          <circle cx="80" cy="20" r="6" fill="#FB923C"/>
+          <text x="60" y="115" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">Crew text photo,</text>
+          <text x="60" y="132" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">3 months ago</text>
+        </g>
+
+        <!-- File folder (center) -->
+        <g transform="translate(360 240)">
+          <path d="M0 10 L40 10 L50 0 L130 0 L130 90 L0 90 Z" fill="#FB923C" stroke="#1E293B" stroke-width="2.5"/>
+          <rect x="8" y="20" width="114" height="62" fill="#fff" stroke="#1E293B" stroke-width="1.5"/>
+          <line x1="20" y1="35" x2="110" y2="35" stroke="#94a3b8" stroke-width="1.5"/>
+          <line x1="20" y1="48" x2="110" y2="48" stroke="#94a3b8" stroke-width="1.5"/>
+          <line x1="20" y1="61" x2="95" y2="61" stroke="#94a3b8" stroke-width="1.5"/>
+          <line x1="20" y1="74" x2="105" y2="74" stroke="#94a3b8" stroke-width="1.5"/>
+          <text x="65" y="115" text-anchor="middle" fill="#fff" font-size="20" font-weight="700">file folder</text>
+        </g>
+
+        <!-- Map / GPS scrap -->
+        <g transform="translate(540 220)">
+          <rect x="0" y="0" width="120" height="90" fill="#E2E8F0" stroke="#1E293B" stroke-width="2.5" rx="3"/>
+          <path d="M5 30 Q40 25 60 45 T 115 50" fill="none" stroke="#94a3b8" stroke-width="2"/>
+          <path d="M10 70 Q50 60 70 75 T 110 80" fill="none" stroke="#94a3b8" stroke-width="2"/>
+          <path d="M58 35 a8 8 0 0 1 16 0 c0 8 -8 18 -8 18 s-8 -10 -8 -18 z" fill="#FB923C" stroke="#1E293B" stroke-width="2"/>
+          <circle cx="66" cy="42" r="3" fill="#1E293B"/>
+        </g>
+
+        <!-- Council scramble note -->
+        <g transform="translate(700 245)">
+          <rect x="-3" y="-3" width="155" height="80" fill="#fff" stroke="#1E293B" stroke-width="2.5" rx="2" transform="rotate(4 75 35)"/>
+          <text x="75" y="20" text-anchor="middle" fill="#1E293B" font-size="14" font-weight="700">Council meeting</text>
+          <text x="75" y="38" text-anchor="middle" fill="#1E293B" font-size="14" font-weight="700">report scramble</text>
+          <text x="75" y="58" text-anchor="middle" fill="#EA580C" font-size="13" font-weight="700">⚠ in 30 min!</text>
+        </g>
+
+        <!-- Paper form, top right corner -->
+        <g transform="translate(700 90)">
+          <rect x="0" y="0" width="100" height="120" fill="#fff" stroke="#1E293B" stroke-width="2.5" rx="2"/>
+          <line x1="10" y1="20" x2="90" y2="20" stroke="#1E293B" stroke-width="2"/>
+          <line x1="10" y1="38" x2="80" y2="38" stroke="#94a3b8" stroke-width="1.5"/>
+          <line x1="10" y1="52" x2="85" y2="52" stroke="#94a3b8" stroke-width="1.5"/>
+          <line x1="10" y1="66" x2="70" y2="66" stroke="#94a3b8" stroke-width="1.5"/>
+          <line x1="10" y1="80" x2="90" y2="80" stroke="#94a3b8" stroke-width="1.5"/>
+          <line x1="10" y1="94" x2="60" y2="94" stroke="#94a3b8" stroke-width="1.5"/>
+          <text x="50" y="140" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">Paper form,</text>
+          <text x="50" y="156" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">incomplete</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section id="how-it-works" class="how-it-works">
+  <div class="container">
+    <h2 class="section-title">How It Works</h2>
+    <div class="features-grid">
+
+      <div class="feature-card">
+        <div class="feature-graphic">
+          <svg viewBox="0 0 200 110" xmlns="http://www.w3.org/2000/svg">
+            <rect x="35" y="20" width="22" height="50" rx="11" fill="#EA580C"/>
+            <path d="M28 50 a18 18 0 0 0 36 0" fill="none" stroke="#EA580C" stroke-width="3"/>
+            <line x1="46" y1="68" x2="46" y2="82" stroke="#EA580C" stroke-width="3"/>
+            <line x1="36" y1="82" x2="56" y2="82" stroke="#EA580C" stroke-width="3"/>
+            <g stroke="#EA580C" stroke-width="3" stroke-linecap="round">
+              <line x1="80" y1="55" x2="80" y2="55"/>
+              <line x1="90" y1="45" x2="90" y2="65"/>
+              <line x1="100" y1="30" x2="100" y2="80"/>
+              <line x1="110" y1="40" x2="110" y2="70"/>
+              <line x1="120" y1="25" x2="120" y2="85"/>
+              <line x1="130" y1="38" x2="130" y2="72"/>
+              <line x1="140" y1="48" x2="140" y2="62"/>
+              <line x1="150" y1="35" x2="150" y2="75"/>
+              <line x1="160" y1="50" x2="160" y2="60"/>
+            </g>
+          </svg>
         </div>
-        <nav>
-            <a href="#problem">Problem</a>
-            <a href="#how-it-works">How It Works</a>
-            <a href="#pricing">Pricing</a>
-            <a href="#contact">Contact</a>
-            <a href="/app" class="btn-primary" style="padding: 6px 16px;">Start Free Trial</a>
-        </nav>
-    </header>
+        <h3>1. Talk, Don't Type</h3>
+        <p>Field crews just tap record and speak. Transcribes instantly. AI cleans up rough field notes.</p>
+      </div>
 
-    <section class="hero">
-        <div class="container hero-content">
-            <div class="hero-text">
-                <h1>Stop chasing your city's paperwork.</h1>
-                <p>Turn scattered photos, group texts, and paper logs into one organized, searchable vault. Built strictly for local government.</p>
-                <div class="hero-buttons">
-                    <a href="/app" class="btn-primary">Start 14-Day Free Trial</a>
-                    <a href="#how-it-works" class="btn-outline">See How It Works</a>
-                </div>
-            </div>
-            <div class="hero-graphic">
-                <svg viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="vaultGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" stop-color="#EA580C"/>
-                            <stop offset="100%" stop-color="#C2410C"/>
-                        </linearGradient>
-                    </defs>
-                    <!-- Source nodes -->
-                    <g fill="#475569" stroke="#94a3b8" stroke-width="1.5">
-                        <rect x="30" y="40" width="90" height="60" rx="6"/>
-                        <rect x="30" y="170" width="90" height="60" rx="6"/>
-                        <rect x="30" y="300" width="90" height="60" rx="6"/>
-                    </g>
-                    <g fill="#cbd5e1" font-size="11" font-family="sans-serif" text-anchor="middle">
-                        <text x="75" y="75">PHOTOS</text>
-                        <text x="75" y="205">VOICE</text>
-                        <text x="75" y="335">GPS</text>
-                    </g>
-                    <!-- Flow lines -->
-                    <g stroke="#EA580C" stroke-width="2" fill="none" stroke-dasharray="4,4">
-                        <path d="M120 70 Q 220 70, 280 200"/>
-                        <path d="M120 200 L 280 200"/>
-                        <path d="M120 330 Q 220 330, 280 200"/>
-                    </g>
-                    <!-- Vault -->
-                    <g>
-                        <rect x="280" y="100" width="200" height="200" rx="10" fill="url(#vaultGrad)" stroke="#fff" stroke-width="2"/>
-                        <circle cx="380" cy="200" r="40" fill="none" stroke="#fff" stroke-width="3"/>
-                        <circle cx="380" cy="200" r="6" fill="#fff"/>
-                        <line x1="380" y1="200" x2="380" y2="170" stroke="#fff" stroke-width="3"/>
-                        <line x1="380" y1="200" x2="405" y2="215" stroke="#fff" stroke-width="3"/>
-                        <text x="380" y="275" fill="#fff" font-size="14" font-family="sans-serif" font-weight="700" text-anchor="middle">MUNIVAULT</text>
-                    </g>
-                </svg>
-            </div>
+      <div class="feature-card">
+        <div class="feature-graphic">
+          <svg viewBox="0 0 200 110" xmlns="http://www.w3.org/2000/svg">
+            <rect x="20" y="15" width="160" height="80" rx="6" fill="#FED7AA"/>
+            <path d="M20 40 Q60 35 100 50 T180 55" fill="none" stroke="#FB923C" stroke-width="2"/>
+            <path d="M20 70 Q60 65 100 78 T180 82" fill="none" stroke="#FB923C" stroke-width="2"/>
+            <path d="M40 15 L40 95 M80 15 L80 95 M120 15 L120 95 M160 15 L160 95" stroke="#FB923C" stroke-width="1" stroke-dasharray="2,3" opacity="0.5"/>
+            <g>
+              <path d="M55 30 a10 10 0 0 1 20 0 c0 10 -10 22 -10 22 s-10 -12 -10 -22 z" fill="#EA580C"/>
+              <circle cx="65" cy="32" r="4" fill="#fff"/>
+            </g>
+            <g>
+              <path d="M115 45 a10 10 0 0 1 20 0 c0 10 -10 22 -10 22 s-10 -12 -10 -22 z" fill="#EA580C"/>
+              <circle cx="125" cy="47" r="4" fill="#fff"/>
+            </g>
+            <g>
+              <path d="M150 25 a10 10 0 0 1 20 0 c0 10 -10 22 -10 22 s-10 -12 -10 -22 z" fill="#EA580C"/>
+              <circle cx="160" cy="27" r="4" fill="#fff"/>
+            </g>
+          </svg>
         </div>
-    </section>
+        <h3>2. Automatic GPS Mapping</h3>
+        <p>Every single report is pinned to a precise coordinate. View city activity via an interactive map.</p>
+      </div>
 
-    <section id="problem" class="problem">
-        <div class="container">
-            <h2 class="section-title">Where do your public records actually live?</h2>
-            <div class="problem-graphic">
-                <svg viewBox="0 0 800 360" xmlns="http://www.w3.org/2000/svg">
-                    <g font-family="sans-serif" font-size="13" fill="#fff">
-                        <!-- Messy sources -->
-                        <g>
-                            <rect x="30" y="40" width="160" height="80" rx="6" fill="#475569" stroke="#94a3b8"/>
-                            <text x="110" y="75" text-anchor="middle">Group Texts</text>
-                            <text x="110" y="95" text-anchor="middle" font-size="11" fill="#cbd5e1">scattered, unsearchable</text>
-                        </g>
-                        <g>
-                            <rect x="30" y="150" width="160" height="80" rx="6" fill="#475569" stroke="#94a3b8"/>
-                            <text x="110" y="185" text-anchor="middle">Paper Logs</text>
-                            <text x="110" y="205" text-anchor="middle" font-size="11" fill="#cbd5e1">in a truck somewhere</text>
-                        </g>
-                        <g>
-                            <rect x="30" y="260" width="160" height="80" rx="6" fill="#475569" stroke="#94a3b8"/>
-                            <text x="110" y="295" text-anchor="middle">Random Photos</text>
-                            <text x="110" y="315" text-anchor="middle" font-size="11" fill="#cbd5e1">on 4 different phones</text>
-                        </g>
-                        <!-- Tangled arrows -->
-                        <g stroke="#fbbf24" stroke-width="2" fill="none">
-                            <path d="M190 80 Q 320 60, 380 180" stroke-dasharray="3,3"/>
-                            <path d="M190 190 Q 300 150, 380 180" stroke-dasharray="3,3"/>
-                            <path d="M190 300 Q 320 320, 380 180" stroke-dasharray="3,3"/>
-                        </g>
-                        <!-- Council scramble -->
-                        <g>
-                            <rect x="380" y="120" width="220" height="120" rx="8" fill="#dc2626" stroke="#fff" stroke-width="2"/>
-                            <text x="490" y="160" text-anchor="middle" font-weight="700" font-size="16">COUNCIL MEETING</text>
-                            <text x="490" y="185" text-anchor="middle" font-size="13">in 30 minutes</text>
-                            <text x="490" y="215" text-anchor="middle" font-size="12" fill="#fecaca">"Can someone find that report?!"</text>
-                        </g>
-                        <!-- Arrow to solution -->
-                        <g stroke="#10b981" stroke-width="3" fill="none">
-                            <path d="M610 180 L 700 180" marker-end="url(#arrowH)"/>
-                        </g>
-                        <defs>
-                            <marker id="arrowH" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
-                                <path d="M0,0 L0,10 L10,5 z" fill="#10b981"/>
-                            </marker>
-                        </defs>
-                        <g>
-                            <rect x="700" y="140" width="80" height="80" rx="8" fill="#10b981" stroke="#fff" stroke-width="2"/>
-                            <text x="740" y="185" text-anchor="middle" font-weight="700">VAULT</text>
-                        </g>
-                    </g>
-                </svg>
-            </div>
+      <div class="feature-card">
+        <div class="feature-graphic">
+          <svg viewBox="0 0 200 110" xmlns="http://www.w3.org/2000/svg">
+            <rect x="55" y="10" width="50" height="90" rx="6" fill="none" stroke="#EA580C" stroke-width="3"/>
+            <line x1="55" y1="22" x2="105" y2="22" stroke="#EA580C" stroke-width="2"/>
+            <line x1="55" y1="88" x2="105" y2="88" stroke="#EA580C" stroke-width="2"/>
+            <rect x="62" y="28" width="36" height="10" fill="#FB923C"/>
+            <rect x="62" y="42" width="28" height="6" fill="#FED7AA"/>
+            <rect x="62" y="52" width="32" height="6" fill="#FED7AA"/>
+            <rect x="62" y="62" width="24" height="6" fill="#FED7AA"/>
+            <circle cx="80" cy="94" r="2" fill="#EA580C"/>
+            <g transform="translate(125 30)">
+              <rect x="0" y="0" width="55" height="45" rx="4" fill="#FED7AA" stroke="#EA580C" stroke-width="2"/>
+              <line x1="8" y1="12" x2="48" y2="12" stroke="#EA580C" stroke-width="2"/>
+              <line x1="8" y1="22" x2="40" y2="22" stroke="#EA580C" stroke-width="2"/>
+              <line x1="8" y1="32" x2="44" y2="32" stroke="#EA580C" stroke-width="2"/>
+            </g>
+            <path d="M108 50 L122 50" stroke="#EA580C" stroke-width="2" stroke-dasharray="3,3"/>
+          </svg>
         </div>
-    </section>
+        <h3>3. Built for the Field</h3>
+        <p>Works in any phone browser. Save to home screen, no App Store download needed.</p>
+      </div>
 
-    <section id="how-it-works" class="how-it-works">
-        <div class="container">
-            <h2 class="section-title">How It Works</h2>
-            <div class="features-grid">
-
-                <div class="feature-card">
-                    <div class="feature-graphic">
-                        <svg viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#EA580C" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="36" y="14" width="24" height="44" rx="12"/>
-                            <path d="M22 50 a26 26 0 0 0 52 0"/>
-                            <line x1="48" y1="76" x2="48" y2="88"/>
-                            <line x1="36" y1="88" x2="60" y2="88"/>
-                        </svg>
-                    </div>
-                    <h3>1. Talk, Don't Type</h3>
-                    <p>Field crews just tap record and speak. Transcribes instantly. AI cleans up rough field notes.</p>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-graphic">
-                        <svg viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#EA580C" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M48 88 C 28 60, 18 46, 18 32 a30 30 0 0 1 60 0 c0 14 -10 28 -30 56 z"/>
-                            <circle cx="48" cy="32" r="10" fill="#EA580C"/>
-                        </svg>
-                    </div>
-                    <h3>2. Automatic GPS Mapping</h3>
-                    <p>Every single report is pinned to a precise coordinate. View city activity via an interactive map.</p>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-graphic">
-                        <svg viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#EA580C" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="26" y="8" width="44" height="80" rx="6"/>
-                            <line x1="26" y1="74" x2="70" y2="74"/>
-                            <circle cx="48" cy="81" r="2.5" fill="#EA580C"/>
-                        </svg>
-                    </div>
-                    <h3>3. Built for the Field</h3>
-                    <p>Works in any phone browser. Save to home screen, no App Store download needed.</p>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-graphic">
-                        <svg viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#EA580C" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M22 14 h40 l16 16 v52 a4 4 0 0 1 -4 4 h-52 a4 4 0 0 1 -4 -4 v-64 a4 4 0 0 1 4 -4 z"/>
-                            <line x1="34" y1="44" x2="62" y2="44"/>
-                            <line x1="34" y1="56" x2="62" y2="56"/>
-                            <line x1="34" y1="68" x2="52" y2="68"/>
-                        </svg>
-                    </div>
-                    <h3>4. One-Click Audits & Exports</h3>
-                    <p>One click to export everything to CSV or JSON. Public records requests solved in seconds.</p>
-                </div>
-
-            </div>
+      <div class="feature-card">
+        <div class="feature-graphic">
+          <svg viewBox="0 0 200 110" xmlns="http://www.w3.org/2000/svg">
+            <g transform="translate(30 25)">
+              <ellipse cx="25" cy="8" rx="25" ry="8" fill="#FB923C" stroke="#EA580C" stroke-width="2"/>
+              <path d="M0 8 L0 50 a25 8 0 0 0 50 0 L50 8" fill="#FB923C" stroke="#EA580C" stroke-width="2"/>
+              <ellipse cx="25" cy="22" rx="25" ry="8" fill="none" stroke="#EA580C" stroke-width="2"/>
+              <ellipse cx="25" cy="36" rx="25" ry="8" fill="none" stroke="#EA580C" stroke-width="2"/>
+            </g>
+            <g stroke="#EA580C" stroke-width="3" fill="none" stroke-linecap="round">
+              <line x1="92" y1="55" x2="118" y2="55"/>
+              <polyline points="112,49 118,55 112,61"/>
+            </g>
+            <g transform="translate(130 22)">
+              <path d="M0 0 L30 0 L42 12 L42 65 L0 65 Z" fill="#fff" stroke="#EA580C" stroke-width="2.5"/>
+              <path d="M30 0 L30 12 L42 12" fill="none" stroke="#EA580C" stroke-width="2.5"/>
+              <line x1="6" y1="25" x2="36" y2="25" stroke="#FB923C" stroke-width="2"/>
+              <line x1="6" y1="35" x2="32" y2="35" stroke="#FB923C" stroke-width="2"/>
+              <line x1="6" y1="45" x2="36" y2="45" stroke="#FB923C" stroke-width="2"/>
+              <line x1="6" y1="55" x2="28" y2="55" stroke="#FB923C" stroke-width="2"/>
+            </g>
+          </svg>
         </div>
-    </section>
+        <h3>4. One-Click Audits & Exports</h3>
+        <p>One click to export everything to CSV or JSON. Public records requests solved in seconds.</p>
+      </div>
 
-    <section id="pricing" class="pricing">
-        <div class="container">
-            <h2 class="section-title">Pricing</h2>
-            <div class="pricing-grid">
+    </div>
+  </div>
+</section>
 
-                <div class="pricing-card">
-                    <h3>Basic</h3>
-                    <ul>
-                        <li>1 Crew Seat</li>
-                        <li>2 Departments</li>
-                        <li>Voice-to-Text</li>
-                        <li>GPS Maps</li>
-                    </ul>
-                    <div class="price">$75<span>/mo</span></div>
-                    <a href="/app" class="btn-primary block">Start Free Trial</a>
-                </div>
+<section id="pricing" class="pricing">
+  <div class="container">
+    <h2 class="section-title">Pricing</h2>
+    <div class="pricing-grid">
 
-                <div class="pricing-card">
-                    <h3>Starter</h3>
-                    <ul>
-                        <li>10 Crew Seats</li>
-                        <li>5 Departments</li>
-                        <li>Voice-to-Text</li>
-                        <li>GPS Maps</li>
-                    </ul>
-                    <div class="price">$125<span>/mo</span></div>
-                    <a href="/app" class="btn-primary block">Start Free Trial</a>
-                </div>
+      <div class="pricing-card">
+        <h3>Basic</h3>
+        <ul>
+          <li>1 Crew Seat</li>
+          <li>2 Departments</li>
+          <li>Voice-to-Text</li>
+          <li>GPS Maps</li>
+        </ul>
+        <div class="price">$75<span>/mo</span></div>
+        <a href="/app" class="btn-primary block">Start Free Trial</a>
+      </div>
 
-                <div class="pricing-card">
-                    <h3>Enterprise</h3>
-                    <ul>
-                        <li>20 Crew Seats</li>
-                        <li>10 Departments</li>
-                        <li>Voice-to-Text</li>
-                        <li>GPS Maps</li>
-                        <li>Enterprise Features</li>
-                    </ul>
-                    <div class="price">$175<span>/mo</span></div>
-                    <a href="/app" class="btn-primary block">Start Free Trial</a>
-                </div>
+      <div class="pricing-card">
+        <h3>Starter</h3>
+        <ul>
+          <li>10 Crew Seats</li>
+          <li>5 Departments</li>
+          <li>Voice-to-Text</li>
+          <li>GPS Maps</li>
+        </ul>
+        <div class="price">$125<span>/mo</span></div>
+        <a href="/app" class="btn-primary block">Start Free Trial</a>
+      </div>
 
-            </div>
-        </div>
-    </section>
+      <div class="pricing-card">
+        <h3>Enterprise</h3>
+        <ul>
+          <li>20 Crew Seats</li>
+          <li>10 Departments</li>
+          <li>Voice-to-Text</li>
+          <li>GPS Maps</li>
+          <li>Enterprise Features</li>
+        </ul>
+        <div class="price">$175<span>/mo</span></div>
+        <a href="/app" class="btn-primary block">Start Free Trial</a>
+      </div>
 
-    <section id="contact" class="contact">
-        <div class="container">
-            <h2 class="section-title">Get In Touch</h2>
-            <form class="contact-form" action="https://formspree.io/f/mdayovlw" method="POST">
-                <label for="name">Name</label>
-                <input type="text" id="name" name="name" required>
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" required>
-                <label for="city">City / Organization</label>
-                <input type="text" id="city" name="city">
-                <label for="message">Message</label>
-                <textarea id="message" name="message" required></textarea>
-                <button type="submit" class="btn-primary block">Send Message</button>
-            </form>
-        </div>
-    </section>
+    </div>
+  </div>
+</section>
 
-    <footer>
-        <div class="container footer-content">
-            <div class="footer-links">
-                <a href="#">Legal</a>
-                <a href="#">Privacy Policy</a>
-            </div>
-            <div>
-                &copy; 2026 MuniVault, Inc.
-            </div>
-        </div>
-    </footer>
+<section id="contact" class="contact">
+  <div class="container">
+    <h2 class="section-title">Get In Touch</h2>
+    <form class="contact-form" action="https://formspree.io/f/mdayovlw" method="POST">
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" required>
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" required>
+      <label for="city">City / Organization</label>
+      <input type="text" id="city" name="city">
+      <label for="message">Message</label>
+      <textarea id="message" name="message" required></textarea>
+      <button type="submit" class="btn-primary block">Send Message</button>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-content">
+    <div class="footer-links">
+      <a href="#">Legal</a>
+      <a href="#">Privacy Policy</a>
+    </div>
+    <div>&copy; 2026 MuniVault, Inc.</div>
+  </div>
+</footer>
 
 </body>
 </html>

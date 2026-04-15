@@ -1,478 +1,231 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<meta name="theme-color" content="#1a2332"/>
-<title>MuniVault — Stop Chasing Your City's Paperwork</title>
-<meta name="description" content="MuniVault turns scattered photos, group texts, and paper logs into one organized, searchable vault. Built strictly for local government. Starting at $75/month."/>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth;}
-body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1a2332;-webkit-font-smoothing:antialiased;line-height:1.5;background:#fff;}
-a{color:inherit;text-decoration:none;}
-img{max-width:100%;display:block;}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MuniVault — Stop Chasing Your City's Paperwork</title>
+    <meta name="description" content="MuniVault turns scattered photos, group texts, and paper logs into one organized, searchable vault. Built strictly for local government. Starting at $75/month.">
+    <link rel="icon" type="image/png" href="/images/favicon.png">
+    <style>
+        /* Base Reset & Typography */
+        *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+        body{line-height:1.6;color:#333;background-color:#f1f5f9;}
+        a{text-decoration:none;color:inherit;}
+        :root{
+            --navy:#2B3A4A;
+            --navy-dark:#1E293B;
+            --slate:#64748B;
+            --orange:#EA580C;
+            --orange-hover:#C2410C;
+            --light-bg:#E2E8F0;
+            --white:#FFFFFF;
+        }
+        .container{max-width:1200px;margin:0 auto;padding:0 20px;}
 
-/* ============ NAV ============ */
-.nav{background:#fff;border-bottom:1px solid #e5e7eb;position:sticky;top:0;z-index:100;}
-.nav-inner{display:flex;align-items:center;justify-content:space-between;max-width:1200px;margin:0 auto;padding:12px 32px;}
-.nav-brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:20px;color:#1a2332;}
-.nav-brand svg{width:28px;height:28px;}
-.nav-links{display:flex;align-items:center;gap:28px;}
-.nav-links a{font-size:14px;font-weight:500;color:#555;transition:color .2s;}
-.nav-links a:hover{color:#e8601c;}
-.nav-cta-btn{display:inline-block;background:#e8601c;color:#fff;font-size:13px;font-weight:700;padding:10px 22px;border-radius:6px;border:2px solid #e8601c;transition:all .2s;}
-.nav-cta-btn:hover{background:#d45518;border-color:#d45518;}
+        /* Buttons */
+        .btn-primary{background:var(--orange);color:var(--white);padding:10px 20px;border-radius:4px;font-weight:600;display:inline-block;transition:background 0.2s;border:none;cursor:pointer;}
+        .btn-primary:hover{background:var(--orange-hover);}
+        .btn-primary.block{display:block;width:100%;text-align:center;}
+        .btn-outline{border:2px solid var(--white);color:var(--white);padding:8px 18px;border-radius:4px;font-weight:600;display:inline-block;transition:all 0.2s;}
+        .btn-outline:hover{background:var(--white);color:var(--navy);}
+        .section-title{text-align:center;font-size:2.2rem;text-transform:uppercase;margin-bottom:40px;font-weight:800;letter-spacing:0.5px;}
 
-/* ============ HERO ============ */
-.hero{background:#1a2332;color:#fff;position:relative;overflow:hidden;}
-.hero-inner{display:flex;align-items:center;max-width:1200px;margin:0 auto;padding:60px 32px 0;gap:40px;}
-.hero-text{flex:1;min-width:0;padding-bottom:60px;}
-.hero-title{font-size:48px;font-weight:900;line-height:1.05;letter-spacing:-1.5px;text-transform:uppercase;margin-bottom:20px;color:#fff;}
-.hero-subtitle{font-size:16px;color:rgba(255,255,255,0.8);line-height:1.6;margin-bottom:32px;max-width:480px;}
-.hero-cta-row{display:flex;gap:12px;flex-wrap:wrap;}
-.btn-hero-primary{display:inline-block;background:#e8601c;color:#fff;font-size:15px;font-weight:700;padding:14px 28px;border-radius:6px;border:2px solid #e8601c;transition:all .2s;}
-.btn-hero-primary:hover{background:#d45518;}
-.btn-hero-outline{display:inline-block;background:transparent;color:#fff;font-size:15px;font-weight:700;padding:14px 28px;border-radius:6px;border:2px solid rgba(255,255,255,0.4);transition:all .2s;}
-.btn-hero-outline:hover{border-color:#fff;background:rgba(255,255,255,0.08);}
-.hero-image{flex:1;min-width:0;display:flex;align-items:flex-end;justify-content:center;}
-.hero-image svg{width:100%;max-width:480px;height:auto;}
+        /* Header / Navbar */
+        header{display:flex;justify-content:space-between;align-items:center;padding:15px 20px;background:var(--white);border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:100;}
+        .logo{font-size:1.5rem;font-weight:800;color:var(--navy);display:flex;align-items:center;gap:8px;}
+        .logo img{width:28px;height:28px;}
+        nav{display:flex;gap:24px;align-items:center;}
+        nav a{font-weight:500;color:var(--navy);font-size:0.95rem;}
+        nav a:hover{color:var(--orange);}
 
-/* City illustration placeholder */
-.hero-illustration{flex:1;min-width:0;position:relative;display:flex;align-items:flex-end;justify-content:center;}
-.city-illustration{width:100%;max-width:500px;}
+        /* Hero Section */
+        .hero{background:var(--navy);color:var(--white);padding:80px 0;}
+        .hero-content{display:flex;align-items:center;gap:50px;}
+        .hero-text{flex:1;}
+        .hero-text h1{font-size:3.5rem;text-transform:uppercase;line-height:1.05;margin-bottom:20px;font-weight:800;}
+        .hero-text p{font-size:1.1rem;color:#cbd5e1;margin-bottom:30px;max-width:450px;}
+        .hero-buttons{display:flex;gap:15px;align-items:center;}
+        .hero-graphic{flex:1;display:flex;align-items:center;justify-content:center;}
+        .hero-graphic img{max-width:100%;height:auto;max-height:440px;}
 
-/* ============ PROBLEM SECTION ============ */
-.problem-section{background:#fff;padding:60px 32px;}
-.problem-inner{max-width:1200px;margin:0 auto;display:flex;gap:48px;align-items:center;}
-.problem-text-col{flex:1;}
-.problem-title{font-size:36px;font-weight:900;line-height:1.1;letter-spacing:-1px;color:#1a2332;text-transform:uppercase;margin-bottom:8px;}
-.problem-title span{color:#e8601c;}
-.problem-illustration-col{flex:1;position:relative;}
+        /* Problem Section */
+        .problem{background:var(--slate);color:var(--white);padding:80px 0;}
+        .problem .section-title{color:var(--white);}
+        .problem-graphic{max-width:800px;margin:0 auto;display:flex;align-items:center;justify-content:center;}
+        .problem-graphic img{max-width:100%;height:auto;}
 
-/* ============ HOW IT WORKS ============ */
-.how-section{background:#f5f5f0;padding:60px 32px;}
-.how-inner{max-width:1200px;margin:0 auto;}
-.how-heading{font-size:32px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#1a2332;text-align:center;margin-bottom:48px;}
-.how-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:32px;}
-.how-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:32px;text-align:center;}
-.how-card-icon{margin:0 auto 16px;width:80px;height:80px;}
-.how-card-icon svg{width:80px;height:80px;}
-.how-card-number{font-size:14px;font-weight:800;color:#e8601c;margin-bottom:4px;}
-.how-card-title{font-size:18px;font-weight:800;color:#1a2332;margin-bottom:8px;}
-.how-card-text{font-size:14px;color:#666;line-height:1.6;}
+        /* How It Works Section */
+        .how-it-works{background:var(--light-bg);padding:80px 0;}
+        .how-it-works .section-title{color:var(--navy);}
+        .features-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;}
+        .feature-card{background:var(--white);padding:30px;border-radius:8px;text-align:center;box-shadow:0 4px 6px rgba(0,0,0,0.02);}
+        .feature-graphic{height:160px;margin-bottom:20px;display:flex;align-items:center;justify-content:center;}
+        .feature-graphic img{max-height:140px;width:auto;}
+        .feature-card h3{font-size:1.1rem;margin-bottom:10px;color:var(--navy);font-weight:700;}
+        .feature-card p{color:#475569;font-size:0.9rem;line-height:1.5;}
 
-/* ============ PRICING ============ */
-.pricing-section{background:#fff;padding:60px 32px;}
-.pricing-inner{max-width:1000px;margin:0 auto;}
-.pricing-heading{font-size:32px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#1a2332;text-align:center;margin-bottom:48px;}
-.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
-.price-card{background:#fff;border:2px solid #e5e7eb;border-radius:12px;padding:32px 28px;text-align:center;}
-.price-card.featured{border-color:#e8601c;box-shadow:0 4px 24px rgba(232,96,28,0.15);}
-.price-tier{font-size:20px;font-weight:800;color:#1a2332;margin-bottom:16px;}
-.price-features-list{list-style:none;text-align:left;margin-bottom:24px;padding:0;}
-.price-features-list li{font-size:13px;color:#444;padding:6px 0;padding-left:20px;position:relative;line-height:1.4;}
-.price-features-list li::before{content:"\2022";color:#e8601c;font-weight:900;position:absolute;left:4px;font-size:16px;}
-.price-amount{font-size:48px;font-weight:900;color:#1a2332;margin-bottom:4px;line-height:1;}
-.price-amount span{font-size:18px;font-weight:500;color:#888;}
-.price-cta{display:block;width:100%;background:#e8601c;color:#fff;font-size:14px;font-weight:700;padding:12px 0;border-radius:6px;text-align:center;border:none;cursor:pointer;transition:background .2s;margin-top:16px;}
-.price-cta:hover{background:#d45518;}
+        /* Pricing Section */
+        .pricing{background:var(--navy);padding:80px 0;color:var(--white);}
+        .pricing .section-title{color:var(--white);}
+        .pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:1000px;margin:0 auto;}
+        .pricing-card{background:var(--white);color:var(--navy);padding:40px 30px;border-radius:8px;text-align:center;}
+        .pricing-card h3{font-size:1.4rem;margin-bottom:20px;font-weight:800;}
+        .pricing-card ul{list-style:none;text-align:left;margin-bottom:30px;margin-left:10px;font-size:0.95rem;font-weight:500;min-height:140px;}
+        .pricing-card ul li{margin-bottom:8px;position:relative;padding-left:15px;}
+        .pricing-card ul li::before{content:"•";color:var(--navy);position:absolute;left:0;font-weight:bold;}
+        .price{font-size:2.5rem;font-weight:800;margin-bottom:25px;}
+        .price span{font-size:1rem;font-weight:normal;color:#64748b;}
 
-/* ============ FOOTER ============ */
-.footer{background:#fff;border-top:1px solid #e5e7eb;padding:20px 32px;text-align:center;}
-.footer-inner{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
-.footer-links{display:flex;gap:20px;}
-.footer-links a{font-size:13px;color:#888;text-decoration:underline;}
-.footer-links a:hover{color:#1a2332;}
-.footer-copy{font-size:13px;color:#888;}
+        /* Footer */
+        footer{background:var(--navy-dark);color:#94a3b8;padding:25px 20px;font-size:0.9rem;}
+        .footer-content{display:flex;justify-content:space-between;align-items:center;max-width:1200px;margin:0 auto;}
+        .footer-links{display:flex;gap:20px;}
+        .footer-links a:hover{color:var(--white);text-decoration:underline;}
 
-/* ============ RESPONSIVE ============ */
-@media(max-width:900px){
-  .hero-inner{flex-direction:column;text-align:center;padding:40px 24px 0;}
-  .hero-title{font-size:36px;}
-  .hero-subtitle{margin:0 auto 28px;}
-  .hero-cta-row{justify-content:center;}
-  .hero-illustration{display:none;}
-  .problem-inner{flex-direction:column;text-align:center;}
-  .problem-illustration-col{display:none;}
-  .how-grid{grid-template-columns:1fr;}
-  .pricing-grid{grid-template-columns:1fr;}
-  .nav-links{display:none;}
-}
-@media(max-width:600px){
-  .hero-title{font-size:28px;}
-  .pricing-heading,.how-heading,.problem-title{font-size:24px;}
-  .footer-inner{flex-direction:column;text-align:center;}
-}
-</style>
+        /* Responsive Design */
+        @media(max-width:900px){
+            .hero-content{flex-direction:column;text-align:center;}
+            .hero-text p{margin:0 auto 30px;}
+            .hero-buttons{justify-content:center;}
+            .hero-graphic{width:100%;}
+            .features-grid{grid-template-columns:1fr;}
+            .pricing-grid{grid-template-columns:1fr;max-width:400px;}
+            nav{display:none;}
+        }
+        @media(max-width:600px){
+            .hero-text h1{font-size:2.2rem;}
+            .section-title{font-size:1.6rem;}
+            .footer-content{flex-direction:column;text-align:center;gap:10px;}
+        }
+    </style>
 </head>
 <body>
 
-<!-- ============ NAV ============ -->
-<nav class="nav">
-  <div class="nav-inner">
-    <a href="/" class="nav-brand">
-      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="32" height="32" rx="6" fill="#e8601c"/>
-        <path d="M16 6L8 10v4l8 4 8-4v-4l-8-4z" fill="#fff" opacity="0.9"/>
-        <path d="M8 16v4l8 4 8-4v-4l-8 4-8-4z" fill="#fff" opacity="0.7"/>
-        <path d="M8 22v2l8 4 8-4v-2l-8 4-8-4z" fill="#fff" opacity="0.5"/>
-      </svg>
-      MuniVault
-    </a>
-    <div class="nav-links">
-      <a href="#problem">Problem</a>
-      <a href="#solution">Solution</a>
-      <a href="#how-it-works">How It Works</a>
-      <a href="#pricing">Pricing</a>
-    </div>
-    <a href="/app" class="nav-cta-btn">Start Free Trial</a>
-  </div>
-</nav>
+    <header>
+        <a href="/" class="logo">
+            <img src="/images/favicon.png" alt="MuniVault">
+            MuniVault
+        </a>
+        <nav>
+            <a href="#problem">Problem</a>
+            <a href="#how-it-works">How It Works</a>
+            <a href="#pricing">Pricing</a>
+            <a href="/app" class="btn-primary" style="padding:6px 16px;">Start Free Trial</a>
+        </nav>
+    </header>
 
-<!-- ============ HERO ============ -->
-<section class="hero">
-  <div class="hero-inner">
-    <div class="hero-text">
-      <h1 class="hero-title">Stop chasing your city's paperwork.</h1>
-      <p class="hero-subtitle">
-        Turn scattered photos, group texts, and paper logs into one organized, searchable vault. Built strictly for local government.
-      </p>
-      <div class="hero-cta-row">
-        <a href="/app" class="btn-hero-primary">Start 14-Day Free Trial</a>
-        <a href="#how-it-works" class="btn-hero-outline">See How It Works</a>
-      </div>
-    </div>
-    <div class="hero-illustration">
-      <!-- City skyline illustration -->
-      <svg class="city-illustration" viewBox="0 0 500 350" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- Ground / road -->
-        <rect x="0" y="280" width="500" height="70" fill="#2a3a4e" rx="0"/>
-        <rect x="40" y="300" width="420" height="6" rx="3" fill="#3d5068"/>
-        <!-- Building 1 - tall -->
-        <rect x="60" y="120" width="60" height="160" fill="#2d4a6a" rx="4"/>
-        <rect x="68" y="130" width="12" height="14" rx="2" fill="#f5c842" opacity="0.7"/>
-        <rect x="86" y="130" width="12" height="14" rx="2" fill="#f5c842" opacity="0.5"/>
-        <rect x="68" y="152" width="12" height="14" rx="2" fill="#f5c842" opacity="0.6"/>
-        <rect x="86" y="152" width="12" height="14" rx="2" fill="#f5c842" opacity="0.8"/>
-        <rect x="68" y="174" width="12" height="14" rx="2" fill="#f5c842" opacity="0.4"/>
-        <rect x="86" y="174" width="12" height="14" rx="2" fill="#f5c842" opacity="0.7"/>
-        <rect x="68" y="196" width="12" height="14" rx="2" fill="#f5c842" opacity="0.9"/>
-        <rect x="86" y="196" width="12" height="14" rx="2" fill="#f5c842" opacity="0.5"/>
-        <rect x="68" y="218" width="12" height="14" rx="2" fill="#f5c842" opacity="0.6"/>
-        <rect x="86" y="218" width="12" height="14" rx="2" fill="#f5c842" opacity="0.8"/>
-        <rect x="68" y="240" width="12" height="14" rx="2" fill="#f5c842" opacity="0.5"/>
-        <rect x="86" y="240" width="12" height="14" rx="2" fill="#f5c842" opacity="0.7"/>
-        <!-- Building 2 - medium -->
-        <rect x="130" y="170" width="55" height="110" fill="#365b80" rx="4"/>
-        <rect x="138" y="180" width="10" height="12" rx="2" fill="#f5c842" opacity="0.6"/>
-        <rect x="154" y="180" width="10" height="12" rx="2" fill="#f5c842" opacity="0.8"/>
-        <rect x="138" y="200" width="10" height="12" rx="2" fill="#f5c842" opacity="0.7"/>
-        <rect x="154" y="200" width="10" height="12" rx="2" fill="#f5c842" opacity="0.5"/>
-        <rect x="138" y="220" width="10" height="12" rx="2" fill="#f5c842" opacity="0.9"/>
-        <rect x="154" y="220" width="10" height="12" rx="2" fill="#f5c842" opacity="0.6"/>
-        <rect x="138" y="240" width="10" height="12" rx="2" fill="#f5c842" opacity="0.5"/>
-        <rect x="154" y="240" width="10" height="12" rx="2" fill="#f5c842" opacity="0.8"/>
-        <!-- Building 3 - city hall with dome -->
-        <rect x="200" y="160" width="80" height="120" fill="#2d4a6a" rx="4"/>
-        <ellipse cx="240" cy="160" rx="30" ry="20" fill="#2d4a6a"/>
-        <rect x="235" y="130" width="10" height="30" fill="#365b80"/>
-        <circle cx="240" cy="128" r="6" fill="#e8601c"/>
-        <rect x="212" y="180" width="14" height="16" rx="2" fill="#f5c842" opacity="0.7"/>
-        <rect x="232" y="180" width="14" height="16" rx="2" fill="#f5c842" opacity="0.9"/>
-        <rect x="252" y="180" width="14" height="16" rx="2" fill="#f5c842" opacity="0.6"/>
-        <rect x="212" y="204" width="14" height="16" rx="2" fill="#f5c842" opacity="0.5"/>
-        <rect x="232" y="204" width="14" height="16" rx="2" fill="#f5c842" opacity="0.8"/>
-        <rect x="252" y="204" width="14" height="16" rx="2" fill="#f5c842" opacity="0.7"/>
-        <rect x="212" y="228" width="14" height="16" rx="2" fill="#f5c842" opacity="0.6"/>
-        <rect x="232" y="228" width="14" height="16" rx="2" fill="#f5c842" opacity="0.9"/>
-        <rect x="252" y="228" width="14" height="16" rx="2" fill="#f5c842" opacity="0.5"/>
-        <!-- Building 4 - tall right -->
-        <rect x="295" y="100" width="50" height="180" fill="#365b80" rx="4"/>
-        <rect x="303" y="112" width="10" height="12" rx="2" fill="#f5c842" opacity="0.8"/>
-        <rect x="319" y="112" width="10" height="12" rx="2" fill="#f5c842" opacity="0.5"/>
-        <rect x="303" y="132" width="10" height="12" rx="2" fill="#f5c842" opacity="0.6"/>
-        <rect x="319" y="132" width="10" height="12" rx="2" fill="#f5c842" opacity="0.9"/>
-        <rect x="303" y="152" width="10" height="12" rx="2" fill="#f5c842" opacity="0.7"/>
-        <rect x="319" y="152" width="10" height="12" rx="2" fill="#f5c842" opacity="0.5"/>
-        <rect x="303" y="172" width="10" height="12" rx="2" fill="#f5c842" opacity="0.8"/>
-        <rect x="319" y="172" width="10" height="12" rx="2" fill="#f5c842" opacity="0.6"/>
-        <rect x="303" y="192" width="10" height="12" rx="2" fill="#f5c842" opacity="0.5"/>
-        <rect x="319" y="192" width="10" height="12" rx="2" fill="#f5c842" opacity="0.9"/>
-        <rect x="303" y="212" width="10" height="12" rx="2" fill="#f5c842" opacity="0.7"/>
-        <rect x="319" y="212" width="10" height="12" rx="2" fill="#f5c842" opacity="0.5"/>
-        <rect x="303" y="232" width="10" height="12" rx="2" fill="#f5c842" opacity="0.6"/>
-        <rect x="319" y="232" width="10" height="12" rx="2" fill="#f5c842" opacity="0.8"/>
-        <rect x="303" y="252" width="10" height="12" rx="2" fill="#f5c842" opacity="0.5"/>
-        <rect x="319" y="252" width="10" height="12" rx="2" fill="#f5c842" opacity="0.7"/>
-        <!-- Building 5 - short right -->
-        <rect x="355" y="200" width="55" height="80" fill="#2d4a6a" rx="4"/>
-        <rect x="363" y="210" width="10" height="12" rx="2" fill="#f5c842" opacity="0.7"/>
-        <rect x="381" y="210" width="10" height="12" rx="2" fill="#f5c842" opacity="0.6"/>
-        <rect x="363" y="230" width="10" height="12" rx="2" fill="#f5c842" opacity="0.8"/>
-        <rect x="381" y="230" width="10" height="12" rx="2" fill="#f5c842" opacity="0.5"/>
-        <rect x="363" y="250" width="10" height="12" rx="2" fill="#f5c842" opacity="0.6"/>
-        <rect x="381" y="250" width="10" height="12" rx="2" fill="#f5c842" opacity="0.9"/>
-        <!-- Crane -->
-        <rect x="418" y="80" width="4" height="200" fill="#4a6a8a"/>
-        <rect x="398" y="80" width="44" height="4" fill="#4a6a8a"/>
-        <line x1="398" y1="84" x2="420" y2="120" stroke="#4a6a8a" stroke-width="2"/>
-        <line x1="442" y1="84" x2="422" y2="120" stroke="#4a6a8a" stroke-width="2"/>
-        <rect x="396" y="84" width="4" height="30" fill="#4a6a8a"/>
-        <!-- GPS Pin markers -->
-        <g transform="translate(90,100)">
-          <path d="M8 0C3.6 0 0 3.6 0 8c0 6 8 14 8 14s8-8 8-14c0-4.4-3.6-8-8-8z" fill="#e8601c"/>
-          <circle cx="8" cy="8" r="3" fill="#fff"/>
-        </g>
-        <g transform="translate(230,110)">
-          <path d="M8 0C3.6 0 0 3.6 0 8c0 6 8 14 8 14s8-8 8-14c0-4.4-3.6-8-8-8z" fill="#e8601c"/>
-          <circle cx="8" cy="8" r="3" fill="#fff"/>
-        </g>
-        <g transform="translate(340,80)">
-          <path d="M8 0C3.6 0 0 3.6 0 8c0 6 8 14 8 14s8-8 8-14c0-4.4-3.6-8-8-8z" fill="#e8601c"/>
-          <circle cx="8" cy="8" r="3" fill="#fff"/>
-        </g>
-        <!-- "CITY VAULT" text on center building -->
-        <text x="240" y="270" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="10" font-weight="800" font-family="Inter,sans-serif" letter-spacing="2">CITY VAULT</text>
-      </svg>
-    </div>
-  </div>
-</section>
-
-<!-- ============ PROBLEM / WHERE DO YOUR PUBLIC RECORDS LIVE ============ -->
-<section class="problem-section" id="problem">
-  <div class="problem-inner">
-    <div class="problem-text-col">
-      <h2 class="problem-title">Where do your public records <span>actually</span> live?</h2>
-    </div>
-    <div class="problem-illustration-col">
-      <!-- Scattered documents illustration -->
-      <svg viewBox="0 0 480 320" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:480px;">
-        <!-- Scattered items with labels -->
-        <!-- Group text -->
-        <g transform="translate(20,40)">
-          <rect width="90" height="60" rx="8" fill="#f0f0ea" stroke="#ccc"/>
-          <rect x="10" y="10" width="40" height="6" rx="3" fill="#bbb"/>
-          <rect x="10" y="22" width="55" height="4" rx="2" fill="#ddd"/>
-          <rect x="10" y="30" width="45" height="4" rx="2" fill="#ddd"/>
-          <rect x="10" y="42" width="30" height="6" rx="3" fill="#3b82f6"/>
-        </g>
-        <text x="65" y="120" text-anchor="middle" fill="#888" font-size="11" font-weight="600">group text</text>
-
-        <!-- Spreadsheet -->
-        <g transform="translate(140,20)">
-          <rect width="90" height="70" rx="4" fill="#e8f5e9" stroke="#a5d6a7"/>
-          <line x1="0" y1="18" x2="90" y2="18" stroke="#a5d6a7"/>
-          <line x1="0" y1="34" x2="90" y2="34" stroke="#c8e6c9"/>
-          <line x1="0" y1="50" x2="90" y2="50" stroke="#c8e6c9"/>
-          <line x1="30" y1="0" x2="30" y2="70" stroke="#c8e6c9"/>
-          <line x1="60" y1="0" x2="60" y2="70" stroke="#c8e6c9"/>
-        </g>
-        <text x="185" y="110" text-anchor="middle" fill="#888" font-size="11" font-weight="600">spreadsheet</text>
-
-        <!-- Crew text photo -->
-        <g transform="translate(280,10)">
-          <rect width="80" height="65" rx="6" fill="#f3e8ff" stroke="#c4b5fd"/>
-          <rect x="8" y="8" width="64" height="36" rx="4" fill="#ddd"/>
-          <text x="40" y="32" text-anchor="middle" fill="#aaa" font-size="18">📷</text>
-          <rect x="8" y="50" width="40" height="4" rx="2" fill="#c4b5fd"/>
-        </g>
-        <text x="320" y="95" text-anchor="middle" fill="#888" font-size="10" font-weight="600">Crew text photo,</text>
-        <text x="320" y="108" text-anchor="middle" fill="#888" font-size="10" font-weight="600">3 months ago?</text>
-
-        <!-- File folder -->
-        <g transform="translate(390,60)">
-          <path d="M0 15 Q0 8 8 8 L30 8 L36 0 L72 0 Q80 0 80 8 L80 55 Q80 63 72 63 L8 63 Q0 63 0 55 Z" fill="#fef3c7" stroke="#f59e0b"/>
-        </g>
-        <text x="430" y="140" text-anchor="middle" fill="#888" font-size="11" font-weight="600">file folder</text>
-
-        <!-- Paper form -->
-        <g transform="translate(40,170)">
-          <rect width="85" height="100" rx="4" fill="#fff" stroke="#ddd"/>
-          <rect x="10" y="12" width="50" height="5" rx="2" fill="#ccc"/>
-          <rect x="10" y="24" width="60" height="4" rx="2" fill="#e5e7eb"/>
-          <rect x="10" y="34" width="55" height="4" rx="2" fill="#e5e7eb"/>
-          <rect x="10" y="44" width="40" height="4" rx="2" fill="#e5e7eb"/>
-          <rect x="10" y="58" width="60" height="4" rx="2" fill="#e5e7eb"/>
-          <rect x="10" y="68" width="45" height="4" rx="2" fill="#e5e7eb"/>
-          <rect x="10" y="82" width="50" height="4" rx="2" fill="#e5e7eb"/>
-        </g>
-        <text x="82" y="290" text-anchor="middle" fill="#888" font-size="10" font-weight="600">Paper form,</text>
-        <text x="82" y="303" text-anchor="middle" fill="#888" font-size="10" font-weight="600">incomplete</text>
-
-        <!-- Council meeting report -->
-        <g transform="translate(180,160)">
-          <rect width="100" height="80" rx="4" fill="#fff" stroke="#ddd" transform="rotate(-5 50 40)"/>
-          <rect width="100" height="80" rx="4" fill="#fff" stroke="#ccc" transform="rotate(3 50 40)"/>
-          <rect x="12" y="12" width="60" height="5" rx="2" fill="#ccc"/>
-          <rect x="12" y="24" width="72" height="4" rx="2" fill="#e5e7eb"/>
-          <rect x="12" y="34" width="65" height="4" rx="2" fill="#e5e7eb"/>
-          <rect x="12" y="44" width="55" height="4" rx="2" fill="#e5e7eb"/>
-          <rect x="12" y="56" width="70" height="4" rx="2" fill="#e5e7eb"/>
-        </g>
-        <text x="230" y="260" text-anchor="middle" fill="#888" font-size="10" font-weight="600">Council meeting</text>
-        <text x="230" y="273" text-anchor="middle" fill="#888" font-size="10" font-weight="600">report scramble</text>
-
-        <!-- Crew text photo 2 -->
-        <g transform="translate(340,170)">
-          <rect width="80" height="65" rx="6" fill="#fce4ec" stroke="#f48fb1"/>
-          <rect x="8" y="8" width="64" height="36" rx="4" fill="#ddd"/>
-          <text x="40" y="32" text-anchor="middle" fill="#aaa" font-size="18">📸</text>
-          <rect x="8" y="50" width="40" height="4" rx="2" fill="#f48fb1"/>
-        </g>
-        <text x="380" y="255" text-anchor="middle" fill="#888" font-size="10" font-weight="600">Crew text photo,</text>
-        <text x="380" y="268" text-anchor="middle" fill="#888" font-size="10" font-weight="600">3 months ago?</text>
-
-        <!-- Dotted connector lines -->
-        <line x1="65" y1="100" x2="185" y2="90" stroke="#ccc" stroke-dasharray="4 4"/>
-        <line x1="185" y1="90" x2="320" y2="75" stroke="#ccc" stroke-dasharray="4 4"/>
-        <line x1="320" y1="95" x2="430" y2="120" stroke="#ccc" stroke-dasharray="4 4"/>
-        <line x1="82" y1="170" x2="180" y2="170" stroke="#ccc" stroke-dasharray="4 4"/>
-        <line x1="280" y1="200" x2="340" y2="200" stroke="#ccc" stroke-dasharray="4 4"/>
-      </svg>
-    </div>
-  </div>
-</section>
-
-<!-- ============ HOW IT WORKS ============ -->
-<section class="how-section" id="how-it-works">
-  <div class="how-inner">
-    <h2 class="how-heading">How It Works</h2>
-    <div class="how-grid">
-      <!-- Card 1: Talk Don't Type -->
-      <div class="how-card">
-        <div class="how-card-icon">
-          <svg viewBox="0 0 80 80" fill="none">
-            <rect width="80" height="80" rx="12" fill="#fef3e2"/>
-            <rect x="35" y="18" width="10" height="28" rx="5" fill="#e8601c"/>
-            <path d="M28 36v4c0 6.6 5.4 12 12 12s12-5.4 12-12v-4" stroke="#e8601c" stroke-width="2.5" fill="none"/>
-            <line x1="40" y1="52" x2="40" y2="60" stroke="#e8601c" stroke-width="2.5"/>
-            <line x1="32" y1="60" x2="48" y2="60" stroke="#e8601c" stroke-width="2.5" stroke-linecap="round"/>
-          </svg>
+    <section class="hero">
+        <div class="container hero-content">
+            <div class="hero-text">
+                <h1>Stop chasing your city's paperwork.</h1>
+                <p>Turn scattered photos, group texts, and paper logs into one organized, searchable vault. Built strictly for local government.</p>
+                <div class="hero-buttons">
+                    <a href="/app" class="btn-primary">Start 14-Day Free Trial</a>
+                    <a href="#how-it-works" class="btn-outline">See How It Works</a>
+                </div>
+            </div>
+            <div class="hero-graphic">
+                <img src="/images/hero-city.png" alt="Isometric city with data flowing into MuniVault central vault">
+            </div>
         </div>
-        <div class="how-card-number">1.</div>
-        <div class="how-card-title">Talk, Don't Type</div>
-        <div class="how-card-text">Field crews just tap record and speak. Transcribes instantly. AI cleans up rough field notes.</div>
-      </div>
+    </section>
 
-      <!-- Card 2: GPS Mapping -->
-      <div class="how-card">
-        <div class="how-card-icon">
-          <svg viewBox="0 0 80 80" fill="none">
-            <rect width="80" height="80" rx="12" fill="#fef3e2"/>
-            <rect x="15" y="20" width="50" height="38" rx="4" fill="#fadcb8" stroke="#e8601c" stroke-width="2"/>
-            <path d="M40 28c-3 0-5.5 2.5-5.5 5.5C34.5 38 40 44 40 44s5.5-6 5.5-10.5C45.5 30.5 43 28 40 28z" fill="#e8601c"/>
-            <circle cx="40" cy="33.5" r="2" fill="#fff"/>
-            <line x1="20" y1="50" x2="35" y2="50" stroke="#e8601c" stroke-width="1.5" stroke-dasharray="3 2"/>
-            <line x1="45" y1="50" x2="60" y2="50" stroke="#e8601c" stroke-width="1.5" stroke-dasharray="3 2"/>
-          </svg>
+    <section id="problem" class="problem">
+        <div class="container">
+            <h2 class="section-title">Where do your public records actually live?</h2>
+            <div class="problem-graphic">
+                <img src="/images/scattered-docs.png" alt="Scattered documents: group texts, spreadsheets, crew photos, file folders, paper forms, council meeting reports">
+            </div>
         </div>
-        <div class="how-card-number">2.</div>
-        <div class="how-card-title">Automatic GPS Mapping</div>
-        <div class="how-card-text">Every single report is pinned to a precise coordinate. View city activity via an interactive map.</div>
-      </div>
+    </section>
 
-      <!-- Card 3: Built for the Field -->
-      <div class="how-card">
-        <div class="how-card-icon">
-          <svg viewBox="0 0 80 80" fill="none">
-            <rect width="80" height="80" rx="12" fill="#fef3e2"/>
-            <rect x="26" y="14" width="28" height="48" rx="4" fill="#fadcb8" stroke="#e8601c" stroke-width="2"/>
-            <rect x="30" y="20" width="20" height="32" rx="2" fill="#fff"/>
-            <circle cx="40" cy="58" r="2.5" fill="#e8601c"/>
-            <line x1="34" y1="16" x2="46" y2="16" stroke="#e8601c" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
+    <section id="how-it-works" class="how-it-works">
+        <div class="container">
+            <h2 class="section-title">How It Works</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-graphic">
+                        <img src="/images/step1-talk.png" alt="Voice-to-text microphone with audio waveform">
+                    </div>
+                    <h3>1. Talk, Don't Type</h3>
+                    <p>Field crews just tap record and speak. Transcribes instantly. AI cleans up rough field notes.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-graphic">
+                        <img src="/images/step2-gps.png" alt="Interactive map with GPS location pins">
+                    </div>
+                    <h3>2. Automatic GPS Mapping</h3>
+                    <p>Every single report is pinned to a precise coordinate. View city activity via an interactive map.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-graphic">
+                        <img src="/images/step3-field.png" alt="Mobile phone showing field reporting interface">
+                    </div>
+                    <h3>3. Built for the Field</h3>
+                    <p>Works in any phone browser. Save to home screen, no App Store download needed.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-graphic">
+                        <img src="/images/step4-export.png" alt="Database exporting to document">
+                    </div>
+                    <h3>4. One-Click Audits & Exports</h3>
+                    <p>One click to export everything to CSV or JSON. Public records requests solved in seconds.</p>
+                </div>
+            </div>
         </div>
-        <div class="how-card-number">3.</div>
-        <div class="how-card-title">Built for the Field</div>
-        <div class="how-card-text">Works in any phone browser. Save to home screen, no App Store download needed.</div>
-      </div>
+    </section>
 
-      <!-- Card 4: One-Click Exports -->
-      <div class="how-card">
-        <div class="how-card-icon">
-          <svg viewBox="0 0 80 80" fill="none">
-            <rect width="80" height="80" rx="12" fill="#fef3e2"/>
-            <rect x="18" y="22" width="20" height="26" rx="3" fill="#fadcb8" stroke="#e8601c" stroke-width="2"/>
-            <rect x="22" y="28" width="12" height="2" rx="1" fill="#e8601c"/>
-            <rect x="22" y="33" width="10" height="2" rx="1" fill="#e8601c" opacity="0.6"/>
-            <rect x="22" y="38" width="12" height="2" rx="1" fill="#e8601c" opacity="0.4"/>
-            <path d="M44 35 L58 35" stroke="#e8601c" stroke-width="2.5" stroke-linecap="round"/>
-            <path d="M52 29 L58 35 L52 41" stroke="#e8601c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-            <rect x="58" y="26" width="8" height="18" rx="2" fill="#fadcb8" stroke="#e8601c" stroke-width="1.5"/>
-          </svg>
+    <section id="pricing" class="pricing">
+        <div class="container">
+            <h2 class="section-title">Pricing</h2>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <h3>Basic</h3>
+                    <ul>
+                        <li>1 Crew Seats</li>
+                        <li>2 Departments</li>
+                        <li>Voice-to-Text</li>
+                        <li>GPS Maps</li>
+                    </ul>
+                    <div class="price">$75<span>/mo</span></div>
+                    <a href="/app?tier=basic" class="btn-primary block">Start Free Trial</a>
+                </div>
+                <div class="pricing-card">
+                    <h3>Starter</h3>
+                    <ul>
+                        <li>10 Crew Seats</li>
+                        <li>5 Departments</li>
+                        <li>Voice-to-Text</li>
+                        <li>GPS Maps</li>
+                    </ul>
+                    <div class="price">$125<span>/mo</span></div>
+                    <a href="/app?tier=starter" class="btn-primary block">Start Free Trial</a>
+                </div>
+                <div class="pricing-card">
+                    <h3>Enterprise</h3>
+                    <ul>
+                        <li>20 Crew Seats</li>
+                        <li>10 Departments</li>
+                        <li>Voice-to-Text</li>
+                        <li>GPS Maps</li>
+                        <li>Enterprise Features</li>
+                    </ul>
+                    <div class="price">$175<span>/mo</span></div>
+                    <a href="/app?tier=enterprise" class="btn-primary block">Start Free Trial</a>
+                </div>
+            </div>
         </div>
-        <div class="how-card-number">4.</div>
-        <div class="how-card-title">One-Click Audits &amp; Exports</div>
-        <div class="how-card-text">One click to export everything to CSV or JSON. Public records requests solved in seconds.</div>
-      </div>
-    </div>
-  </div>
-</section>
+    </section>
 
-<!-- ============ PRICING ============ -->
-<section class="pricing-section" id="pricing">
-  <div class="pricing-inner">
-    <h2 class="pricing-heading">Pricing</h2>
-    <div class="pricing-grid">
-
-      <!-- BASIC -->
-      <div class="price-card">
-        <div class="price-tier">Basic</div>
-        <ul class="price-features-list">
-          <li>1 Crew Seats</li>
-          <li>2 Departments</li>
-          <li>Voice-to-Text</li>
-          <li>GPS Maps</li>
-        </ul>
-        <div class="price-amount">$75<span>/mo</span></div>
-        <a href="/app?tier=basic" class="price-cta">Start Free Trial</a>
-      </div>
-
-      <!-- STARTER -->
-      <div class="price-card featured">
-        <div class="price-tier">Starter</div>
-        <ul class="price-features-list">
-          <li>10 Crew Seats</li>
-          <li>5 Departments</li>
-          <li>Voice-to-Text</li>
-          <li>GPS Maps</li>
-        </ul>
-        <div class="price-amount">$125<span>/mo</span></div>
-        <a href="/app?tier=starter" class="price-cta">Start Free Trial</a>
-      </div>
-
-      <!-- ENTERPRISE -->
-      <div class="price-card">
-        <div class="price-tier">Enterprise</div>
-        <ul class="price-features-list">
-          <li>20 Crew Seats</li>
-          <li>10 Departments</li>
-          <li>Voice-to-Text</li>
-          <li>GPS Maps</li>
-          <li>Enterprise Completes</li>
-        </ul>
-        <div class="price-amount">$175<span>/mo</span></div>
-        <a href="/app?tier=enterprise" class="price-cta">Start Free Trial</a>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- ============ FOOTER ============ -->
-<footer class="footer">
-  <div class="footer-inner">
-    <div class="footer-links">
-      <a href="#">Legal</a>
-      <a href="#">Privacy Policy</a>
-    </div>
-    <div class="footer-copy">&copy; Copyright MuniVault, Inc</div>
-  </div>
-</footer>
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-links">
+                <a href="#">Legal</a>
+                <a href="#">Privacy Policy</a>
+            </div>
+            <div>&copy; 2026 MuniVault, Inc.</div>
+        </div>
+    </footer>
 
 </body>
 </html>

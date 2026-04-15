@@ -1062,36 +1062,42 @@ function getMaxSeats(cityConfig) {
   return tier.maxSeats + extraSeats;
 }
 
-// Check if city is in trial
+// Check if city is in trial — works with both trialStart (Supabase) and trialCode (legacy)
 function getTrialStatus(cityConfig) {
-  if (!cityConfig?.trialCode) return null;
-  const trialStart = new Date(cityConfig.trialStart);
+  if (!cityConfig) return null;
+  // Need either trialStart or trialCode to have a trial
+  if (!cityConfig.trialStart && !cityConfig.trialCode) return null;
+  const trialStart = new Date(cityConfig.trialStart || cityConfig.createdAt || Date.now());
   const trialEnd = new Date(trialStart);
   trialEnd.setDate(trialEnd.getDate() + 14);
   const now = new Date();
   const daysLeft = Math.ceil((trialEnd - now) / (1000 * 60 * 60 * 24));
   return {
-    active: daysLeft > 0,
+    active: daysLeft > 0 && (cityConfig.subscriptionStatus === 'trial' || !cityConfig.subscriptionStatus),
     daysLeft: Math.max(0, daysLeft),
     endDate: trialEnd.toISOString(),
-    expired: daysLeft <= 0
+    expired: daysLeft <= 0,
+    trialStart: trialStart.toISOString()
   };
 }
 
-// Check if city subscription is active (paid or trial)
+// Check if city subscription is active (paid or in valid trial)
 function isSubscriptionActive(cityConfig) {
   if (!cityConfig) return false;
-  // Trial check
-  const trial = getTrialStatus(cityConfig);
-  if (trial && trial.active) return true;
-  // Paid subscription
+  // Paid subscription — always active
   if (cityConfig.subscriptionStatus === 'active') return true;
+  // Trial check — only active if within 14-day window
+  if (cityConfig.subscriptionStatus === 'trial' || !cityConfig.subscriptionStatus) {
+    const trial = getTrialStatus(cityConfig);
+    if (trial && trial.active) return true;
+  }
   // Grace period for failed payments (14 days)
   if (cityConfig.subscriptionStatus === 'past_due') {
     const failedDate = new Date(cityConfig.paymentFailedAt || Date.now());
     const graceDays = Math.ceil((Date.now() - failedDate) / (1000 * 60 * 60 * 24));
     return graceDays <= 14;
   }
+  // Expired, deactivated, or trial ran out — NOT active
   return false;
 }
 
@@ -3309,8 +3315,51 @@ function App() {
     setActiveTab(tabId);
   };
 
+  // Trial banner info
+  const trialBanner = trial && trial.active && cityConfig.subscriptionStatus === 'trial' ? trial : null;
+
   return (
     <div className="app-container">
+      {/* Trial Countdown Banner */}
+      {trialBanner && (
+        <div style={{
+          background: trialBanner.daysLeft <= 3 ? '#FEF2F2' : '#FFFBEB',
+          borderBottom: '1px solid ' + (trialBanner.daysLeft <= 3 ? '#FECACA' : '#FDE68A'),
+          padding: '8px 16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 12,
+          fontSize: 13,
+          fontWeight: 600,
+          color: trialBanner.daysLeft <= 3 ? '#991B1B' : '#92400E',
+          flexShrink: 0
+        }}>
+          <span>{trialBanner.daysLeft <= 3 ? '⚠️' : '⏱️'}</span>
+          <span>
+            {trialBanner.daysLeft === 1
+              ? 'Your trial ends tomorrow!'
+              : `${trialBanner.daysLeft} days left in your free trial`}
+          </span>
+          {isAdmin && (
+            <button
+              onClick={() => createCheckoutSession(cityConfig.tier || 'starter', cityConfig.cityName, user.email, 0)}
+              style={{
+                background: trialBanner.daysLeft <= 3 ? '#DC2626' : '#D97706',
+                color: '#fff',
+                border: 'none',
+                padding: '4px 14px',
+                borderRadius: 6,
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: 'pointer',
+                marginLeft: 4
+              }}>
+              Subscribe Now
+            </button>
+          )}
+        </div>
+      )}
       {/* Header */}
       <div className="app-header">
         {cityConfig.logoUrl ? (

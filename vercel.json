@@ -4,8 +4,8 @@
   "framework": null,
   "rewrites": [
     { "source": "/", "destination": "/landing.html" },
-    { "source": "/app", "destination": "/index.html" },
-    { "source": "/app/(.*)", "destination": "/index.html" },
-    { "source": "/:citySlug", "destination": "/index.html" }
+    { "source": "/app", "destination": "/app.html" },
+    { "source": "/app/(.*)", "destination": "/app.html" },
+    { "source": "/:citySlug", "destination": "/app.html" }
   ]
 }

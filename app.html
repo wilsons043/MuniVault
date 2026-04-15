@@ -153,8 +153,8 @@ html, body, #root {
 .header-logo {
   width: 36px; height: 36px;
   border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid rgba(255,255,255,0.3);
+  object-fit: contain;
+  background: transparent;
   flex-shrink: 0;
 }
 .header-logo-placeholder {
@@ -993,6 +993,15 @@ async function createCheckoutSession(tierId, cityName, adminEmail, extraSeats) {
   const priceId = STRIPE_PRICE_IDS[tierId];
   if (!priceId) return null;
 
+  // Save selected tier to cityConfig before redirecting to Stripe
+  const storedConfig = localStorage.getItem('munivault_city_config');
+  if (storedConfig) {
+    const config = JSON.parse(storedConfig);
+    config.tier = tierId;
+    config.checkoutInitiatedAt = new Date().toISOString();
+    localStorage.setItem('munivault_city_config', JSON.stringify(config));
+  }
+
   const lineItems = [{ price: priceId, quantity: 1 }];
   if (extraSeats > 0) {
     lineItems.push({ price: STRIPE_PRICE_IDS.extraSeat, quantity: extraSeats });
@@ -1005,8 +1014,8 @@ async function createCheckoutSession(tierId, cityName, adminEmail, extraSeats) {
       body: JSON.stringify({
         priceId, tierId, cityName, adminEmail, extraSeats,
         lineItems,
-        successUrl: window.location.origin + '?checkout=success',
-        cancelUrl: window.location.origin + '?checkout=cancel',
+        successUrl: window.location.origin + '/app?checkout=success&tier=' + tierId,
+        cancelUrl: window.location.origin + '/app?checkout=cancel',
         billingAnchor: 1 // 1st of month
       })
     });
@@ -1263,16 +1272,20 @@ function LoginScreen({ onLogin, onSwitchToJoin, onSwitchToSetup, cityConfig }) {
 
   return (
     <div className="auth-screen">
-      <div className="splash-logo-placeholder" style={{ width: 64, height: 64, marginBottom: 16, animation: 'none' }}>
-        <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" style={{ width: 28, height: 28 }}>
-          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-        </svg>
-      </div>
-      <div className="auth-brand">{APP_NAME}</div>
-      <div className="auth-subtitle">{APP_TAGLINE}</div>
+      {cityConfig?.logoUrl ? (
+        <img src={cityConfig.logoUrl} alt={cityConfig.cityName} style={{ width: 80, height: 80, objectFit: 'contain', marginBottom: 16, background: 'transparent' }} />
+      ) : (
+        <div className="splash-logo-placeholder" style={{ width: 64, height: 64, marginBottom: 16, animation: 'none' }}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" style={{ width: 28, height: 28 }}>
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+      )}
+      <div className="auth-brand">{cityConfig?.cityName || APP_NAME}</div>
+      <div className="auth-subtitle">{cityConfig ? `Powered by ${APP_NAME}` : APP_TAGLINE}</div>
       <div className="auth-card">
         <h2>Sign In</h2>
-        <p className="subtitle">Access your city's vault</p>
+        <p className="subtitle">{cityConfig ? `Sign in to ${cityConfig.cityName}` : 'Access your city\'s vault'}</p>
         <form onSubmit={handleLogin}>
           {error && <div style={{ background: 'var(--color-danger-light)', color: '#991B1B', padding: '10px 14px', borderRadius: 'var(--radius-md)', fontSize: 13, marginBottom: 16 }}>{error}</div>}
           <div className="form-group">
@@ -2841,6 +2854,97 @@ function SuperAdminDashboard({ onClose }) {
   );
 }
 
+// ============ CITY SLUG HELPERS ============
+// Extract city slug from URL path: /waynesville → "waynesville", /app → null
+function getCitySlugFromUrl() {
+  const path = window.location.pathname.replace(/^\/+|\/+$/g, '').toLowerCase();
+  // Reserved paths that are NOT city slugs
+  const reserved = ['', 'app', 'landing', 'landing.html', 'index.html', '_cors_serve.html', '_transfer.html'];
+  if (reserved.includes(path)) return null;
+  // Only allow valid slug characters (letters, numbers, hyphens)
+  if (/^[a-z0-9][a-z0-9-]*$/.test(path)) return path;
+  return null;
+}
+
+// Generate a URL-safe slug from city name: "City of Waynesville" → "waynesville"
+function generateCitySlug(cityName) {
+  return cityName
+    .toLowerCase()
+    .replace(/^(city|town|village|borough)\s+(of\s+)?/i, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+// Fetch city config from Supabase by slug (public, no auth required)
+async function fetchCityBySlug(slug) {
+  if (!supabase || !slug) return null;
+  try {
+    const { data, error } = await supabase
+      .from('cities')
+      .select('*')
+      .eq('slug', slug)
+      .single();
+    if (error || !data) return null;
+    // Map Supabase row to app's cityConfig format
+    return {
+      id: data.id,
+      slug: data.slug,
+      cityName: data.name,
+      logoUrl: data.logo_url || '',
+      inviteCode: data.invite_code,
+      tier: data.tier || 'starter',
+      subscriptionStatus: data.subscription_status || 'trial',
+      trialStart: data.trial_start,
+      subscribedAt: data.subscribed_at,
+      stripeCustomerId: data.stripe_customer_id,
+      paymentFailedAt: data.payment_failed_at,
+      extraSeats: data.extra_seats || 0,
+      createdBy: data.created_by,
+      createdAt: data.created_at,
+      _fromSupabase: true
+    };
+  } catch (err) {
+    console.warn('City lookup failed:', err);
+    return null;
+  }
+}
+
+// Save city config to Supabase
+async function saveCityToSupabase(cityConfig) {
+  if (!supabase || !cityConfig) return null;
+  try {
+    const slug = cityConfig.slug || generateCitySlug(cityConfig.cityName);
+    const row = {
+      slug,
+      name: cityConfig.cityName,
+      logo_url: cityConfig.logoUrl || null,
+      invite_code: cityConfig.inviteCode,
+      tier: cityConfig.tier || 'starter',
+      subscription_status: cityConfig.subscriptionStatus || 'trial',
+      trial_start: cityConfig.trialStart || new Date().toISOString(),
+      subscribed_at: cityConfig.subscribedAt || null,
+      stripe_customer_id: cityConfig.stripeCustomerId || null,
+      extra_seats: cityConfig.extraSeats || 0,
+      created_by: cityConfig.createdBy || null
+    };
+
+    if (cityConfig.id) {
+      // Update existing
+      const { data, error } = await supabase.from('cities').update(row).eq('id', cityConfig.id).select().single();
+      if (error) throw error;
+      return data;
+    } else {
+      // Insert new
+      const { data, error } = await supabase.from('cities').insert(row).select().single();
+      if (error) throw error;
+      return data;
+    }
+  } catch (err) {
+    console.warn('City save to Supabase failed:', err);
+    return null;
+  }
+}
+
 // ============ MAIN APP ============
 function App() {
   const [loading, setLoading] = useState(true);
@@ -2848,6 +2952,8 @@ function App() {
   const [user, setUser] = useState(null);
   const [authScreen, setAuthScreen] = useState('login'); // login, register, setup
   const [cityConfig, setCityConfig] = useState(null);
+  const [citySlug, setCitySlug] = useState(getCitySlugFromUrl());
+  const [cityNotFound, setCityNotFound] = useState(false);
   const [entries, setEntries] = useState([]);
   const [crew, setCrew] = useState([]);
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -2860,7 +2966,7 @@ function App() {
 
   const showToast = (msg) => { setToast(msg); };
 
-  // ---- LOAD FROM LOCALSTORAGE ----
+  // ---- LOAD DATA: URL slug → Supabase, fallback to localStorage ----
   useEffect(() => {
     const session = localStorage.getItem(STORAGE_KEYS.session);
     const config = localStorage.getItem(STORAGE_KEYS.cityConfig);
@@ -2875,13 +2981,50 @@ function App() {
         setUser(parsed);
       }
     }
-    if (config) setCityConfig(JSON.parse(config));
     if (storedEntries) setEntries(JSON.parse(storedEntries));
     if (storedCrew) setCrew(JSON.parse(storedCrew));
 
-    // Splash timer
-    setTimeout(() => setSplashFade(true), 1500);
-    setTimeout(() => setLoading(false), 2100);
+    // ---- CITY LOOKUP: prefer Supabase by slug, fallback to localStorage ----
+    const slug = getCitySlugFromUrl();
+    if (slug && supabase) {
+      // URL has a city slug — fetch from Supabase
+      fetchCityBySlug(slug).then(city => {
+        if (city) {
+          setCityConfig(city);
+          setCitySlug(slug);
+          // Also cache locally for offline use
+          localStorage.setItem(STORAGE_KEYS.cityConfig, JSON.stringify(city));
+        } else {
+          // Slug not found in DB
+          setCityNotFound(true);
+        }
+        setTimeout(() => setSplashFade(true), 800);
+        setTimeout(() => setLoading(false), 1400);
+      });
+    } else {
+      // No slug in URL — use localStorage (legacy /app path or admin setup)
+      if (config) setCityConfig(JSON.parse(config));
+
+      // ---- HANDLE STRIPE CHECKOUT RETURN ----
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('checkout') === 'success' && config) {
+        const parsed = JSON.parse(config);
+        parsed.subscriptionStatus = 'active';
+        parsed.subscribedAt = new Date().toISOString();
+        const tierFromUrl = params.get('tier');
+        if (tierFromUrl && TIERS[tierFromUrl]) parsed.tier = tierFromUrl;
+        else if (!parsed.tier) parsed.tier = 'starter';
+        localStorage.setItem(STORAGE_KEYS.cityConfig, JSON.stringify(parsed));
+        setCityConfig(parsed);
+        // Also update Supabase if we have the city
+        saveCityToSupabase(parsed);
+        window.history.replaceState({}, '', window.location.pathname);
+      }
+
+      // Splash timer
+      setTimeout(() => setSplashFade(true), 1500);
+      setTimeout(() => setLoading(false), 2100);
+    }
   }, []);
 
   // ---- PERSIST ----
@@ -2928,8 +3071,23 @@ function App() {
     setAuthScreen('login');
   };
 
-  const handleSetupComplete = (config, setupUser) => {
-    setCityConfig(config);
+  const handleSetupComplete = async (config, setupUser) => {
+    // Generate slug and save to Supabase
+    const slug = generateCitySlug(config.cityName);
+    const fullConfig = { ...config, slug };
+    setCityConfig(fullConfig);
+    setCitySlug(slug);
+
+    // Save to Supabase
+    const saved = await saveCityToSupabase(fullConfig);
+    if (saved) {
+      fullConfig.id = saved.id;
+      setCityConfig(fullConfig);
+      localStorage.setItem(STORAGE_KEYS.cityConfig, JSON.stringify(fullConfig));
+      // Update URL to the city slug path
+      window.history.replaceState({}, '', '/' + slug);
+    }
+
     // Refresh crew from localStorage (admin was added during setup)
     const storedCrew = localStorage.getItem(STORAGE_KEYS.crewMembers);
     if (storedCrew) setCrew(JSON.parse(storedCrew));
@@ -3017,6 +3175,23 @@ function App() {
     return <SplashScreen cityConfig={cityConfig} fadeOut={splashFade} />;
   }
 
+  // ---- 404: CITY NOT FOUND ----
+  if (cityNotFound) {
+    return (
+      <div className="auth-screen">
+        <div style={{ fontSize: 48, marginBottom: 16 }}>🏛️</div>
+        <div className="auth-brand">{APP_NAME}</div>
+        <div style={{ color: 'var(--text-secondary)', fontSize: 15, marginBottom: 24, maxWidth: 340, textAlign: 'center', lineHeight: 1.6 }}>
+          We couldn't find a city at <strong>/{citySlug}</strong>. Double-check the URL or contact your city administrator.
+        </div>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <a href="/" className="btn btn-primary" style={{ textDecoration: 'none' }}>Go to MuniVault Home</a>
+          <button className="btn btn-outline" onClick={() => { setCityNotFound(false); setAuthScreen('setup'); }}>Set Up a New City</button>
+        </div>
+      </div>
+    );
+  }
+
   // ---- AUTH SCREENS ----
   if (!user) {
     if (authScreen === 'join') {
@@ -3041,23 +3216,30 @@ function App() {
   const subscriptionActive = isSubscriptionActive(cityConfig);
   const currentTier = getCityTier(cityConfig);
 
-  // Lock screen if subscription expired / trial over / payment failed
-  if (!subscriptionActive && user.role === 'admin' && cityConfig.subscriptionStatus !== undefined) {
+  // Lock screen if subscription not active — covers expired trials, failed payments,
+  // AND cities that were created without going through Stripe at all.
+  const hasNoSubscription = !cityConfig.subscriptionStatus && !cityConfig.trialCode;
+  if (!subscriptionActive && user.role === 'admin' && (cityConfig.subscriptionStatus !== undefined || hasNoSubscription)) {
+    const isFirstTime = hasNoSubscription;
     return (
       <div className="app-container">
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 32, textAlign: 'center' }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>{isFirstTime ? '🚀' : '🔒'}</div>
           <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 8 }}>
-            {trial?.expired ? 'Your Trial Has Ended' : 'Subscription Inactive'}
+            {isFirstTime ? 'Choose Your Plan' : trial?.expired ? 'Your Trial Has Ended' : 'Subscription Inactive'}
           </h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 24, maxWidth: 320 }}>
-            {trial?.expired
-              ? 'Your 14-day trial is over. Subscribe to continue using MuniVault. Your data is safe and will be available once you subscribe.'
-              : 'Please update your payment to continue using MuniVault. Your data is preserved.'}
+          <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 24, maxWidth: 360 }}>
+            {isFirstTime
+              ? 'You\'re almost there! Select a plan below to start your 14-day free trial via Stripe. No charge until the trial ends.'
+              : trial?.expired
+                ? 'Your 14-day trial is over. Subscribe to continue using MuniVault. Your data is safe and will be available once you subscribe.'
+                : 'Please update your payment to continue using MuniVault. Your data is preserved.'}
           </p>
-          <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16 }}>
-            Current plan: <strong>{currentTier.name}</strong> — ${currentTier.price}/month
-          </div>
+          {!isFirstTime && (
+            <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16 }}>
+              Current plan: <strong>{currentTier.name}</strong> — ${currentTier.price}/month
+            </div>
+          )}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 320 }}>
             {Object.values(TIERS).map(t => (
               <button key={t.id} className="btn btn-primary btn-lg" style={{
@@ -3069,6 +3251,22 @@ function App() {
               </button>
             ))}
           </div>
+          <button className="btn btn-outline" style={{ marginTop: 12 }} onClick={handleLogout}>Sign Out</button>
+        </div>
+      </div>
+    );
+  }
+
+  // Block non-admin crew if subscription is inactive
+  if (!subscriptionActive && user.role !== 'admin') {
+    return (
+      <div className="app-container">
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 32, textAlign: 'center' }}>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
+          <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 8 }}>Access Paused</h2>
+          <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 24, maxWidth: 320 }}>
+            Your city's MuniVault subscription is currently inactive. Please contact your administrator to restore access.
+          </p>
           <button className="btn btn-outline" onClick={handleLogout}>Sign Out</button>
         </div>
       </div>

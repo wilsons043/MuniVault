@@ -3,728 +3,109 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<meta name="theme-color" content="#0F1B2D"/>
-<title>MuniVault — Municipal Data Collection for Cities</title>
-<meta name="description" content="MuniVault is the easiest way for cities to document department activities. Photos, voice recordings, and GPS-tagged reports — all in one organized vault. Starting at $75/month."/>
-
+<meta name="theme-color" content="#1a2332"/>
+<title>MuniVault — Stop Chasing Your City's Paperwork</title>
+<meta name="description" content="MuniVault turns scattered photos, group texts, and paper logs into one organized, searchable vault. Built strictly for local government. Starting at $75/month."/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <style>
-:root {
-  --color-primary:       #1E3A5F;
-  --color-primary-light: #2A5082;
-  --color-primary-dark:  #0F1B2D;
-  --color-accent:        #3B82F6;
-  --color-accent-light:  #60A5FA;
-  --color-success:       #10B981;
-  --color-success-light: #D1FAE5;
-  --color-warning:       #F59E0B;
-  --color-danger:        #EF4444;
-
-  --bg-base:       #F8FAFC;
-  --bg-surface:    #FFFFFF;
-  --bg-muted:      #F1F5F9;
-  --bg-dark:       #0F1B2D;
-  --bg-dark-surface: #1E3A5F;
-
-  --text-primary:   #0F172A;
-  --text-secondary: #475569;
-  --text-muted:     #94A3B8;
-  --text-inverse:   #FFFFFF;
-
-  --border:        #E2E8F0;
-
-  --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-
-  --radius-sm:   4px;
-  --radius-md:   8px;
-  --radius-lg:   12px;
-  --radius-xl:   16px;
-  --radius-2xl:  24px;
-  --radius-full: 9999px;
-
-  --shadow-sm:  0 1px 2px rgba(0,0,0,0.05);
-  --shadow-md:  0 4px 6px -1px rgba(0,0,0,0.1);
-  --shadow-lg:  0 10px 25px -5px rgba(0,0,0,0.1);
-  --shadow-xl:  0 25px 50px -12px rgba(0,0,0,0.25);
-
-  --ease: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-html { scroll-behavior: smooth; }
-
-body {
-  font-family: var(--font-main);
-  background: var(--bg-base);
-  color: var(--text-primary);
-  -webkit-font-smoothing: antialiased;
-  line-height: 1.6;
-}
-
-a { color: inherit; text-decoration: none; }
-img { max-width: 100%; display: block; }
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 24px;
-}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1a2332;-webkit-font-smoothing:antialiased;line-height:1.5;background:#fff;}
+a{color:inherit;text-decoration:none;}
+img{max-width:100%;display:block;}
 
 /* ============ NAV ============ */
-.nav {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: rgba(255,255,255,0.95);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-}
-.nav-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 24px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-.nav-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 20px;
-  font-weight: 800;
-  color: var(--color-primary);
-  letter-spacing: -0.5px;
-}
-.nav-brand-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  background: var(--color-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-}
-.nav-brand-icon svg { width: 20px; height: 20px; }
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: 32px;
-}
-.nav-links a {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  transition: color 200ms var(--ease);
-}
-.nav-links a:hover { color: var(--color-primary); }
-.nav-cta {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-/* ============ BUTTONS ============ */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 12px 22px;
-  border: none;
-  border-radius: var(--radius-md);
-  font-family: var(--font-main);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 200ms var(--ease);
-  white-space: nowrap;
-}
-.btn-primary {
-  background: var(--color-primary);
-  color: white;
-}
-.btn-primary:hover {
-  background: var(--color-primary-light);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
-}
-.btn-accent {
-  background: var(--color-accent);
-  color: white;
-}
-.btn-accent:hover {
-  background: var(--color-accent-light);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
-}
-.btn-outline {
-  background: transparent;
-  border: 1.5px solid var(--border);
-  color: var(--text-primary);
-}
-.btn-outline:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-}
-.btn-ghost {
-  background: transparent;
-  color: var(--text-secondary);
-}
-.btn-ghost:hover { color: var(--color-primary); }
-.btn-lg { padding: 16px 28px; font-size: 16px; }
-.btn-xl { padding: 18px 36px; font-size: 17px; }
+.nav{background:#fff;border-bottom:1px solid #e5e7eb;position:sticky;top:0;z-index:100;}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;max-width:1200px;margin:0 auto;padding:12px 32px;}
+.nav-brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:20px;color:#1a2332;}
+.nav-brand svg{width:28px;height:28px;}
+.nav-links{display:flex;align-items:center;gap:28px;}
+.nav-links a{font-size:14px;font-weight:500;color:#555;transition:color .2s;}
+.nav-links a:hover{color:#e8601c;}
+.nav-cta-btn{display:inline-block;background:#e8601c;color:#fff;font-size:13px;font-weight:700;padding:10px 22px;border-radius:6px;border:2px solid #e8601c;transition:all .2s;}
+.nav-cta-btn:hover{background:#d45518;border-color:#d45518;}
 
 /* ============ HERO ============ */
-.hero {
-  padding: 80px 0 100px;
-  background: linear-gradient(180deg, var(--bg-base) 0%, var(--bg-muted) 100%);
-  position: relative;
-  overflow: hidden;
-}
-.hero::before {
-  content: '';
-  position: absolute;
-  top: -200px;
-  right: -200px;
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%);
-  pointer-events: none;
-}
-.hero-inner {
-  max-width: 900px;
-  margin: 0 auto;
-  text-align: center;
-  position: relative;
-}
-.hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(59,130,246,0.1);
-  color: var(--color-accent);
-  padding: 6px 14px;
-  border-radius: var(--radius-full);
-  font-size: 13px;
-  font-weight: 600;
-  margin-bottom: 24px;
-}
-.hero-title {
-  font-size: 64px;
-  font-weight: 900;
-  line-height: 1.05;
-  letter-spacing: -2px;
-  color: var(--color-primary-dark);
-  margin-bottom: 24px;
-}
-.hero-title .accent { color: var(--color-accent); }
-.hero-subtitle {
-  font-size: 20px;
-  color: var(--text-secondary);
-  max-width: 680px;
-  margin: 0 auto 40px;
-  line-height: 1.6;
-}
-.hero-cta-row {
-  display: flex;
-  gap: 14px;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-bottom: 24px;
-}
-.hero-meta {
-  font-size: 13px;
-  color: var(--text-muted);
-}
-.hero-meta strong { color: var(--text-secondary); font-weight: 600; }
+.hero{background:#1a2332;color:#fff;position:relative;overflow:hidden;}
+.hero-inner{display:flex;align-items:center;max-width:1200px;margin:0 auto;padding:60px 32px 0;gap:40px;}
+.hero-text{flex:1;min-width:0;padding-bottom:60px;}
+.hero-title{font-size:48px;font-weight:900;line-height:1.05;letter-spacing:-1.5px;text-transform:uppercase;margin-bottom:20px;color:#fff;}
+.hero-subtitle{font-size:16px;color:rgba(255,255,255,0.8);line-height:1.6;margin-bottom:32px;max-width:480px;}
+.hero-cta-row{display:flex;gap:12px;flex-wrap:wrap;}
+.btn-hero-primary{display:inline-block;background:#e8601c;color:#fff;font-size:15px;font-weight:700;padding:14px 28px;border-radius:6px;border:2px solid #e8601c;transition:all .2s;}
+.btn-hero-primary:hover{background:#d45518;}
+.btn-hero-outline{display:inline-block;background:transparent;color:#fff;font-size:15px;font-weight:700;padding:14px 28px;border-radius:6px;border:2px solid rgba(255,255,255,0.4);transition:all .2s;}
+.btn-hero-outline:hover{border-color:#fff;background:rgba(255,255,255,0.08);}
+.hero-image{flex:1;min-width:0;display:flex;align-items:flex-end;justify-content:center;}
+.hero-image svg{width:100%;max-width:480px;height:auto;}
 
-/* ============ SECTION HEADING ============ */
-.section {
-  padding: 100px 0;
-}
-.section-muted { background: var(--bg-muted); }
-.section-dark { background: var(--bg-dark); color: white; }
-.section-header {
-  text-align: center;
-  max-width: 720px;
-  margin: 0 auto 64px;
-}
-.section-eyebrow {
-  font-size: 13px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: var(--color-accent);
-  margin-bottom: 16px;
-}
-.section-title {
-  font-size: 44px;
-  font-weight: 800;
-  letter-spacing: -1px;
-  line-height: 1.15;
-  margin-bottom: 16px;
-}
-.section-dark .section-title { color: white; }
-.section-subtitle {
-  font-size: 18px;
-  color: var(--text-secondary);
-  line-height: 1.6;
-}
-.section-dark .section-subtitle { color: rgba(255,255,255,0.7); }
+/* City illustration placeholder */
+.hero-illustration{flex:1;min-width:0;position:relative;display:flex;align-items:flex-end;justify-content:center;}
+.city-illustration{width:100%;max-width:500px;}
 
-/* ============ PROBLEM ============ */
-.problem-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
-  max-width: 900px;
-  margin: 0 auto;
-}
-.problem-card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-xl);
-  padding: 28px;
-}
-.problem-icon {
-  font-size: 32px;
-  margin-bottom: 12px;
-}
-.problem-title {
-  font-size: 18px;
-  font-weight: 700;
-  margin-bottom: 8px;
-  color: var(--color-primary-dark);
-}
-.problem-text {
-  font-size: 14px;
-  color: var(--text-secondary);
-  line-height: 1.6;
-}
-
-/* ============ FEATURES ============ */
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-}
-.feature-card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-xl);
-  padding: 32px 28px;
-  transition: all 250ms var(--ease);
-}
-.feature-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-  border-color: var(--color-accent);
-}
-.feature-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: var(--radius-lg);
-  background: rgba(59,130,246,0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 26px;
-  margin-bottom: 18px;
-}
-.feature-title {
-  font-size: 18px;
-  font-weight: 700;
-  margin-bottom: 8px;
-  color: var(--color-primary-dark);
-}
-.feature-text {
-  font-size: 14px;
-  color: var(--text-secondary);
-  line-height: 1.6;
-}
+/* ============ PROBLEM SECTION ============ */
+.problem-section{background:#fff;padding:60px 32px;}
+.problem-inner{max-width:1200px;margin:0 auto;display:flex;gap:48px;align-items:center;}
+.problem-text-col{flex:1;}
+.problem-title{font-size:36px;font-weight:900;line-height:1.1;letter-spacing:-1px;color:#1a2332;text-transform:uppercase;margin-bottom:8px;}
+.problem-title span{color:#e8601c;}
+.problem-illustration-col{flex:1;position:relative;}
 
 /* ============ HOW IT WORKS ============ */
-.steps {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
-  position: relative;
-}
-.step {
-  text-align: center;
-  position: relative;
-}
-.step-number {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: var(--color-primary);
-  color: white;
-  font-size: 22px;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 20px;
-  box-shadow: 0 0 0 6px rgba(30,58,95,0.1);
-}
-.step-title {
-  font-size: 17px;
-  font-weight: 700;
-  margin-bottom: 8px;
-  color: var(--color-primary-dark);
-}
-.step-text {
-  font-size: 14px;
-  color: var(--text-secondary);
-  line-height: 1.6;
-}
+.how-section{background:#f5f5f0;padding:60px 32px;}
+.how-inner{max-width:1200px;margin:0 auto;}
+.how-heading{font-size:32px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#1a2332;text-align:center;margin-bottom:48px;}
+.how-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:32px;}
+.how-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:32px;text-align:center;}
+.how-card-icon{margin:0 auto 16px;width:80px;height:80px;}
+.how-card-icon svg{width:80px;height:80px;}
+.how-card-number{font-size:14px;font-weight:800;color:#e8601c;margin-bottom:4px;}
+.how-card-title{font-size:18px;font-weight:800;color:#1a2332;margin-bottom:8px;}
+.how-card-text{font-size:14px;color:#666;line-height:1.6;}
 
 /* ============ PRICING ============ */
-.pricing-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  max-width: 1100px;
-  margin: 0 auto;
-}
-.price-card {
-  background: var(--bg-surface);
-  border: 2px solid var(--border);
-  border-radius: var(--radius-2xl);
-  padding: 36px 32px;
-  position: relative;
-  transition: all 250ms var(--ease);
-}
-.price-card.featured {
-  border-color: var(--color-accent);
-  transform: scale(1.03);
-  box-shadow: var(--shadow-xl);
-}
-.price-card.featured::before {
-  content: 'MOST POPULAR';
-  position: absolute;
-  top: -12px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--color-accent);
-  color: white;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 5px 14px;
-  border-radius: var(--radius-full);
-  letter-spacing: 1px;
-}
-.price-tier-name {
-  font-size: 14px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--text-muted);
-  margin-bottom: 8px;
-}
-.price-amount {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  margin-bottom: 8px;
-}
-.price-currency {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--color-primary-dark);
-}
-.price-number {
-  font-size: 56px;
-  font-weight: 900;
-  letter-spacing: -2px;
-  color: var(--color-primary-dark);
-  line-height: 1;
-}
-.price-period {
-  font-size: 15px;
-  color: var(--text-muted);
-}
-.price-tagline {
-  font-size: 14px;
-  color: var(--text-secondary);
-  margin-bottom: 24px;
-  line-height: 1.5;
-  min-height: 42px;
-}
-.price-features {
-  list-style: none;
-  margin-bottom: 28px;
-}
-.price-features li {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 8px 0;
-  font-size: 14px;
-  color: var(--text-secondary);
-  border-bottom: 1px solid var(--bg-muted);
-}
-.price-features li:last-child { border-bottom: none; }
-.price-features li::before {
-  content: '✓';
-  color: var(--color-success);
-  font-weight: 700;
-  flex-shrink: 0;
-  margin-top: 1px;
-}
-.price-features li.disabled {
-  color: var(--text-muted);
-  text-decoration: line-through;
-}
-.price-features li.disabled::before {
-  content: '×';
-  color: var(--text-muted);
-  text-decoration: none;
-}
-.price-cta {
-  width: 100%;
-}
-
-/* ============ BLOG ============ */
-.blog-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 28px;
-}
-.blog-card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-xl);
-  overflow: hidden;
-  transition: all 250ms var(--ease);
-}
-.blog-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-}
-.blog-image {
-  width: 100%;
-  height: 180px;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 64px;
-}
-.blog-body {
-  padding: 24px;
-}
-.blog-meta {
-  display: flex;
-  gap: 12px;
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-bottom: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 600;
-}
-.blog-meta .dot { color: var(--border); }
-.blog-title {
-  font-size: 18px;
-  font-weight: 700;
-  margin-bottom: 10px;
-  color: var(--color-primary-dark);
-  line-height: 1.3;
-}
-.blog-excerpt {
-  font-size: 14px;
-  color: var(--text-secondary);
-  line-height: 1.6;
-  margin-bottom: 16px;
-}
-.blog-link {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--color-accent);
-}
-
-/* ============ FAQ ============ */
-.faq-list {
-  max-width: 800px;
-  margin: 0 auto;
-}
-.faq-item {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 24px 28px;
-  margin-bottom: 12px;
-  cursor: pointer;
-  transition: all 200ms var(--ease);
-}
-.faq-item:hover { border-color: var(--color-accent); }
-.faq-question {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--color-primary-dark);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.faq-answer {
-  font-size: 14px;
-  color: var(--text-secondary);
-  line-height: 1.7;
-  margin-top: 12px;
-  display: none;
-}
-.faq-item.open .faq-answer { display: block; }
-.faq-item.open .faq-toggle { transform: rotate(45deg); }
-.faq-toggle {
-  font-size: 22px;
-  color: var(--color-accent);
-  transition: transform 200ms var(--ease);
-  font-weight: 300;
-}
-
-/* ============ CTA SECTION ============ */
-.cta-section {
-  background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
-  padding: 100px 0;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-.cta-section::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 30% 50%, rgba(59,130,246,0.2) 0%, transparent 50%);
-  pointer-events: none;
-}
-.cta-inner {
-  position: relative;
-  max-width: 720px;
-  margin: 0 auto;
-}
-.cta-title {
-  font-size: 44px;
-  font-weight: 800;
-  color: white;
-  margin-bottom: 18px;
-  letter-spacing: -1px;
-}
-.cta-subtitle {
-  font-size: 18px;
-  color: rgba(255,255,255,0.8);
-  margin-bottom: 36px;
-}
+.pricing-section{background:#fff;padding:60px 32px;}
+.pricing-inner{max-width:1000px;margin:0 auto;}
+.pricing-heading{font-size:32px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#1a2332;text-align:center;margin-bottom:48px;}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+.price-card{background:#fff;border:2px solid #e5e7eb;border-radius:12px;padding:32px 28px;text-align:center;}
+.price-card.featured{border-color:#e8601c;box-shadow:0 4px 24px rgba(232,96,28,0.15);}
+.price-tier{font-size:20px;font-weight:800;color:#1a2332;margin-bottom:16px;}
+.price-features-list{list-style:none;text-align:left;margin-bottom:24px;padding:0;}
+.price-features-list li{font-size:13px;color:#444;padding:6px 0;padding-left:20px;position:relative;line-height:1.4;}
+.price-features-list li::before{content:"\2022";color:#e8601c;font-weight:900;position:absolute;left:4px;font-size:16px;}
+.price-amount{font-size:48px;font-weight:900;color:#1a2332;margin-bottom:4px;line-height:1;}
+.price-amount span{font-size:18px;font-weight:500;color:#888;}
+.price-cta{display:block;width:100%;background:#e8601c;color:#fff;font-size:14px;font-weight:700;padding:12px 0;border-radius:6px;text-align:center;border:none;cursor:pointer;transition:background .2s;margin-top:16px;}
+.price-cta:hover{background:#d45518;}
 
 /* ============ FOOTER ============ */
-.footer {
-  background: var(--color-primary-dark);
-  color: rgba(255,255,255,0.7);
-  padding: 64px 0 32px;
-}
-.footer-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
-  gap: 48px;
-  margin-bottom: 48px;
-}
-.footer-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 22px;
-  font-weight: 800;
-  color: white;
-  margin-bottom: 12px;
-}
-.footer-brand-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  background: var(--color-accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.footer-brand-icon svg { width: 20px; height: 20px; }
-.footer-tagline {
-  font-size: 14px;
-  color: rgba(255,255,255,0.6);
-  max-width: 320px;
-  line-height: 1.6;
-  margin-bottom: 20px;
-}
-.footer-contact {
-  font-size: 14px;
-  color: rgba(255,255,255,0.7);
-}
-.footer-contact a {
-  color: var(--color-accent-light);
-  font-weight: 500;
-}
-.footer-col-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: white;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 16px;
-}
-.footer-col ul { list-style: none; }
-.footer-col li {
-  margin-bottom: 10px;
-  font-size: 14px;
-}
-.footer-col a {
-  color: rgba(255,255,255,0.6);
-  transition: color 200ms var(--ease);
-}
-.footer-col a:hover { color: white; }
-.footer-bottom {
-  border-top: 1px solid rgba(255,255,255,0.1);
-  padding-top: 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 13px;
-  color: rgba(255,255,255,0.5);
-  flex-wrap: wrap;
-  gap: 12px;
-}
+.footer{background:#fff;border-top:1px solid #e5e7eb;padding:20px 32px;text-align:center;}
+.footer-inner{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+.footer-links{display:flex;gap:20px;}
+.footer-links a{font-size:13px;color:#888;text-decoration:underline;}
+.footer-links a:hover{color:#1a2332;}
+.footer-copy{font-size:13px;color:#888;}
 
 /* ============ RESPONSIVE ============ */
-@media (max-width: 900px) {
-  .hero-title { font-size: 44px; }
-  .section-title { font-size: 32px; }
-  .cta-title { font-size: 32px; }
-  .nav-links { display: none; }
-  .features-grid,
-  .blog-grid,
-  .pricing-grid,
-  .steps,
-  .problem-grid {
-    grid-template-columns: 1fr;
-  }
-  .price-card.featured { transform: none; }
-  .footer-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 32px;
-  }
-  .section { padding: 64px 0; }
-  .hero { padding: 56px 0 72px; }
+@media(max-width:900px){
+  .hero-inner{flex-direction:column;text-align:center;padding:40px 24px 0;}
+  .hero-title{font-size:36px;}
+  .hero-subtitle{margin:0 auto 28px;}
+  .hero-cta-row{justify-content:center;}
+  .hero-illustration{display:none;}
+  .problem-inner{flex-direction:column;text-align:center;}
+  .problem-illustration-col{display:none;}
+  .how-grid{grid-template-columns:1fr;}
+  .pricing-grid{grid-template-columns:1fr;}
+  .nav-links{display:none;}
 }
-@media (max-width: 600px) {
-  .hero-title { font-size: 36px; letter-spacing: -1px; }
-  .hero-subtitle { font-size: 16px; }
-  .footer-grid { grid-template-columns: 1fr; }
-  .footer-bottom { flex-direction: column; text-align: center; }
+@media(max-width:600px){
+  .hero-title{font-size:28px;}
+  .pricing-heading,.how-heading,.problem-title{font-size:24px;}
+  .footer-inner{flex-direction:column;text-align:center;}
 }
 </style>
 </head>
@@ -733,635 +114,363 @@ img { max-width: 100%; display: block; }
 <!-- ============ NAV ============ -->
 <nav class="nav">
   <div class="nav-inner">
-    <a href="#" class="nav-brand">
-      <div class="nav-brand-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-        </svg>
-      </div>
+    <a href="/" class="nav-brand">
+      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="32" height="32" rx="6" fill="#e8601c"/>
+        <path d="M16 6L8 10v4l8 4 8-4v-4l-8-4z" fill="#fff" opacity="0.9"/>
+        <path d="M8 16v4l8 4 8-4v-4l-8 4-8-4z" fill="#fff" opacity="0.7"/>
+        <path d="M8 22v2l8 4 8-4v-2l-8 4-8-4z" fill="#fff" opacity="0.5"/>
+      </svg>
       MuniVault
     </a>
     <div class="nav-links">
-      <a href="#features">Features</a>
+      <a href="#problem">Problem</a>
+      <a href="#solution">Solution</a>
       <a href="#how-it-works">How It Works</a>
       <a href="#pricing">Pricing</a>
-      <a href="#blog">Blog</a>
-      <a href="#faq">FAQ</a>
     </div>
-    <div class="nav-cta">
-      <a href="/app" class="btn btn-ghost">Sign In</a>
-      <a href="/app" class="btn btn-primary">Start Free Trial</a>
-    </div>
+    <a href="/app" class="nav-cta-btn">Start Free Trial</a>
   </div>
 </nav>
 
 <!-- ============ HERO ============ -->
 <section class="hero">
-  <div class="container">
-    <div class="hero-inner">
-      <div class="hero-badge">
-        <span>🏛️</span> Built for Cities & Local Government
-      </div>
-      <h1 class="hero-title">
-        Many photographers,<br/>
-        <span class="accent">one camera.</span>
-      </h1>
+  <div class="hero-inner">
+    <div class="hero-text">
+      <h1 class="hero-title">Stop chasing your city's paperwork.</h1>
       <p class="hero-subtitle">
-        MuniVault is the easiest way for cities to document what every department is doing.
-        Photos, voice recordings, and GPS-tagged reports — all flowing into one organized,
-        searchable vault. Built for committee reports, public records, and accountability.
+        Turn scattered photos, group texts, and paper logs into one organized, searchable vault. Built strictly for local government.
       </p>
       <div class="hero-cta-row">
-        <a href="/app" class="btn btn-primary btn-xl">Start 14-Day Free Trial →</a>
-        <a href="#how-it-works" class="btn btn-outline btn-xl">See How It Works</a>
+        <a href="/app" class="btn-hero-primary">Start 14-Day Free Trial</a>
+        <a href="#how-it-works" class="btn-hero-outline">See How It Works</a>
       </div>
-      <div class="hero-meta">
-        <strong>No credit card required</strong> · Full features for 14 days · Cancel anytime
-      </div>
+    </div>
+    <div class="hero-illustration">
+      <!-- City skyline illustration -->
+      <svg class="city-illustration" viewBox="0 0 500 350" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Ground / road -->
+        <rect x="0" y="280" width="500" height="70" fill="#2a3a4e" rx="0"/>
+        <rect x="40" y="300" width="420" height="6" rx="3" fill="#3d5068"/>
+        <!-- Building 1 - tall -->
+        <rect x="60" y="120" width="60" height="160" fill="#2d4a6a" rx="4"/>
+        <rect x="68" y="130" width="12" height="14" rx="2" fill="#f5c842" opacity="0.7"/>
+        <rect x="86" y="130" width="12" height="14" rx="2" fill="#f5c842" opacity="0.5"/>
+        <rect x="68" y="152" width="12" height="14" rx="2" fill="#f5c842" opacity="0.6"/>
+        <rect x="86" y="152" width="12" height="14" rx="2" fill="#f5c842" opacity="0.8"/>
+        <rect x="68" y="174" width="12" height="14" rx="2" fill="#f5c842" opacity="0.4"/>
+        <rect x="86" y="174" width="12" height="14" rx="2" fill="#f5c842" opacity="0.7"/>
+        <rect x="68" y="196" width="12" height="14" rx="2" fill="#f5c842" opacity="0.9"/>
+        <rect x="86" y="196" width="12" height="14" rx="2" fill="#f5c842" opacity="0.5"/>
+        <rect x="68" y="218" width="12" height="14" rx="2" fill="#f5c842" opacity="0.6"/>
+        <rect x="86" y="218" width="12" height="14" rx="2" fill="#f5c842" opacity="0.8"/>
+        <rect x="68" y="240" width="12" height="14" rx="2" fill="#f5c842" opacity="0.5"/>
+        <rect x="86" y="240" width="12" height="14" rx="2" fill="#f5c842" opacity="0.7"/>
+        <!-- Building 2 - medium -->
+        <rect x="130" y="170" width="55" height="110" fill="#365b80" rx="4"/>
+        <rect x="138" y="180" width="10" height="12" rx="2" fill="#f5c842" opacity="0.6"/>
+        <rect x="154" y="180" width="10" height="12" rx="2" fill="#f5c842" opacity="0.8"/>
+        <rect x="138" y="200" width="10" height="12" rx="2" fill="#f5c842" opacity="0.7"/>
+        <rect x="154" y="200" width="10" height="12" rx="2" fill="#f5c842" opacity="0.5"/>
+        <rect x="138" y="220" width="10" height="12" rx="2" fill="#f5c842" opacity="0.9"/>
+        <rect x="154" y="220" width="10" height="12" rx="2" fill="#f5c842" opacity="0.6"/>
+        <rect x="138" y="240" width="10" height="12" rx="2" fill="#f5c842" opacity="0.5"/>
+        <rect x="154" y="240" width="10" height="12" rx="2" fill="#f5c842" opacity="0.8"/>
+        <!-- Building 3 - city hall with dome -->
+        <rect x="200" y="160" width="80" height="120" fill="#2d4a6a" rx="4"/>
+        <ellipse cx="240" cy="160" rx="30" ry="20" fill="#2d4a6a"/>
+        <rect x="235" y="130" width="10" height="30" fill="#365b80"/>
+        <circle cx="240" cy="128" r="6" fill="#e8601c"/>
+        <rect x="212" y="180" width="14" height="16" rx="2" fill="#f5c842" opacity="0.7"/>
+        <rect x="232" y="180" width="14" height="16" rx="2" fill="#f5c842" opacity="0.9"/>
+        <rect x="252" y="180" width="14" height="16" rx="2" fill="#f5c842" opacity="0.6"/>
+        <rect x="212" y="204" width="14" height="16" rx="2" fill="#f5c842" opacity="0.5"/>
+        <rect x="232" y="204" width="14" height="16" rx="2" fill="#f5c842" opacity="0.8"/>
+        <rect x="252" y="204" width="14" height="16" rx="2" fill="#f5c842" opacity="0.7"/>
+        <rect x="212" y="228" width="14" height="16" rx="2" fill="#f5c842" opacity="0.6"/>
+        <rect x="232" y="228" width="14" height="16" rx="2" fill="#f5c842" opacity="0.9"/>
+        <rect x="252" y="228" width="14" height="16" rx="2" fill="#f5c842" opacity="0.5"/>
+        <!-- Building 4 - tall right -->
+        <rect x="295" y="100" width="50" height="180" fill="#365b80" rx="4"/>
+        <rect x="303" y="112" width="10" height="12" rx="2" fill="#f5c842" opacity="0.8"/>
+        <rect x="319" y="112" width="10" height="12" rx="2" fill="#f5c842" opacity="0.5"/>
+        <rect x="303" y="132" width="10" height="12" rx="2" fill="#f5c842" opacity="0.6"/>
+        <rect x="319" y="132" width="10" height="12" rx="2" fill="#f5c842" opacity="0.9"/>
+        <rect x="303" y="152" width="10" height="12" rx="2" fill="#f5c842" opacity="0.7"/>
+        <rect x="319" y="152" width="10" height="12" rx="2" fill="#f5c842" opacity="0.5"/>
+        <rect x="303" y="172" width="10" height="12" rx="2" fill="#f5c842" opacity="0.8"/>
+        <rect x="319" y="172" width="10" height="12" rx="2" fill="#f5c842" opacity="0.6"/>
+        <rect x="303" y="192" width="10" height="12" rx="2" fill="#f5c842" opacity="0.5"/>
+        <rect x="319" y="192" width="10" height="12" rx="2" fill="#f5c842" opacity="0.9"/>
+        <rect x="303" y="212" width="10" height="12" rx="2" fill="#f5c842" opacity="0.7"/>
+        <rect x="319" y="212" width="10" height="12" rx="2" fill="#f5c842" opacity="0.5"/>
+        <rect x="303" y="232" width="10" height="12" rx="2" fill="#f5c842" opacity="0.6"/>
+        <rect x="319" y="232" width="10" height="12" rx="2" fill="#f5c842" opacity="0.8"/>
+        <rect x="303" y="252" width="10" height="12" rx="2" fill="#f5c842" opacity="0.5"/>
+        <rect x="319" y="252" width="10" height="12" rx="2" fill="#f5c842" opacity="0.7"/>
+        <!-- Building 5 - short right -->
+        <rect x="355" y="200" width="55" height="80" fill="#2d4a6a" rx="4"/>
+        <rect x="363" y="210" width="10" height="12" rx="2" fill="#f5c842" opacity="0.7"/>
+        <rect x="381" y="210" width="10" height="12" rx="2" fill="#f5c842" opacity="0.6"/>
+        <rect x="363" y="230" width="10" height="12" rx="2" fill="#f5c842" opacity="0.8"/>
+        <rect x="381" y="230" width="10" height="12" rx="2" fill="#f5c842" opacity="0.5"/>
+        <rect x="363" y="250" width="10" height="12" rx="2" fill="#f5c842" opacity="0.6"/>
+        <rect x="381" y="250" width="10" height="12" rx="2" fill="#f5c842" opacity="0.9"/>
+        <!-- Crane -->
+        <rect x="418" y="80" width="4" height="200" fill="#4a6a8a"/>
+        <rect x="398" y="80" width="44" height="4" fill="#4a6a8a"/>
+        <line x1="398" y1="84" x2="420" y2="120" stroke="#4a6a8a" stroke-width="2"/>
+        <line x1="442" y1="84" x2="422" y2="120" stroke="#4a6a8a" stroke-width="2"/>
+        <rect x="396" y="84" width="4" height="30" fill="#4a6a8a"/>
+        <!-- GPS Pin markers -->
+        <g transform="translate(90,100)">
+          <path d="M8 0C3.6 0 0 3.6 0 8c0 6 8 14 8 14s8-8 8-14c0-4.4-3.6-8-8-8z" fill="#e8601c"/>
+          <circle cx="8" cy="8" r="3" fill="#fff"/>
+        </g>
+        <g transform="translate(230,110)">
+          <path d="M8 0C3.6 0 0 3.6 0 8c0 6 8 14 8 14s8-8 8-14c0-4.4-3.6-8-8-8z" fill="#e8601c"/>
+          <circle cx="8" cy="8" r="3" fill="#fff"/>
+        </g>
+        <g transform="translate(340,80)">
+          <path d="M8 0C3.6 0 0 3.6 0 8c0 6 8 14 8 14s8-8 8-14c0-4.4-3.6-8-8-8z" fill="#e8601c"/>
+          <circle cx="8" cy="8" r="3" fill="#fff"/>
+        </g>
+        <!-- "CITY VAULT" text on center building -->
+        <text x="240" y="270" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="10" font-weight="800" font-family="Inter,sans-serif" letter-spacing="2">CITY VAULT</text>
+      </svg>
     </div>
   </div>
 </section>
 
-<!-- ============ PROBLEM ============ -->
-<section class="section">
-  <div class="container">
-    <div class="section-header">
-      <div class="section-eyebrow">The Problem</div>
-      <h2 class="section-title">Cities don't have a system for this.</h2>
-      <p class="section-subtitle">
-        Department activities get lost in shared drives, email chains, group texts, and paper logs.
-        When the council asks for a report, somebody spends hours hunting it down.
-      </p>
+<!-- ============ PROBLEM / WHERE DO YOUR PUBLIC RECORDS LIVE ============ -->
+<section class="problem-section" id="problem">
+  <div class="problem-inner">
+    <div class="problem-text-col">
+      <h2 class="problem-title">Where do your public records <span>actually</span> live?</h2>
     </div>
-    <div class="problem-grid">
-      <div class="problem-card">
-        <div class="problem-icon">📋</div>
-        <div class="problem-title">Committee reports take forever</div>
-        <div class="problem-text">
-          Department heads spend hours every month chasing crews for what they accomplished,
-          piecing it together for council meetings.
-        </div>
-      </div>
-      <div class="problem-card">
-        <div class="problem-icon">📁</div>
-        <div class="problem-title">Knowledge walks out the door</div>
-        <div class="problem-text">
-          When a long-time employee leaves, years of institutional memory go with them.
-          Nothing was ever written down.
-        </div>
-      </div>
-      <div class="problem-card">
-        <div class="problem-icon">👥</div>
-        <div class="problem-title">No accountability trail</div>
-        <div class="problem-text">
-          When citizens or council members ask "what did the parks department do this week?",
-          there's no organized answer.
-        </div>
-      </div>
-      <div class="problem-card">
-        <div class="problem-icon">📸</div>
-        <div class="problem-title">Photos scattered everywhere</div>
-        <div class="problem-text">
-          Crews snap photos on personal phones. They live in someone's camera roll forever,
-          unseen and unsearchable.
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+    <div class="problem-illustration-col">
+      <!-- Scattered documents illustration -->
+      <svg viewBox="0 0 480 320" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:480px;">
+        <!-- Scattered items with labels -->
+        <!-- Group text -->
+        <g transform="translate(20,40)">
+          <rect width="90" height="60" rx="8" fill="#f0f0ea" stroke="#ccc"/>
+          <rect x="10" y="10" width="40" height="6" rx="3" fill="#bbb"/>
+          <rect x="10" y="22" width="55" height="4" rx="2" fill="#ddd"/>
+          <rect x="10" y="30" width="45" height="4" rx="2" fill="#ddd"/>
+          <rect x="10" y="42" width="30" height="6" rx="3" fill="#3b82f6"/>
+        </g>
+        <text x="65" y="120" text-anchor="middle" fill="#888" font-size="11" font-weight="600">group text</text>
 
-<!-- ============ FEATURES ============ -->
-<section class="section section-muted" id="features">
-  <div class="container">
-    <div class="section-header">
-      <div class="section-eyebrow">Features</div>
-      <h2 class="section-title">Everything a city needs to document its work.</h2>
-      <p class="section-subtitle">
-        Built specifically for municipal workflows. No bloat, no enterprise complexity —
-        just the tools your departments will actually use.
-      </p>
-    </div>
-    <div class="features-grid">
-      <div class="feature-card">
-        <div class="feature-icon">🎙️</div>
-        <div class="feature-title">Voice-to-Text Capture</div>
-        <div class="feature-text">
-          Crew members tap Record and describe what happened. Speech is transcribed
-          in real time directly into the entry. No typing required in the field.
-        </div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">✨</div>
-        <div class="feature-title">AI Grammar Cleanup</div>
-        <div class="feature-text">
-          One tap turns rough field notes into committee-ready language.
-          Powered by GPT-4o-mini — preserves the meaning, polishes the prose.
-        </div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">📍</div>
-        <div class="feature-title">GPS Location Tagging</div>
-        <div class="feature-text">
-          Every capture is automatically pinned to a precise location. Build an auditable,
-          geographic record of every project, repair, and inspection.
-        </div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🗺️</div>
-        <div class="feature-title">Interactive Map View</div>
-        <div class="feature-text">
-          See every entry plotted on a map. Filter by department, click any pin to see
-          the full report. Perfect for visualizing crew activity citywide.
-        </div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">📷</div>
-        <div class="feature-title">Photo Documentation</div>
-        <div class="feature-text">
-          Snap photos directly from the device camera. Multiple photos per entry,
-          auto-compressed to save storage. Every photo tied to a department and date.
-        </div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">📊</div>
-        <div class="feature-title">One-Click Exports</div>
-        <div class="feature-text">
-          Export everything — or just one department — to CSV, JSON, or download all photos.
-          Hand it to your auditor, your council, or your successor.
-        </div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">👥</div>
-        <div class="feature-title">Crew Management</div>
-        <div class="feature-text">
-          Invite crew members by email. Assign each one to a single department.
-          They only see their work. Admins see everything.
-        </div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🔒</div>
-        <div class="feature-title">Invite-Only Access</div>
-        <div class="feature-text">
-          No public sign-ups. Admins generate invite codes for each crew member.
-          You control exactly who has access to your city's data.
-        </div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">📱</div>
-        <div class="feature-title">Works on Any Phone</div>
-        <div class="feature-text">
-          No app store needed. Save MuniVault to your home screen and it works like a
-          native app. iPhone, Android, tablet — same experience everywhere.
-        </div>
-      </div>
+        <!-- Spreadsheet -->
+        <g transform="translate(140,20)">
+          <rect width="90" height="70" rx="4" fill="#e8f5e9" stroke="#a5d6a7"/>
+          <line x1="0" y1="18" x2="90" y2="18" stroke="#a5d6a7"/>
+          <line x1="0" y1="34" x2="90" y2="34" stroke="#c8e6c9"/>
+          <line x1="0" y1="50" x2="90" y2="50" stroke="#c8e6c9"/>
+          <line x1="30" y1="0" x2="30" y2="70" stroke="#c8e6c9"/>
+          <line x1="60" y1="0" x2="60" y2="70" stroke="#c8e6c9"/>
+        </g>
+        <text x="185" y="110" text-anchor="middle" fill="#888" font-size="11" font-weight="600">spreadsheet</text>
+
+        <!-- Crew text photo -->
+        <g transform="translate(280,10)">
+          <rect width="80" height="65" rx="6" fill="#f3e8ff" stroke="#c4b5fd"/>
+          <rect x="8" y="8" width="64" height="36" rx="4" fill="#ddd"/>
+          <text x="40" y="32" text-anchor="middle" fill="#aaa" font-size="18">📷</text>
+          <rect x="8" y="50" width="40" height="4" rx="2" fill="#c4b5fd"/>
+        </g>
+        <text x="320" y="95" text-anchor="middle" fill="#888" font-size="10" font-weight="600">Crew text photo,</text>
+        <text x="320" y="108" text-anchor="middle" fill="#888" font-size="10" font-weight="600">3 months ago?</text>
+
+        <!-- File folder -->
+        <g transform="translate(390,60)">
+          <path d="M0 15 Q0 8 8 8 L30 8 L36 0 L72 0 Q80 0 80 8 L80 55 Q80 63 72 63 L8 63 Q0 63 0 55 Z" fill="#fef3c7" stroke="#f59e0b"/>
+        </g>
+        <text x="430" y="140" text-anchor="middle" fill="#888" font-size="11" font-weight="600">file folder</text>
+
+        <!-- Paper form -->
+        <g transform="translate(40,170)">
+          <rect width="85" height="100" rx="4" fill="#fff" stroke="#ddd"/>
+          <rect x="10" y="12" width="50" height="5" rx="2" fill="#ccc"/>
+          <rect x="10" y="24" width="60" height="4" rx="2" fill="#e5e7eb"/>
+          <rect x="10" y="34" width="55" height="4" rx="2" fill="#e5e7eb"/>
+          <rect x="10" y="44" width="40" height="4" rx="2" fill="#e5e7eb"/>
+          <rect x="10" y="58" width="60" height="4" rx="2" fill="#e5e7eb"/>
+          <rect x="10" y="68" width="45" height="4" rx="2" fill="#e5e7eb"/>
+          <rect x="10" y="82" width="50" height="4" rx="2" fill="#e5e7eb"/>
+        </g>
+        <text x="82" y="290" text-anchor="middle" fill="#888" font-size="10" font-weight="600">Paper form,</text>
+        <text x="82" y="303" text-anchor="middle" fill="#888" font-size="10" font-weight="600">incomplete</text>
+
+        <!-- Council meeting report -->
+        <g transform="translate(180,160)">
+          <rect width="100" height="80" rx="4" fill="#fff" stroke="#ddd" transform="rotate(-5 50 40)"/>
+          <rect width="100" height="80" rx="4" fill="#fff" stroke="#ccc" transform="rotate(3 50 40)"/>
+          <rect x="12" y="12" width="60" height="5" rx="2" fill="#ccc"/>
+          <rect x="12" y="24" width="72" height="4" rx="2" fill="#e5e7eb"/>
+          <rect x="12" y="34" width="65" height="4" rx="2" fill="#e5e7eb"/>
+          <rect x="12" y="44" width="55" height="4" rx="2" fill="#e5e7eb"/>
+          <rect x="12" y="56" width="70" height="4" rx="2" fill="#e5e7eb"/>
+        </g>
+        <text x="230" y="260" text-anchor="middle" fill="#888" font-size="10" font-weight="600">Council meeting</text>
+        <text x="230" y="273" text-anchor="middle" fill="#888" font-size="10" font-weight="600">report scramble</text>
+
+        <!-- Crew text photo 2 -->
+        <g transform="translate(340,170)">
+          <rect width="80" height="65" rx="6" fill="#fce4ec" stroke="#f48fb1"/>
+          <rect x="8" y="8" width="64" height="36" rx="4" fill="#ddd"/>
+          <text x="40" y="32" text-anchor="middle" fill="#aaa" font-size="18">📸</text>
+          <rect x="8" y="50" width="40" height="4" rx="2" fill="#f48fb1"/>
+        </g>
+        <text x="380" y="255" text-anchor="middle" fill="#888" font-size="10" font-weight="600">Crew text photo,</text>
+        <text x="380" y="268" text-anchor="middle" fill="#888" font-size="10" font-weight="600">3 months ago?</text>
+
+        <!-- Dotted connector lines -->
+        <line x1="65" y1="100" x2="185" y2="90" stroke="#ccc" stroke-dasharray="4 4"/>
+        <line x1="185" y1="90" x2="320" y2="75" stroke="#ccc" stroke-dasharray="4 4"/>
+        <line x1="320" y1="95" x2="430" y2="120" stroke="#ccc" stroke-dasharray="4 4"/>
+        <line x1="82" y1="170" x2="180" y2="170" stroke="#ccc" stroke-dasharray="4 4"/>
+        <line x1="280" y1="200" x2="340" y2="200" stroke="#ccc" stroke-dasharray="4 4"/>
+      </svg>
     </div>
   </div>
 </section>
 
 <!-- ============ HOW IT WORKS ============ -->
-<section class="section" id="how-it-works">
-  <div class="container">
-    <div class="section-header">
-      <div class="section-eyebrow">How It Works</div>
-      <h2 class="section-title">From setup to your first report in minutes.</h2>
-      <p class="section-subtitle">
-        MuniVault is built so non-technical city staff can get started without IT support.
-      </p>
-    </div>
-    <div class="steps">
-      <div class="step">
-        <div class="step-number">1</div>
-        <div class="step-title">Set up your city</div>
-        <div class="step-text">
-          Create an admin account, name your city, upload your logo, and pick your departments.
-          Takes about 3 minutes.
+<section class="how-section" id="how-it-works">
+  <div class="how-inner">
+    <h2 class="how-heading">How It Works</h2>
+    <div class="how-grid">
+      <!-- Card 1: Talk Don't Type -->
+      <div class="how-card">
+        <div class="how-card-icon">
+          <svg viewBox="0 0 80 80" fill="none">
+            <rect width="80" height="80" rx="12" fill="#fef3e2"/>
+            <rect x="35" y="18" width="10" height="28" rx="5" fill="#e8601c"/>
+            <path d="M28 36v4c0 6.6 5.4 12 12 12s12-5.4 12-12v-4" stroke="#e8601c" stroke-width="2.5" fill="none"/>
+            <line x1="40" y1="52" x2="40" y2="60" stroke="#e8601c" stroke-width="2.5"/>
+            <line x1="32" y1="60" x2="48" y2="60" stroke="#e8601c" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
         </div>
+        <div class="how-card-number">1.</div>
+        <div class="how-card-title">Talk, Don't Type</div>
+        <div class="how-card-text">Field crews just tap record and speak. Transcribes instantly. AI cleans up rough field notes.</div>
       </div>
-      <div class="step">
-        <div class="step-number">2</div>
-        <div class="step-title">Invite your crew</div>
-        <div class="step-text">
-          Add crew members by name and email. Each gets a unique invite code and is assigned
-          to one department.
+
+      <!-- Card 2: GPS Mapping -->
+      <div class="how-card">
+        <div class="how-card-icon">
+          <svg viewBox="0 0 80 80" fill="none">
+            <rect width="80" height="80" rx="12" fill="#fef3e2"/>
+            <rect x="15" y="20" width="50" height="38" rx="4" fill="#fadcb8" stroke="#e8601c" stroke-width="2"/>
+            <path d="M40 28c-3 0-5.5 2.5-5.5 5.5C34.5 38 40 44 40 44s5.5-6 5.5-10.5C45.5 30.5 43 28 40 28z" fill="#e8601c"/>
+            <circle cx="40" cy="33.5" r="2" fill="#fff"/>
+            <line x1="20" y1="50" x2="35" y2="50" stroke="#e8601c" stroke-width="1.5" stroke-dasharray="3 2"/>
+            <line x1="45" y1="50" x2="60" y2="50" stroke="#e8601c" stroke-width="1.5" stroke-dasharray="3 2"/>
+          </svg>
         </div>
+        <div class="how-card-number">2.</div>
+        <div class="how-card-title">Automatic GPS Mapping</div>
+        <div class="how-card-text">Every single report is pinned to a precise coordinate. View city activity via an interactive map.</div>
       </div>
-      <div class="step">
-        <div class="step-number">3</div>
-        <div class="step-title">Crew captures activity</div>
-        <div class="step-text">
-          Crews tap "New Capture", talk into their phone, snap photos. Everything's tagged
-          with location and time.
+
+      <!-- Card 3: Built for the Field -->
+      <div class="how-card">
+        <div class="how-card-icon">
+          <svg viewBox="0 0 80 80" fill="none">
+            <rect width="80" height="80" rx="12" fill="#fef3e2"/>
+            <rect x="26" y="14" width="28" height="48" rx="4" fill="#fadcb8" stroke="#e8601c" stroke-width="2"/>
+            <rect x="30" y="20" width="20" height="32" rx="2" fill="#fff"/>
+            <circle cx="40" cy="58" r="2.5" fill="#e8601c"/>
+            <line x1="34" y1="16" x2="46" y2="16" stroke="#e8601c" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
         </div>
+        <div class="how-card-number">3.</div>
+        <div class="how-card-title">Built for the Field</div>
+        <div class="how-card-text">Works in any phone browser. Save to home screen, no App Store download needed.</div>
       </div>
-      <div class="step">
-        <div class="step-number">4</div>
-        <div class="step-title">Export & report</div>
-        <div class="step-text">
-          Admin downloads everything to CSV, JSON, or photo bundles. Hand it to council,
-          auditors, or the public.
+
+      <!-- Card 4: One-Click Exports -->
+      <div class="how-card">
+        <div class="how-card-icon">
+          <svg viewBox="0 0 80 80" fill="none">
+            <rect width="80" height="80" rx="12" fill="#fef3e2"/>
+            <rect x="18" y="22" width="20" height="26" rx="3" fill="#fadcb8" stroke="#e8601c" stroke-width="2"/>
+            <rect x="22" y="28" width="12" height="2" rx="1" fill="#e8601c"/>
+            <rect x="22" y="33" width="10" height="2" rx="1" fill="#e8601c" opacity="0.6"/>
+            <rect x="22" y="38" width="12" height="2" rx="1" fill="#e8601c" opacity="0.4"/>
+            <path d="M44 35 L58 35" stroke="#e8601c" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M52 29 L58 35 L52 41" stroke="#e8601c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <rect x="58" y="26" width="8" height="18" rx="2" fill="#fadcb8" stroke="#e8601c" stroke-width="1.5"/>
+          </svg>
         </div>
+        <div class="how-card-number">4.</div>
+        <div class="how-card-title">One-Click Audits &amp; Exports</div>
+        <div class="how-card-text">One click to export everything to CSV or JSON. Public records requests solved in seconds.</div>
       </div>
     </div>
   </div>
 </section>
 
 <!-- ============ PRICING ============ -->
-<section class="section section-muted" id="pricing">
-  <div class="container">
-    <div class="section-header">
-      <div class="section-eyebrow">Pricing</div>
-      <h2 class="section-title">Simple, transparent pricing.</h2>
-      <p class="section-subtitle">
-        Start with a 14-day free trial of Starter — no credit card needed.
-        Upgrade, downgrade, or cancel anytime.
-      </p>
-    </div>
+<section class="pricing-section" id="pricing">
+  <div class="pricing-inner">
+    <h2 class="pricing-heading">Pricing</h2>
     <div class="pricing-grid">
 
       <!-- BASIC -->
       <div class="price-card">
-        <div class="price-tier-name">Basic</div>
-        <div class="price-amount">
-          <span class="price-currency">$</span>
-          <span class="price-number">75</span>
-          <span class="price-period">/month</span>
-        </div>
-        <p class="price-tagline">For small towns getting started with documentation.</p>
-        <ul class="price-features">
-          <li>5 crew member seats</li>
-          <li>3 departments</li>
-          <li>Photo capture</li>
-          <li>Text descriptions</li>
-          <li>CSV export</li>
-          <li>1-year data retention</li>
-          <li>Self-serve onboarding</li>
-          <li class="disabled">Voice recording</li>
-          <li class="disabled">AI grammar cleanup</li>
-          <li class="disabled">GPS & map view</li>
+        <div class="price-tier">Basic</div>
+        <ul class="price-features-list">
+          <li>1 Crew Seats</li>
+          <li>2 Departments</li>
+          <li>Voice-to-Text</li>
+          <li>GPS Maps</li>
         </ul>
-        <a href="/app?tier=basic" class="btn btn-outline price-cta">Start Free Trial</a>
+        <div class="price-amount">$75<span>/mo</span></div>
+        <a href="/app?tier=basic" class="price-cta">Start Free Trial</a>
       </div>
 
-      <!-- STARTER (FEATURED) -->
+      <!-- STARTER -->
       <div class="price-card featured">
-        <div class="price-tier-name">Starter</div>
-        <div class="price-amount">
-          <span class="price-currency">$</span>
-          <span class="price-number">125</span>
-          <span class="price-period">/month</span>
-        </div>
-        <p class="price-tagline">For cities ready to document everything across multiple departments.</p>
-        <ul class="price-features">
-          <li><strong>10 crew member seats</strong></li>
-          <li>5 departments</li>
-          <li>Everything in Basic</li>
-          <li>Voice recording + transcription</li>
-          <li>AI grammar cleanup (100/mo)</li>
-          <li>GPS location tagging</li>
-          <li>Interactive map view</li>
-          <li>JSON export</li>
-          <li>Custom branding</li>
-          <li>Weekly & monthly reports</li>
-          <li>Email support · 99.5% SLA</li>
+        <div class="price-tier">Starter</div>
+        <ul class="price-features-list">
+          <li>10 Crew Seats</li>
+          <li>5 Departments</li>
+          <li>Voice-to-Text</li>
+          <li>GPS Maps</li>
         </ul>
-        <a href="/app?tier=starter" class="btn btn-accent price-cta">Start Free Trial</a>
+        <div class="price-amount">$125<span>/mo</span></div>
+        <a href="/app?tier=starter" class="price-cta">Start Free Trial</a>
       </div>
 
       <!-- ENTERPRISE -->
       <div class="price-card">
-        <div class="price-tier-name">Enterprise</div>
-        <div class="price-amount">
-          <span class="price-currency">$</span>
-          <span class="price-number">175</span>
-          <span class="price-period">/month</span>
-        </div>
-        <p class="price-tagline">For larger cities with many departments and compliance needs.</p>
-        <ul class="price-features">
-          <li><strong>25 crew member seats</strong></li>
-          <li><strong>Unlimited departments</strong></li>
-          <li>Everything in Starter</li>
-          <li>Unlimited AI cleanup</li>
-          <li>PDF report generation</li>
-          <li>Daily, weekly & monthly reports</li>
-          <li>Unlimited report subscribers</li>
-          <li>Full audit log</li>
-          <li>SSO + API access</li>
-          <li>Virtual training onboarding</li>
-          <li>2-year retention · 99.9% SLA</li>
+        <div class="price-tier">Enterprise</div>
+        <ul class="price-features-list">
+          <li>20 Crew Seats</li>
+          <li>10 Departments</li>
+          <li>Voice-to-Text</li>
+          <li>GPS Maps</li>
+          <li>Enterprise Completes</li>
         </ul>
-        <a href="/app?tier=enterprise" class="btn btn-outline price-cta">Start Free Trial</a>
+        <div class="price-amount">$175<span>/mo</span></div>
+        <a href="/app?tier=enterprise" class="price-cta">Start Free Trial</a>
       </div>
 
-    </div>
-    <p style="text-align: center; margin-top: 32px; font-size: 14px; color: var(--text-muted);">
-      Need more seats? Add extra crew members to any plan for <strong>$10/seat/month</strong>.
-    </p>
-  </div>
-</section>
-
-<!-- ============ BLOG ============ -->
-<section class="section" id="blog">
-  <div class="container">
-    <div class="section-header">
-      <div class="section-eyebrow">Blog</div>
-      <h2 class="section-title">From the MuniVault blog.</h2>
-      <p class="section-subtitle">
-        Ideas, case studies, and practical tips for documenting municipal work.
-      </p>
-    </div>
-    <div class="blog-grid">
-
-      <article class="blog-card">
-        <div class="blog-image">🏛️</div>
-        <div class="blog-body">
-          <div class="blog-meta">
-            <span>Getting Started</span>
-            <span class="dot">·</span>
-            <span>5 min read</span>
-          </div>
-          <h3 class="blog-title">Why every city needs a documentation system</h3>
-          <p class="blog-excerpt">
-            When the council asks for a quarterly report, where does the information come from?
-            For most cities, the answer is "we'll get back to you." Here's how to fix that.
-          </p>
-          <a href="#" class="blog-link">Read more →</a>
-        </div>
-      </article>
-
-      <article class="blog-card">
-        <div class="blog-image">🎙️</div>
-        <div class="blog-body">
-          <div class="blog-meta">
-            <span>How-To</span>
-            <span class="dot">·</span>
-            <span>4 min read</span>
-          </div>
-          <h3 class="blog-title">Voice-first reporting for field crews</h3>
-          <p class="blog-excerpt">
-            Your road crew isn't going to type a paragraph after every pothole repair.
-            But they will talk into their phone for ten seconds. Here's how MuniVault makes that possible.
-          </p>
-          <a href="#" class="blog-link">Read more →</a>
-        </div>
-      </article>
-
-      <article class="blog-card">
-        <div class="blog-image">📊</div>
-        <div class="blog-body">
-          <div class="blog-meta">
-            <span>Case Study</span>
-            <span class="dot">·</span>
-            <span>6 min read</span>
-          </div>
-          <h3 class="blog-title">Preparing for council meetings without the scramble</h3>
-          <p class="blog-excerpt">
-            How a small city department cut their monthly report prep time from 6 hours to 20 minutes
-            by switching to MuniVault.
-          </p>
-          <a href="#" class="blog-link">Read more →</a>
-        </div>
-      </article>
-
-    </div>
-  </div>
-</section>
-
-<!-- ============ FAQ ============ -->
-<section class="section section-muted" id="faq">
-  <div class="container">
-    <div class="section-header">
-      <div class="section-eyebrow">FAQ</div>
-      <h2 class="section-title">Frequently asked questions.</h2>
-    </div>
-    <div class="faq-list">
-      <div class="faq-item" onclick="this.classList.toggle('open')">
-        <div class="faq-question">
-          Do I need to install anything?
-          <span class="faq-toggle">+</span>
-        </div>
-        <div class="faq-answer">
-          No. MuniVault is a Progressive Web App that runs in any modern browser.
-          On a phone, you can save it to your home screen and it'll work like a native app —
-          but there's nothing to download from an app store, and no IT setup required.
-        </div>
-      </div>
-      <div class="faq-item" onclick="this.classList.toggle('open')">
-        <div class="faq-question">
-          How does the free trial work?
-          <span class="faq-toggle">+</span>
-        </div>
-        <div class="faq-answer">
-          You get full access to the Starter tier for 14 days — no credit card required.
-          A countdown banner shows how many days you have left. At the end, you choose a plan
-          (or walk away with no obligation).
-        </div>
-      </div>
-      <div class="faq-item" onclick="this.classList.toggle('open')">
-        <div class="faq-question">
-          Who can sign up to use my city's MuniVault?
-          <span class="faq-toggle">+</span>
-        </div>
-        <div class="faq-answer">
-          Only people you invite. There's no public sign-up form. The admin generates a unique
-          invite code for each crew member and shares it with them. Without a code, nobody can
-          create an account on your city's vault.
-        </div>
-      </div>
-      <div class="faq-item" onclick="this.classList.toggle('open')">
-        <div class="faq-question">
-          What does a "crew member" see?
-          <span class="faq-toggle">+</span>
-        </div>
-        <div class="faq-answer">
-          Crew members are scoped to one department. They can only see and capture entries for
-          their assigned department — they can't view other departments' activity or access
-          any admin features. Admins see everything across the city.
-        </div>
-      </div>
-      <div class="faq-item" onclick="this.classList.toggle('open')">
-        <div class="faq-question">
-          Can I add more seats than my plan includes?
-          <span class="faq-toggle">+</span>
-        </div>
-        <div class="faq-answer">
-          Yes. Extra crew member seats are $10/month each on any plan. You can add or remove
-          them anytime through the billing portal.
-        </div>
-      </div>
-      <div class="faq-item" onclick="this.classList.toggle('open')">
-        <div class="faq-question">
-          Where is my city's data stored?
-          <span class="faq-toggle">+</span>
-        </div>
-        <div class="faq-answer">
-          Securely in our cloud database (Supabase, hosted in the US), with row-level security
-          so no other city can see your data. You can export everything to CSV, JSON, or photo
-          bundles at any time — your data is always yours.
-        </div>
-      </div>
-      <div class="faq-item" onclick="this.classList.toggle('open')">
-        <div class="faq-question">
-          What if I cancel?
-          <span class="faq-toggle">+</span>
-        </div>
-        <div class="faq-answer">
-          You can cancel anytime through the billing portal. Before you do, export your data
-          (CSV, JSON, photos) so you have a permanent local copy. Your account remains accessible
-          through the end of the billing period.
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============ CONTACT ============ -->
-<section class="section" id="contact">
-  <div class="container">
-    <div class="section-header">
-      <div class="section-eyebrow">Contact</div>
-      <h2 class="section-title">Get in touch.</h2>
-      <p class="section-subtitle">
-        Questions about MuniVault, pricing, or whether it's a fit for your city?
-        Send us a note and we'll get back to you.
-      </p>
-    </div>
-    <form class="contact-form" action="https://formspree.io/f/mdayovlw" method="POST">
-      <div class="form-row">
-        <div class="form-field">
-          <label for="name">Your Name</label>
-          <input type="text" id="name" name="name" required placeholder="Jane Smith"/>
-        </div>
-        <div class="form-field">
-          <label for="email">Email</label>
-          <input type="email" id="email" name="email" required placeholder="jane@city.gov"/>
-        </div>
-      </div>
-      <div class="form-field">
-        <label for="city">City / Organization</label>
-        <input type="text" id="city" name="city" placeholder="City of Waynesville"/>
-      </div>
-      <div class="form-field">
-        <label for="message">Message</label>
-        <textarea id="message" name="message" rows="5" required placeholder="Tell us what you're looking for..."></textarea>
-      </div>
-      <button type="submit" class="btn btn-primary btn-xl" style="width: 100%;">Send Message →</button>
-    </form>
-  </div>
-</section>
-
-<style>
-.contact-form {
-  max-width: 640px;
-  margin: 0 auto;
-  background: var(--bg-surface);
-  padding: 40px;
-  border-radius: var(--radius-2xl);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-md);
-}
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-.form-field {
-  margin-bottom: 18px;
-}
-.form-field label {
-  display: block;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  margin-bottom: 6px;
-}
-.form-field input,
-.form-field textarea {
-  width: 100%;
-  padding: 12px 14px;
-  background: var(--bg-base);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  font-family: var(--font-main);
-  font-size: 14px;
-  color: var(--text-primary);
-  outline: none;
-  transition: border-color 200ms var(--ease);
-}
-.form-field input:focus,
-.form-field textarea:focus {
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
-}
-.form-field textarea { resize: vertical; min-height: 120px; }
-@media (max-width: 600px) {
-  .form-row { grid-template-columns: 1fr; }
-  .contact-form { padding: 28px 20px; }
-}
-</style>
-
-<!-- ============ CTA SECTION ============ -->
-<section class="cta-section">
-  <div class="container">
-    <div class="cta-inner">
-      <h2 class="cta-title">Ready to document your city?</h2>
-      <p class="cta-subtitle">
-        Start your free 14-day trial. No credit card. Full features.
-        Set up in under 5 minutes.
-      </p>
-      <a href="/app" class="btn btn-accent btn-xl">Start Free Trial →</a>
     </div>
   </div>
 </section>
 
 <!-- ============ FOOTER ============ -->
 <footer class="footer">
-  <div class="container">
-    <div class="footer-grid">
-      <div>
-        <div class="footer-brand">
-          <div class="footer-brand-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-            </svg>
-          </div>
-          MuniVault
-        </div>
-        <p class="footer-tagline">
-          The municipal data collection platform built for cities. Many photographers, one camera.
-        </p>
-        <div class="footer-contact">
-          Have a question? <a href="#contact">Get in touch →</a>
-        </div>
-      </div>
-      <div class="footer-col">
-        <div class="footer-col-title">Product</div>
-        <ul>
-          <li><a href="#features">Features</a></li>
-          <li><a href="#how-it-works">How It Works</a></li>
-          <li><a href="#pricing">Pricing</a></li>
-          <li><a href="/app">Sign In</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <div class="footer-col-title">Company</div>
-        <ul>
-          <li><a href="#blog">Blog</a></li>
-          <li><a href="#faq">FAQ</a></li>
-          <li><a href="#contact">Contact</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <div class="footer-col-title">Legal</div>
-        <ul>
-          <li><a href="#">Privacy Policy</a></li>
-          <li><a href="#">Terms of Service</a></li>
-        </ul>
-      </div>
+  <div class="footer-inner">
+    <div class="footer-links">
+      <a href="#">Legal</a>
+      <a href="#">Privacy Policy</a>
     </div>
-    <div class="footer-bottom">
-      <div>&copy; 2026 WilWell Company. All rights reserved.</div>
-      <div>MuniVault is a product of WilWell Company.</div>
-    </div>
+    <div class="footer-copy">&copy; Copyright MuniVault, Inc</div>
   </div>
 </footer>
 

@@ -1273,7 +1273,7 @@ function LoginScreen({ onLogin, onSwitchToJoin, onSwitchToSetup, cityConfig }) {
   return (
     <div className="auth-screen">
       {cityConfig?.logoUrl ? (
-        <img src={cityConfig.logoUrl} alt={cityConfig.cityName} style={{ width: 80, height: 80, objectFit: 'contain', marginBottom: 16, background: 'transparent' }} />
+        <img src={cityConfig.logoUrl} alt={cityConfig.cityName} style={{ width: 80, height: 80, objectFit: 'contain', marginBottom: 16, background: 'var(--bg-dark)', borderRadius: '50%', padding: 4 }} />
       ) : (
         <div className="splash-logo-placeholder" style={{ width: 64, height: 64, marginBottom: 16, animation: 'none' }}>
           <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" style={{ width: 28, height: 28 }}>
@@ -2986,8 +2986,11 @@ function App() {
 
     // ---- CITY LOOKUP: prefer Supabase by slug, fallback to localStorage ----
     const slug = getCitySlugFromUrl();
+    const isAppPath = window.location.pathname === '/app' || window.location.pathname === '/app/';
+    const params = new URLSearchParams(window.location.search);
+
     if (slug && supabase) {
-      // URL has a city slug — fetch from Supabase
+      // URL has a city slug (e.g. /waynesville) — fetch from Supabase
       fetchCityBySlug(slug).then(city => {
         if (city) {
           setCityConfig(city);
@@ -3001,12 +3004,19 @@ function App() {
         setTimeout(() => setSplashFade(true), 800);
         setTimeout(() => setLoading(false), 1400);
       });
+    } else if (isAppPath && !session && !params.get('checkout')) {
+      // /app with no logged-in user and no checkout return → generic signup flow
+      // Do NOT load cached city config — show clean sign-in / set-up-a-new-city screen
+      setCityConfig(null);
+
+      // Splash timer
+      setTimeout(() => setSplashFade(true), 1500);
+      setTimeout(() => setLoading(false), 2100);
     } else {
-      // No slug in URL — use localStorage (legacy /app path or admin setup)
+      // Logged-in user at /app, or checkout return — use localStorage city config
       if (config) setCityConfig(JSON.parse(config));
 
       // ---- HANDLE STRIPE CHECKOUT RETURN ----
-      const params = new URLSearchParams(window.location.search);
       if (params.get('checkout') === 'success' && config) {
         const parsed = JSON.parse(config);
         parsed.subscriptionStatus = 'active';
@@ -3019,6 +3029,14 @@ function App() {
         // Also update Supabase if we have the city
         saveCityToSupabase(parsed);
         window.history.replaceState({}, '', window.location.pathname);
+      }
+
+      // If user is logged in and city has a slug, redirect to the city URL
+      if (session && config) {
+        const parsedConfig = JSON.parse(config);
+        if (parsedConfig.slug && isAppPath) {
+          window.history.replaceState({}, '', '/' + parsedConfig.slug);
+        }
       }
 
       // Splash timer

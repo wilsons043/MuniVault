@@ -1010,7 +1010,11 @@ async function createCheckoutSession(tierId, cityName, adminEmail, extraSeats) {
   try {
     const res = await fetch('https://ghkiaxshupxssnzdzsiw.supabase.co/functions/v1/create-checkout', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+      },
       body: JSON.stringify({
         priceId, tierId, cityName, adminEmail, extraSeats,
         lineItems,
@@ -1033,7 +1037,11 @@ async function openBillingPortal(customerEmail) {
   try {
     const res = await fetch('https://ghkiaxshupxssnzdzsiw.supabase.co/functions/v1/billing-portal', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+      },
       body: JSON.stringify({ email: customerEmail, returnUrl: window.location.origin })
     });
     const data = await res.json();
@@ -3380,105 +3388,4 @@ function App() {
             <button className="header-btn" onClick={() => setShowSettings(true)} title="Settings">⚙️</button>
           )}
           <button className="header-btn" onClick={handleLogout} title="Sign Out"
-            style={{ fontSize: 14 }}>↪</button>
-        </div>
-      </div>
-
-      {/* Trial Banner */}
-      {trial && trial.active && (
-        <div style={{
-          background: trial.daysLeft <= 3 ? 'var(--color-danger)' : trial.daysLeft <= 7 ? 'var(--color-warning)' : 'var(--color-accent)',
-          color: 'white', textAlign: 'center', padding: '8px 16px', fontSize: 13, fontWeight: 600
-        }}>
-          Trial: {trial.daysLeft} day{trial.daysLeft !== 1 ? 's' : ''} remaining
-          {isAdmin && <span style={{ marginLeft: 8, opacity: 0.8, fontWeight: 400 }}>— Subscribe to keep your data</span>}
-        </div>
-      )}
-
-      {/* Main Content */}
-      <div className="main-content">
-        {activeTab === 'dashboard' && (
-          <DashboardView entries={entries} cityConfig={cityConfig} crew={crew} user={user}
-            onCaptureClick={() => setShowCapture(true)} />
-        )}
-        {activeTab === 'departments' && (
-          <DepartmentsView entries={entries} cityConfig={cityConfig} user={user}
-            onEntryClick={setViewingEntry}
-            onCaptureClick={() => setShowCapture(true)} />
-        )}
-        {activeTab === 'crew' && (
-          <CrewView crew={crew} user={user} cityConfig={cityConfig}
-            onInvite={handleInvite}
-            onDeactivate={handleDeactivate}
-            onReactivate={handleReactivate}
-            onDeleteMember={handleDeleteMember}
-            onResendCode={handleResendCode} />
-        )}
-        {activeTab === 'export' && (
-          <ExportView entries={entries} cityConfig={cityConfig} />
-        )}
-      </div>
-
-      {/* Bottom Nav */}
-      <div className="bottom-nav">
-        {tabs.map(tab => (
-          <button key={tab.id}
-            className={`nav-btn ${(tab.id === 'capture' ? showCapture : activeTab === tab.id) ? 'active' : ''}`}
-            onClick={() => handleTabClick(tab.id)}>
-            <span className="nav-icon">{tab.icon}</span>
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Capture View (overlay) */}
-      {showCapture && (
-        <CaptureView
-          cityConfig={cityConfig}
-          user={user}
-          existingEntry={editingEntry}
-          onSave={handleSaveEntry}
-          onClose={() => { setShowCapture(false); setEditingEntry(null); }}
-        />
-      )}
-
-      {/* Entry Detail View (overlay) */}
-      {viewingEntry && (
-        <EntryDetailView
-          entry={viewingEntry}
-          cityConfig={cityConfig}
-          user={user}
-          onClose={() => setViewingEntry(null)}
-          onEdit={(entry) => { setViewingEntry(null); setEditingEntry(entry); setShowCapture(true); }}
-          onDelete={handleDeleteEntry}
-        />
-      )}
-
-      {/* Settings */}
-      {showSettings && (
-        <SettingsView
-          cityConfig={cityConfig}
-          user={user}
-          onClose={() => setShowSettings(false)}
-          onUpdateConfig={handleUpdateConfig}
-          onLogout={handleLogout}
-        />
-      )}
-
-      {/* Super Admin Dashboard */}
-      {showSuperAdmin && (
-        <SuperAdminDashboard onClose={() => setShowSuperAdmin(false)} />
-      )}
-
-      {/* Toast */}
-      {toast && <Toast message={toast} onDone={() => setToast(null)} />}
-    </div>
-  );
-}
-
-// ============ RENDER ============
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
-</script>
-</body>
-</html>
+            styl

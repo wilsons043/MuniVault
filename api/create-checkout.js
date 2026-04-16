@@ -57,11 +57,8 @@ module.exports = async function handler(req, res) {
       sessionParams.customer_email = adminEmail;
     }
 
-    if (billingAnchor) {
-      sessionParams.subscription_data.billing_cycle_anchor_config = {
-        day_of_month: billingAnchor
-      };
-    }
+    // billing_cycle_anchor_config not supported on all Stripe API versions
+    // billing anchor will default to the subscription start date
 
     const session = await stripe.checkout.sessions.create(sessionParams);
 

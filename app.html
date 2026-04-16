@@ -1008,20 +1008,24 @@ async function createCheckoutSession(tierId, cityName, adminEmail, extraSeats) {
   }
 
   try {
-    const { data, error } = await supabase.functions.invoke('create-checkout', {
-      body: {
+    const res = await fetch('/api/create-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         priceId, tierId, cityName, adminEmail, extraSeats,
         lineItems,
         successUrl: window.location.origin + '/app?checkout=success&tier=' + tierId,
         cancelUrl: window.location.origin + '/app?checkout=cancel',
         billingAnchor: 1 // 1st of month
-      }
+      })
     });
-    if (error) { console.error('Checkout error:', error); return null; }
-    if (data?.url) window.location.href = data.url;
+    const data = await res.json();
+    if (!res.ok) { console.error('Checkout error:', data.error); alert('Checkout error: ' + (data.error || 'Unknown error')); return null; }
+    if (data.url) window.location.href = data.url;
     return data;
   } catch (err) {
     console.error('Checkout error:', err);
+    alert('Checkout failed: ' + err.message);
     return null;
   }
 }
@@ -1029,11 +1033,14 @@ async function createCheckoutSession(tierId, cityName, adminEmail, extraSeats) {
 // Stripe Billing Portal — let customers manage their subscription
 async function openBillingPortal(customerEmail) {
   try {
-    const { data, error } = await supabase.functions.invoke('billing-portal', {
-      body: { email: customerEmail, returnUrl: window.location.origin }
+    const res = await fetch('/api/billing-portal', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: customerEmail, returnUrl: window.location.origin })
     });
-    if (error) { console.error('Billing portal error:', error); return null; }
-    if (data?.url) window.location.href = data.url;
+    const data = await res.json();
+    if (!res.ok) { console.error('Billing portal error:', data.error); return null; }
+    if (data.url) window.location.href = data.url;
   } catch (err) {
     console.error('Billing portal error:', err);
   }

@@ -5,6 +5,7 @@
   "framework": null,
   "rewrites": [
     { "source": "/", "destination": "/landing.html" },
+    { "source": "/admin", "destination": "/admin.html" },
     { "source": "/app", "destination": "/app.html" },
     { "source": "/app/(.*)", "destination": "/app.html" },
     { "source": "/:citySlug", "destination": "/app.html" }

@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CivicPipeline — Super Admin</title>
+<link rel="icon" type="image/png" href="/images/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="/config.js"></script>
+<style>
+:root {
+  --navy:#1E3A5F; --navy-light:#2A5082; --navy-dark:#0F1B2D;
+  --accent:#3B82F6; --accent-light:#60A5FA;
+  --success:#10B981; --success-light:#D1FAE5;
+  --warning:#F59E0B; --warning-light:#FEF3C7;
+  --danger:#EF4444; --danger-light:#FEE2E2;
+  --orange:#EA580C;
+  --bg:#F8FAFC; --surface:#FFFFFF; --muted:#F1F5F9;
+  --text:#0F172A; --text2:#475569; --text3:#94A3B8;
+  --border:#E2E8F0;
+  --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --radius:8px; --radius-lg:12px;
+  --shadow:0 1px 3px rgba(0,0,0,0.08);
+  --shadow-lg:0 10px 25px rgba(0,0,0,0.1);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;}
+a{text-decoration:none;color:inherit;}
+
+/* ===== AUTH GATE ===== */
+.auth-gate{position:fixed;inset:0;background:var(--navy-dark);display:flex;align-items:center;justify-content:center;z-index:9999;}
+.auth-box{background:var(--surface);border-radius:var(--radius-lg);padding:40px 32px;width:100%;max-width:400px;box-shadow:var(--shadow-lg);}
+.auth-box h1{font-size:24px;font-weight:800;margin-bottom:4px;color:var(--navy);}
+.auth-box p{font-size:14px;color:var(--text2);margin-bottom:24px;}
+.auth-box input{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:var(--radius);font-size:14px;margin-bottom:12px;outline:none;font-family:var(--font);}
+.auth-box input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,0.1);}
+.auth-box button{width:100%;padding:12px;background:var(--navy);color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;}
+.auth-box button:hover{background:var(--navy-light);}
+.auth-error{color:var(--danger);font-size:13px;margin-bottom:12px;}
+
+/* ===== LAYOUT ===== */
+.layout{display:flex;min-height:100vh;}
+.sidebar{width:240px;background:var(--navy-dark);color:#fff;padding:20px 0;flex-shrink:0;position:fixed;height:100vh;overflow-y:auto;}
+.sidebar-brand{padding:0 20px 24px;font-size:18px;font-weight:800;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:12px;}
+.sidebar-brand img{width:24px;height:24px;}
+.sidebar-nav a{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:14px;font-weight:500;color:rgba(255,255,255,0.7);transition:all 0.15s;}
+.sidebar-nav a:hover,.sidebar-nav a.active{background:rgba(255,255,255,0.1);color:#fff;}
+.sidebar-nav a .icon{font-size:18px;width:24px;text-align:center;}
+.main{margin-left:240px;flex:1;padding:24px 32px;min-height:100vh;}
+
+/* ===== TOP BAR ===== */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;}
+.topbar h1{font-size:24px;font-weight:800;color:var(--text);}
+.topbar-actions{display:flex;gap:10px;}
+
+/* ===== CARDS ===== */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow);}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.card-title{font-size:15px;font-weight:700;color:var(--text);}
+
+/* ===== STAT CARDS ===== */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow);}
+.stat-label{font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+.stat-value{font-size:32px;font-weight:800;color:var(--navy);line-height:1;}
+.stat-change{font-size:12px;font-weight:600;margin-top:6px;}
+.stat-change.up{color:var(--success);}
+.stat-change.down{color:var(--danger);}
+
+/* ===== CHARTS ===== */
+.chart-row{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:24px;}
+.chart-container{height:280px;position:relative;}
+
+/* ===== TABLE ===== */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:14px;}
+th{text-align:left;padding:10px 12px;font-weight:600;color:var(--text3);font-size:12px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid var(--border);}
+td{padding:10px 12px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--muted);}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;}
+.badge-active{background:var(--success-light);color:#065F46;}
+.badge-trial{background:var(--warning-light);color:#92400E;}
+.badge-expired{background:var(--danger-light);color:#991B1B;}
+.badge-deactivated{background:var(--muted);color:var(--text3);}
+.badge-free{background:#EDE9FE;color:#5B21B6;}
+
+/* ===== BUTTONS ===== */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:none;border-radius:var(--radius);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s;}
+.btn-primary{background:var(--navy);color:#fff;}
+.btn-primary:hover{background:var(--navy-light);}
+.btn-accent{background:var(--accent);color:#fff;}
+.btn-accent:hover{background:var(--accent-light);}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-danger:hover{background:#DC2626;}
+.btn-success{background:var(--success);color:#fff;}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text);}
+.btn-outline:hover{border-color:var(--navy);color:var(--navy);}
+.btn-sm{padding:5px 10px;font-size:12px;}
+.btn-orange{background:var(--orange);color:#fff;}
+.btn-orange:hover{background:#C2410C;}
+
+/* ===== MODAL ===== */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;}
+.modal{background:var(--surface);border-radius:var(--radius-lg);padding:28px;width:100%;max-width:500px;box-shadow:var(--shadow-lg);}
+.modal h2{font-size:20px;font-weight:700;margin-bottom:4px;}
+.modal p{font-size:14px;color:var(--text2);margin-bottom:20px;}
+.modal label{display:block;font-size:13px;font-weight:600;color:var(--text2);margin-bottom:6px;}
+.modal input,.modal select,.modal textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:14px;font-family:var(--font);margin-bottom:14px;outline:none;}
+.modal input:focus,.modal select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,0.1);}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:8px;}
+.hidden{display:none !important;}
+
+/* ===== ACTIVITY LOG ===== */
+.activity-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+.activity-item:last-child{border-bottom:none;}
+.activity-dot{width:8px;height:8px;border-radius:50%;margin-top:6px;flex-shrink:0;}
+.activity-text{font-size:13px;color:var(--text);line-height:1.4;}
+.activity-time{font-size:11px;color:var(--text3);margin-top:2px;}
+
+/* ===== TABS ===== */
+.tab-row{display:flex;gap:4px;margin-bottom:20px;border-bottom:2px solid var(--border);padding-bottom:0;}
+.tab-btn{padding:8px 16px;font-size:13px;font-weight:600;color:var(--text3);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.15s;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{color:var(--navy);border-bottom-color:var(--navy);}
+
+/* ===== TOAST ===== */
+.toast{position:fixed;top:20px;right:20px;background:var(--navy);color:#fff;padding:12px 20px;border-radius:var(--radius);font-size:14px;font-weight:600;z-index:9000;box-shadow:var(--shadow-lg);animation:slideIn 0.3s ease;}
+.toast.success{background:var(--success);}
+.toast.error{background:var(--danger);}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:900px){
+  .sidebar{display:none;}
+  .main{margin-left:0;}
+  .stats-row{grid-template-columns:repeat(2,1fr);}
+  .chart-row{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- AUTH GATE -->
+<div id="authGate" class="auth-gate">
+  <div class="auth-box">
+    <h1>🔒 Super Admin</h1>
+    <p>CivicPipeline platform administration. Authorized personnel only.</p>
+    <div id="authError" class="auth-error hidden"></div>
+    <input type="email" id="authEmail" placeholder="Admin email" autocomplete="email"/>
+    <input type="password" id="authPassword" placeholder="Password" autocomplete="current-password"/>
+    <button onclick="handleAdminLogin()">Sign In</button>
+  </div>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div id="appLayout" class="layout hidden">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="/images/favicon.png" alt="CP"> CivicPipeline
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="active" data-tab="dashboard"><span class="icon">📊</span> Dashboard</a>
+      <a href="#" data-tab="cities"><span class="icon">🏛️</span> Cities</a>
+      <a href="#" data-tab="invites"><span class="icon">✉️</span> Invites</a>
+      <a href="#" data-tab="analytics"><span class="icon">📈</span> Analytics</a>
+      <a href="#" data-tab="activity"><span class="icon">📋</span> Activity Log</a>
+    </nav>
+    <div style="position:absolute;bottom:20px;left:20px;right:20px;">
+      <a href="#" onclick="handleLogout()" style="display:flex;align-items:center;gap:8px;padding:10px;font-size:13px;color:rgba(255,255,255,0.5);">
+        <span class="icon">🚪</span> Sign Out
+      </a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <!-- ===== DASHBOARD TAB ===== -->
+    <div id="tab-dashboard" class="tab-content">
+      <div class="topbar">
+        <h1>Platform Overview</h1>
+        <div class="topbar-actions">
+          <button class="btn btn-orange" onclick="openInviteModal()">✉️ Invite City</button>
+        </div>
+      </div>
+
+      <div class="stats-row" id="statsRow">
+        <div class="stat-card">
+          <div class="stat-label">Total Cities</div>
+          <div class="stat-value" id="statCities">0</div>
+          <div class="stat-change up" id="statCitiesChange"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active Users</div>
+          <div class="stat-value" id="statUsers">0</div>
+          <div class="stat-change up" id="statUsersChange"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Entries</div>
+          <div class="stat-value" id="statEntries">0</div>
+          <div class="stat-change up" id="statEntriesChange"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Monthly Revenue</div>
+          <div class="stat-value" id="statRevenue">$0</div>
+          <div class="stat-change up" id="statRevenueChange"></div>
+        </div>
+      </div>
+
+      <div class="chart-row">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Usage Over Time</span>
+            <select id="usageRange" onchange="updateUsageChart()" style="padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:12px;">
+              <option value="7">Last 7 days</option>
+              <option value="30" selected>Last 30 days</option>
+              <option value="90">Last 90 days</option>
+            </select>
+          </div>
+          <div class="chart-container"><canvas id="usageChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Top Tools</span></div>
+          <div class="chart-container"><canvas id="toolsChart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Recent Activity</span>
+          <button class="btn btn-sm btn-outline" data-tab="activity" onclick="switchTab('activity')">View All</button>
+        </div>
+        <div id="recentActivity"></div>
+      </div>
+    </div>
+
+    <!-- ===== CITIES TAB ===== -->
+    <div id="tab-cities" class="tab-content hidden">
+      <div class="topbar">
+        <h1>City Management</h1>
+        <div class="topbar-actions">
+          <button class="btn btn-orange" onclick="openInviteModal()">✉️ Invite City</button>
+        </div>
+      </div>
+
+      <div class="tab-row">
+        <button class="tab-btn active" onclick="filterCities('all',this)">All</button>
+        <button class="tab-btn" onclick="filterCities('active',this)">Active</button>
+        <button class="tab-btn" onclick="filterCities('trial',this)">Trial</button>
+        <button class="tab-btn" onclick="filterCities('free',this)">Free Access</button>
+        <button class="tab-btn" onclick="filterCities('deactivated',this)">Deactivated</button>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>City</th>
+                <th>Slug</th>
+                <th>State</th>
+                <th>Zip</th>
+                <th>Status</th>
+                <th>Plan</th>
+                <th>Users</th>
+                <th>Entries</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="citiesTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== INVITES TAB ===== -->
+    <div id="tab-invites" class="tab-content hidden">
+      <div class="topbar">
+        <h1>Invitations</h1>
+        <div class="topbar-actions">
+          <button class="btn btn-orange" onclick="openInviteModal()">✉️ Send New Invite</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>City Name</th>
+                <th>Email</th>
+                <th>Access Type</th>
+                <th>Expires</th>
+                <th>Status</th>
+                <th>Sent</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="invitesTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ANALYTICS TAB ===== -->
+    <div id="tab-analytics" class="tab-content hidden">
+      <div class="topbar">
+        <h1>Analytics</h1>
+        <div class="topbar-actions">
+          <select id="analyticsCityFilter" onchange="updateAnalytics()" style="padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;">
+            <option value="all">All Cities</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Sessions (30d)</div>
+          <div class="stat-value" id="analSessions">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Entries Created (30d)</div>
+          <div class="stat-value" id="analEntries">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Photos Uploaded (30d)</div>
+          <div class="stat-value" id="analPhotos">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Voice Recordings (30d)</div>
+          <div class="stat-value" id="analVoice">0</div>
+        </div>
+      </div>
+
+      <div class="chart-row">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Daily Active Users</span></div>
+          <div class="chart-container"><canvas id="dauChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Feature Usage Breakdown</span></div>
+          <div class="chart-container"><canvas id="featureChart"></canvas></div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Most Used Tools</span></div>
+          <div id="toolRanking"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Top Cities by Activity</span></div>
+          <div id="cityRanking"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ACTIVITY LOG TAB ===== -->
+    <div id="tab-activity" class="tab-content hidden">
+      <div class="topbar">
+        <h1>Activity Log</h1>
+        <div class="topbar-actions">
+          <select id="activityFilter" onchange="filterActivity()" style="padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;">
+            <option value="all">All Activity</option>
+            <option value="signup">Signups</option>
+            <option value="entry">Entries</option>
+            <option value="invite">Invites</option>
+            <option value="admin">Admin Actions</option>
+          </select>
+        </div>
+      </div>
+      <div class="card">
+        <div id="fullActivityLog"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- INVITE MODAL -->
+<div id="inviteModal" class="modal-overlay hidden">
+  <div class="modal">
+    <h2>Invite a City</h2>
+    <p>Send a magic link that lets them sign up and bypass payment. You control access duration.</p>
+    <label>City Name</label>
+    <input type="text" id="invCityName" placeholder="e.g. Waynesville"/>
+    <label>Zip Code (identifies state)</label>
+    <input type="text" id="invZipCode" placeholder="e.g. 65583" maxlength="5"/>
+    <div id="invStatePreview" style="font-size:13px;color:var(--accent);font-weight:600;margin:-8px 0 14px;"></div>
+    <label>Admin Email</label>
+    <input type="email" id="invEmail" placeholder="mayor@waynesville.gov"/>
+    <label>Access Type</label>
+    <select id="invAccessType">
+      <option value="free_unlimited">Free — Unlimited</option>
+      <option value="free_30">Free — 30 Days</option>
+      <option value="free_60">Free — 60 Days</option>
+      <option value="free_90">Free — 90 Days</option>
+      <option value="free_custom">Free — Custom Duration</option>
+    </select>
+    <div id="customDaysWrap" class="hidden">
+      <label>Custom Days</label>
+      <input type="number" id="invCustomDays" placeholder="Number of days" min="1"/>
+    </div>
+    <label>Plan Tier</label>
+    <select id="invTier">
+      <option value="starter">Starter (10 seats, 5 depts)</option>
+      <option value="basic">Basic (1 seat, 2 depts)</option>
+      <option value="enterprise">Enterprise (20 seats, 10 depts)</option>
+    </select>
+    <label>Note (optional)</label>
+    <textarea id="invNote" rows="2" placeholder="e.g. Pilot program for Pulaski County cities"></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeInviteModal()">Cancel</button>
+      <button class="btn btn-orange" onclick="sendInvite()">Send Magic Link</button>
+    </div>
+  </div>
+</div>
+
+<!-- CITY DETAIL MODAL -->
+<div id="cityDetailModal" class="modal-overlay hidden">
+  <div class="modal" style="max-width:600px;">
+    <h2 id="cdmTitle">City Details</h2>
+    <div id="cdmBody"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeCityDetail()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toastEl" class="toast hidden"></div>
+
+<script>
+// ============================================================
+// SUPER ADMIN DASHBOARD — CivicPipeline
+// ============================================================
+
+// ---------- SUPABASE INIT ----------
+const SUPABASE_URL = 'https://obqgqo1sszodqh4cfuzys.supabase.co';
+const SUPABASE_KEY = window.__CIVICPIPELINE_CONFIG__?.supabaseKey || '';
+let supabase = null;
+
+// Lightweight Supabase client (no SDK dependency)
+function initSupabase() {
+  if (!SUPABASE_KEY) return;
+  supabase = {
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation'
+    },
+    async query(table, params = '') {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}${params}`, { headers: this.headers });
+      return res.json();
+    },
+    async insert(table, data) {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+        method: 'POST', headers: this.headers, body: JSON.stringify(data)
+      });
+      return res.json();
+    },
+    async update(table, id, data) {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
+        method: 'PATCH', headers: { ...this.headers, 'Prefer': 'return=representation' }, body: JSON.stringify(data)
+      });
+      return res.json();
+    },
+    async rpc(fn, params = {}) {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`, {
+        method: 'POST', headers: this.headers, body: JSON.stringify(params)
+      });
+      return res.json();
+    },
+    // Auth with Supabase GoTrue
+    async signIn(email, password) {
+      const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+        method: 'POST',
+        headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      return res.json();
+    }
+  };
+}
+initSupabase();
+
+// ---------- SUPER ADMIN EMAIL(S) ----------
+const SUPER_ADMIN_EMAILS = ['wilsons043@gmail.com'];
+
+// ---------- STATE ----------
+let currentTab = 'dashboard';
+let cities = [];
+let invites = [];
+let activityLog = [];
+let analyticsData = {};
+let usageChartInstance = null;
+let toolsChartInstance = null;
+let dauChartInstance = null;
+let featureChartInstance = null;
+
+// ---------- ZIP CODE → STATE LOOKUP ----------
+const ZIP_STATE_MAP = {
+  '005':'NY','006':'PR','007':'PR','008':'PR','009':'PR','010':'MA','011':'MA','012':'MA','013':'MA',
+  '014':'MA','015':'MA','016':'MA','017':'MA','018':'MA','019':'MA','020':'MA','021':'MA','022':'MA',
+  '023':'MA','024':'MA','025':'MA','026':'MA','027':'MA','028':'RI','029':'RI','030':'NH','031':'NH',
+  '032':'NH','033':'NH','034':'NH','035':'NH','036':'NH','037':'NH','038':'NH','039':'ME','040':'ME',
+  '041':'ME','042':'ME','043':'ME','044':'ME','045':'ME','046':'ME','047':'ME','048':'ME','049':'ME',
+  '050':'VT','051':'VT','052':'VT','053':'VT','054':'VT','055':'VT','056':'VT','057':'VT','058':'VT',
+  '059':'VT','060':'CT','061':'CT','062':'CT','063':'CT','064':'CT','065':'CT','066':'CT','067':'CT',
+  '068':'CT','069':'CT','070':'NJ','071':'NJ','072':'NJ','073':'NJ','074':'NJ','075':'NJ','076':'NJ',
+  '077':'NJ','078':'NJ','079':'NJ','080':'NJ','081':'NJ','082':'NJ','083':'NJ','084':'NJ','085':'NJ',
+  '086':'NJ','087':'NJ','088':'NJ','089':'NJ','100':'NY','101':'NY','102':'NY','103':'NY','104':'NY',
+  '105':'NY','106':'NY','107':'NY','108':'NY','109':'NY','110':'NY','111':'NY','112':'NY','113':'NY',
+  '114':'NY','115':'NY','116':'NY','117':'NY','118':'NY','119':'NY','120':'NY','121':'NY','122':'NY',
+  '123':'NY','124':'NY','125':'NY','126':'NY','127':'NY','128':'NY','129':'NY','130':'NY','131':'NY',
+  '132':'NY','133':'NY','134':'NY','135':'NY','136':'NY','137':'NY','138':'NY','139':'NY','140':'NY',
+  '141':'NY','142':'NY','143':'NY','144':'NY','145':'NY','146':'NY','147':'NY','148':'NY','149':'NY',
+  '150':'PA','151':'PA','152':'PA','153':'PA','154':'PA','155':'PA','156':'PA','157':'PA','158':'PA',
+  '159':'PA','160':'PA','161':'PA','162':'PA','163':'PA','164':'PA','165':'PA','166':'PA','167':'PA',
+  '168':'PA','169':'PA','170':'PA','171':'PA','172':'PA','173':'PA','174':'PA','175':'PA','176':'PA',
+  '177':'PA','178':'PA','179':'PA','180':'PA','181':'PA','182':'PA','183':'PA','184':'PA','185':'PA',
+  '186':'PA','187':'PA','188':'PA','189':'PA','190':'PA','191':'PA','192':'PA','193':'PA','194':'PA',
+  '195':'PA','196':'PA','197':'DE','198':'DE','199':'DE','200':'DC','201':'VA','202':'DC','203':'DC',
+  '204':'DC','205':'DC','206':'MD','207':'MD','208':'MD','209':'MD','210':'MD','211':'MD','212':'MD',
+  '214':'MD','215':'MD','216':'MD','217':'WV','218':'WV','219':'WV','220':'VA','221':'VA','222':'VA',
+  '223':'VA','224':'VA','225':'VA','226':'VA','227':'VA','228':'VA','229':'VA','230':'VA','231':'VA',
+  '232':'VA','233':'VA','234':'VA','235':'VA','236':'VA','237':'VA','238':'VA','239':'VA','240':'VA',
+  '241':'VA','242':'VA','243':'VA','244':'VA','245':'VA','246':'VA','247':'WV','248':'WV','249':'WV',
+  '250':'WV','251':'WV','252':'WV','253':'WV','254':'WV','255':'WV','256':'WV','257':'WV','258':'WV',
+  '259':'WV','260':'WV','261':'WV','262':'WV','263':'WV','264':'WV','265':'WV','266':'WV','267':'WV',
+  '268':'WV','270':'NC','271':'NC','272':'NC','273':'NC','274':'NC','275':'NC','276':'NC','277':'NC',
+  '278':'NC','279':'NC','280':'NC','281':'NC','282':'NC','283':'NC','284':'NC','285':'NC','286':'NC',
+  '287':'NC','288':'NC','289':'NC','290':'SC','291':'SC','292':'SC','293':'SC','294':'SC','295':'SC',
+  '296':'SC','297':'SC','298':'SC','299':'SC','300':'GA','301':'GA','302':'GA','303':'GA','304':'GA',
+  '305':'FL','306':'FL','307':'FL','308':'FL','309':'GA','310':'GA','311':'GA','312':'GA','313':'GA',
+  '314':'GA','315':'GA','316':'GA','317':'GA','318':'GA','319':'GA','320':'FL','321':'FL','322':'FL',
+  '323':'FL','324':'FL','325':'FL','326':'FL','327':'FL','328':'FL','329':'FL','330':'FL','331':'FL',
+  '332':'FL','333':'FL','334':'FL','335':'FL','336':'FL','337':'FL','338':'FL','339':'FL','340':'FL',
+  '341':'FL','342':'FL','344':'FL','346':'FL','347':'FL','349':'FL','350':'AL','351':'AL','352':'AL',
+  '354':'AL','355':'AL','356':'AL','357':'AL','358':'AL','359':'AL','360':'AL','361':'AL','362':'AL',
+  '363':'AL','364':'AL','365':'AL','366':'AL','367':'AL','368':'AL','369':'MS','370':'TN','371':'TN',
+  '372':'TN','373':'TN','374':'TN','375':'TN','376':'TN','377':'TN','378':'TN','379':'TN','380':'TN',
+  '381':'TN','382':'TN','383':'TN','384':'TN','385':'TN','386':'MS','387':'MS','388':'MS','389':'MS',
+  '390':'MS','391':'MS','392':'MS','393':'MS','394':'MS','395':'MS','396':'MS','397':'MS','398':'GA',
+  '399':'GA','400':'KY','401':'KY','402':'KY','403':'KY','404':'KY','405':'KY','406':'KY','407':'KY',
+  '408':'KY','409':'KY','410':'KY','411':'KY','412':'KY','413':'KY','414':'KY','415':'KY','416':'KY',
+  '417':'KY','418':'KY','420':'KY','421':'KY','422':'KY','423':'KY','424':'KY','425':'KY','426':'KY',
+  '427':'KY','430':'OH','431':'OH','432':'OH','433':'OH','434':'OH','435':'OH','436':'OH','437':'OH',
+  '438':'OH','439':'OH','440':'OH','441':'OH','442':'OH','443':'OH','444':'OH','445':'OH','446':'OH',
+  '447':'OH','448':'OH','449':'OH','450':'OH','451':'OH','452':'OH','453':'OH','454':'OH','455':'OH',
+  '456':'OH','457':'OH','458':'OH','460':'IN','461':'IN','462':'IN','463':'IN','464':'IN','465':'IN',
+  '466':'IN','467':'IN','468':'IN','469':'IN','470':'IN','471':'IN','472':'IN','473':'IN','474':'IN',
+  '475':'IN','476':'IN','477':'IN','478':'IN','479':'IN','480':'MI','481':'MI','482':'MI','483':'MI',
+  '484':'MI','485':'MI','486':'MI','487':'MI','488':'MI','489':'MI','490':'MI','491':'MI','492':'MI',
+  '493':'MI','494':'MI','495':'MI','496':'MI','497':'MI','498':'MI','499':'MI','500':'IA','501':'IA',
+  '502':'IA','503':'IA','504':'IA','505':'IA','506':'IA','507':'IA','508':'IA','509':'IA','510':'IA',
+  '511':'IA','512':'IA','513':'IA','514':'IA','515':'IA','516':'IA','520':'IA','521':'IA','522':'IA',
+  '523':'IA','524':'IA','525':'IA','526':'IA','527':'IA','528':'IA','530':'WI','531':'WI','532':'WI',
+  '534':'WI','535':'WI','537':'WI','538':'WI','539':'WI','540':'WI','541':'WI','542':'WI','543':'WI',
+  '544':'WI','545':'WI','546':'WI','547':'WI','548':'WI','549':'WI','550':'MN','551':'MN','553':'MN',
+  '554':'MN','555':'MN','556':'MN','557':'MN','558':'MN','559':'MN','560':'MN','561':'MN','562':'MN',
+  '563':'MN','564':'MN','565':'MN','566':'MN','567':'MN','570':'SD','571':'SD','572':'SD','573':'SD',
+  '574':'SD','575':'SD','576':'SD','577':'SD','580':'ND','581':'ND','582':'ND','583':'ND','584':'ND',
+  '585':'ND','586':'ND','587':'ND','588':'ND','590':'MT','591':'MT','592':'MT','593':'MT','594':'MT',
+  '595':'MT','596':'MT','597':'MT','598':'MT','599':'MT','600':'IL','601':'IL','602':'IL','603':'IL',
+  '604':'IL','605':'IL','606':'IL','607':'IL','608':'IL','609':'IL','610':'IL','611':'IL','612':'IL',
+  '613':'IL','614':'IL','615':'IL','616':'IL','617':'IL','618':'IL','619':'IL','620':'IL','622':'IL',
+  '623':'IL','624':'IL','625':'IL','626':'IL','627':'IL','628':'IL','629':'IL','630':'MO','631':'MO',
+  '633':'MO','634':'MO','635':'MO','636':'MO','637':'MO','638':'MO','639':'MO','640':'MO','641':'MO',
+  '644':'MO','645':'MO','646':'MO','647':'MO','648':'MO','649':'MO','650':'MO','651':'MO','652':'MO',
+  '653':'MO','654':'MO','655':'MO','656':'MO','657':'MO','658':'MO','659':'MO','660':'KS','661':'KS',
+  '662':'KS','664':'KS','665':'KS','666':'KS','667':'KS','668':'KS','669':'KS','670':'KS','671':'KS',
+  '672':'KS','673':'KS','674':'KS','675':'KS','676':'KS','677':'KS','678':'KS','679':'KS','680':'NE',
+  '681':'NE','683':'NE','684':'NE','685':'NE','686':'NE','687':'NE','688':'NE','689':'NE','690':'NE',
+  '691':'NE','692':'NE','693':'NE','700':'LA','701':'LA','703':'LA','704':'LA','705':'LA','706':'LA',
+  '707':'LA','708':'LA','710':'LA','711':'LA','712':'LA','713':'LA','714':'LA','716':'AR','717':'AR',
+  '718':'AR','719':'AR','720':'AR','721':'AR','722':'AR','723':'AR','724':'AR','725':'AR','726':'AR',
+  '727':'AR','728':'AR','729':'AR','730':'OK','731':'OK','734':'OK','735':'OK','736':'OK','737':'OK',
+  '738':'OK','739':'OK','740':'OK','741':'OK','743':'OK','744':'OK','745':'OK','746':'OK','747':'OK',
+  '748':'OK','749':'OK','750':'TX','751':'TX','752':'TX','753':'TX','754':'TX','755':'TX','756':'TX',
+  '757':'TX','758':'TX','759':'TX','760':'TX','761':'TX','762':'TX','763':'TX','764':'TX','765':'TX',
+  '766':'TX','767':'TX','768':'TX','769':'TX','770':'TX','771':'TX','772':'TX','773':'TX','774':'TX',
+  '775':'TX','776':'TX','777':'TX','778':'TX','779':'TX','780':'TX','781':'TX','782':'TX','783':'TX',
+  '784':'TX','785':'TX','786':'TX','787':'TX','788':'TX','789':'TX','790':'TX','791':'TX','792':'TX',
+  '793':'TX','794':'TX','795':'TX','796':'TX','797':'TX','798':'TX','799':'TX','800':'CO','801':'CO',
+  '802':'CO','803':'CO','804':'CO','805':'CO','806':'CO','807':'CO','808':'CO','809':'CO','810':'CO',
+  '811':'CO','812':'CO','813':'CO','814':'CO','815':'CO','816':'CO','820':'WY','821':'WY','822':'WY',
+  '823':'WY','824':'WY','825':'WY','826':'WY','827':'WY','828':'WY','829':'WY','830':'WY','831':'WY',
+  '832':'ID','833':'ID','834':'ID','835':'ID','836':'ID','837':'ID','838':'ID','840':'UT','841':'UT',
+  '842':'UT','843':'UT','844':'UT','845':'UT','846':'UT','847':'UT','850':'AZ','851':'AZ','852':'AZ',
+  '853':'AZ','854':'AZ','855':'AZ','856':'AZ','857':'AZ','859':'AZ','860':'AZ','863':'AZ','864':'AZ',
+  '865':'AZ','870':'NM','871':'NM','872':'NM','873':'NM','874':'NM','875':'NM','877':'NM','878':'NM',
+  '879':'NM','880':'NM','881':'NM','882':'NM','883':'NM','884':'NM','885':'TX','889':'NV','890':'NV',
+  '891':'NV','893':'NV','894':'NV','895':'NV','897':'NV','898':'NV','900':'CA','901':'CA','902':'CA',
+  '903':'CA','904':'CA','905':'CA','906':'CA','907':'CA','908':'CA','910':'CA','911':'CA','912':'CA',
+  '913':'CA','914':'CA','915':'CA','916':'CA','917':'CA','918':'CA','919':'CA','920':'CA','921':'CA',
+  '922':'CA','923':'CA','924':'CA','925':'CA','926':'CA','927':'CA','928':'CA','930':'CA','931':'CA',
+  '932':'CA','933':'CA','934':'CA','935':'CA','936':'CA','937':'CA','938':'CA','939':'CA','940':'CA',
+  '941':'CA','942':'CA','943':'CA','944':'CA','945':'CA','946':'CA','947':'CA','948':'CA','949':'CA',
+  '950':'CA','951':'CA','952':'CA','953':'CA','954':'CA','955':'CA','956':'CA','957':'CA','958':'CA',
+  '959':'CA','960':'CA','961':'CA','970':'OR','971':'OR','972':'OR','973':'OR','974':'OR','975':'OR',
+  '976':'OR','977':'OR','978':'OR','979':'OR','980':'WA','981':'WA','982':'WA','983':'WA','984':'WA',
+  '985':'WA','986':'WA','988':'WA','989':'WA','990':'WA','991':'WA','992':'WA','993':'WA','994':'WA',
+  '995':'AK','996':'AK','997':'AK','998':'AK','999':'AK','967':'HI','968':'HI'
+};
+
+function getStateFromZip(zip) {
+  if (!zip || zip.length < 3) return '';
+  return ZIP_STATE_MAP[zip.substring(0, 3)] || '';
+}
+
+function generateCitySlug(name, state) {
+  const clean = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+  return clean + (state || '').toLowerCase();
+}
+
+// ---------- AUTH ----------
+function handleAdminLogin() {
+  const email = document.getElementById('authEmail').value.trim().toLowerCase();
+  const password = document.getElementById('authPassword').value;
+  const errEl = document.getElementById('authError');
+
+  if (!email || !password) {
+    errEl.textContent = 'Please enter email and password.';
+    errEl.classList.remove('hidden');
+    return;
+  }
+
+  if (!SUPER_ADMIN_EMAILS.includes(email)) {
+    errEl.textContent = 'Unauthorized. This dashboard is restricted to platform admins.';
+    errEl.classList.remove('hidden');
+    return;
+  }
+
+  // Attempt Supabase auth
+  if (supabase) {
+    supabase.signIn(email, password).then(data => {
+      if (data.error || !data.access_token) {
+        errEl.textContent = data.error_description || data.msg || 'Login failed. Check credentials.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+      // Update auth header with user token
+      supabase.headers['Authorization'] = `Bearer ${data.access_token}`;
+      sessionStorage.setItem('admin_token', data.access_token);
+      sessionStorage.setItem('admin_email', email);
+      showDashboard();
+    }).catch(() => {
+      errEl.textContent = 'Connection failed. Try again.';
+      errEl.classList.remove('hidden');
+    });
+  } else {
+    errEl.textContent = 'Supabase not configured.';
+    errEl.classList.remove('hidden');
+  }
+}
+
+function handleLogout() {
+  sessionStorage.clear();
+  location.reload();
+}
+
+function showDashboard() {
+  document.getElementById('authGate').classList.add('hidden');
+  document.getElementById('appLayout').classList.remove('hidden');
+  loadAllData();
+}
+
+// Check for existing session
+function checkSession() {
+  const token = sessionStorage.getItem('admin_token');
+  const email = sessionStorage.getItem('admin_email');
+  if (token && email && SUPER_ADMIN_EMAILS.includes(email)) {
+    if (supabase) supabase.headers['Authorization'] = `Bearer ${token}`;
+    showDashboard();
+  }
+}
+
+// ---------- SIDEBAR NAV ----------
+document.querySelectorAll('.sidebar-nav a').forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    const tab = link.dataset.tab;
+    if (tab) switchTab(tab);
+  });
+});
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+  document.getElementById('tab-' + tab)?.classList.remove('hidden');
+  document.querySelectorAll('.sidebar-nav a').forEach(a => {
+    a.classList.toggle('active', a.dataset.tab === tab);
+  });
+}
+
+// ---------- DATA LOADING ----------
+async function loadAllData() {
+  await Promise.all([loadCities(), loadInvites(), loadActivityLog(), loadAnalytics()]);
+  renderDashboard();
+  renderCitiesTable();
+  renderInvitesTable();
+  renderActivityLog();
+  renderAnalytics();
+}
+
+async function loadCities() {
+  if (!supabase) return;
+  try {
+    const data = await supabase.query('cities', '?select=*&order=created_at.desc');
+    if (Array.isArray(data)) cities = data;
+  } catch(e) { console.warn('Failed to load cities:', e); }
+}
+
+async function loadInvites() {
+  if (!supabase) return;
+  try {
+    const data = await supabase.query('admin_invites', '?select=*&order=created_at.desc');
+    if (Array.isArray(data)) invites = data;
+  } catch(e) { /* table may not exist yet */ invites = []; }
+}
+
+async function loadActivityLog() {
+  if (!supabase) return;
+  try {
+    const data = await supabase.query('admin_activity_log', '?select=*&order=created_at.desc&limit=100');
+    if (Array.isArray(data)) activityLog = data;
+  } catch(e) { activityLog = []; }
+}
+
+async function loadAnalytics() {
+  // Load entries count per city, crew counts, etc.
+  if (!supabase) return;
+  try {
+    const entries = await supabase.query('entries', '?select=id,city_id,created_at,audio_url&order=created_at.desc');
+    const photos = await supabase.query('entry_photos', '?select=id,entry_id,captured_at');
+    const crew = await supabase.query('crew_members', '?select=id,city_id,status,activated_at');
+    analyticsData = {
+      entries: Array.isArray(entries) ? entries : [],
+      photos: Array.isArray(photos) ? photos : [],
+      crew: Array.isArray(crew) ? crew : []
+    };
+  } catch(e) { console.warn('Analytics load failed:', e); }
+}
+
+// ---------- RENDER: DASHBOARD ----------
+function renderDashboard() {
+  const activeCities = cities.filter(c => c.subscription_status !== 'deactivated');
+  const totalUsers = analyticsData.crew ? analyticsData.crew.filter(c => c.status === 'active').length : 0;
+  const totalEntries = analyticsData.entries ? analyticsData.entries.length : 0;
+
+  // Revenue calc (rough: active paid cities × tier price)
+  const tierPrices = { basic: 75, starter: 125, enterprise: 175 };
+  const revenue = cities
+    .filter(c => c.subscription_status === 'active' && !c.free_access)
+    .reduce((sum, c) => sum + (tierPrices[c.tier] || 125), 0);
+
+  document.getElementById('statCities').textContent = cities.length;
+  document.getElementById('statUsers').textContent = totalUsers;
+  document.getElementById('statEntries').textContent = totalEntries;
+  document.getElementById('statRevenue').textContent = '$' + revenue.toLocaleString();
+
+  renderUsageChart();
+  renderToolsChart();
+  renderRecentActivity();
+}
+
+function renderUsageChart() {
+  const days = parseInt(document.getElementById('usageRange').value);
+  const entries = analyticsData.entries || [];
+  const labels = [];
+  const dataCounts = [];
+  const now = new Date();
+
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(now); d.setDate(d.getDate() - i);
+    const key = d.toISOString().split('T')[0];
+    labels.push(d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+    dataCounts.push(entries.filter(e => e.created_at && e.created_at.startsWith(key)).length);
+  }
+
+  if (usageChartInstance) usageChartInstance.destroy();
+  usageChartInstance = new Chart(document.getElementById('usageChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Entries Created',
+        data: dataCounts,
+        borderColor: '#1E3A5F',
+        backgroundColor: 'rgba(30,58,95,0.08)',
+        fill: true,
+        tension: 0.4,
+        pointRadius: 2,
+        pointHoverRadius: 5
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+        y: { beginAtZero: true, grid: { color: '#E2E8F0' }, ticks: { font: { size: 11 }, stepSize: 1 } }
+      }
+    }
+  });
+}
+
+function updateUsageChart() { renderUsageChart(); }
+
+function renderToolsChart() {
+  const entries = analyticsData.entries || [];
+  const photos = analyticsData.photos || [];
+  const voiceCount = entries.filter(e => e.audio_url).length;
+  const photoCount = photos.length;
+  const textEntries = entries.length - voiceCount;
+  const gpsEntries = entries.filter(e => e.location_lat).length;
+
+  if (toolsChartInstance) toolsChartInstance.destroy();
+  toolsChartInstance = new Chart(document.getElementById('toolsChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Text Entries', 'Voice-to-Text', 'Photos', 'GPS Pins'],
+      datasets: [{
+        data: [textEntries, voiceCount, photoCount, gpsEntries],
+        backgroundColor: ['#1E3A5F', '#3B82F6', '#EA580C', '#10B981'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12 } } }
+    }
+  });
+}
+
+function renderRecentActivity() {
+  const el = document.getElementById('recentActivity');
+  const items = activityLog.slice(0, 8);
+  if (items.length === 0) {
+    el.innerHTML = '<p style="color:var(--text3);font-size:13px;padding:12px 0;">No activity recorded yet. Activity will appear as cities sign up and use the platform.</p>';
+    return;
+  }
+  el.innerHTML = items.map(a => `
+    <div class="activity-item">
+      <div class="activity-dot" style="background:${getActivityColor(a.type)};"></div>
+      <div>
+        <div class="activity-text">${escHtml(a.description)}</div>
+        <div class="activity-time">${timeAgo(a.created_at)}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ---------- RENDER: CITIES TABLE ----------
+function renderCitiesTable(filter = 'all') {
+  const tbody = document.getElementById('citiesTableBody');
+  let filtered = cities;
+  if (filter === 'active') filtered = cities.filter(c => c.subscription_status === 'active');
+  else if (filter === 'trial') filtered = cities.filter(c => c.subscription_status === 'trial');
+  else if (filter === 'free') filtered = cities.filter(c => c.free_access);
+  else if (filter === 'deactivated') filtered = cities.filter(c => c.subscription_status === 'deactivated');
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--text3);padding:32px;">No cities found.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(c => {
+    const state = c.state || getStateFromZip(c.zip_code || '') || '—';
+    const users = analyticsData.crew ? analyticsData.crew.filter(m => m.city_id === c.id && m.status === 'active').length : 0;
+    const entryCount = analyticsData.entries ? analyticsData.entries.filter(e => e.city_id === c.id).length : 0;
+    const statusBadge = getStatusBadge(c);
+    const isDeactivated = c.subscription_status === 'deactivated';
+
+    return `<tr>
+      <td><strong>${escHtml(c.name)}</strong></td>
+      <td><code style="font-size:12px;background:var(--muted);padding:2px 6px;border-radius:4px;">${escHtml(c.slug)}</code></td>
+      <td>${state}</td>
+      <td>${c.zip_code || '—'}</td>
+      <td>${statusBadge}</td>
+      <td>${c.tier || 'starter'}</td>
+      <td>${users}</td>
+      <td>${entryCount}</td>
+      <td>${formatDate(c.created_at)}</td>
+      <td>
+        ${isDeactivated
+          ? `<button class="btn btn-sm btn-success" onclick="reactivateCity('${c.id}')">Reactivate</button>`
+          : `<button class="btn btn-sm btn-danger" onclick="deactivateCity('${c.id}','${escHtml(c.name)}')">Deactivate</button>`
+        }
+      </td>
+    </tr>`;
+  }).join('');
+
+  // Populate analytics city filter
+  const filterEl = document.getElementById('analyticsCityFilter');
+  if (filterEl) {
+    const existing = filterEl.value;
+    filterEl.innerHTML = '<option value="all">All Cities</option>' +
+      cities.map(c => `<option value="${c.id}">${escHtml(c.name)}</option>`).join('');
+    filterEl.value = existing;
+  }
+}
+
+function filterCities(filter, btn) {
+  document.querySelectorAll('#tab-cities .tab-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderCitiesTable(filter);
+}
+
+function getStatusBadge(city) {
+  if (city.subscription_status === 'deactivated') return '<span class="badge badge-deactivated">Deactivated</span>';
+  if (city.free_access) return '<span class="badge badge-free">Free Access</span>';
+  if (city.subscription_status === 'active') return '<span class="badge badge-active">Active</span>';
+  if (city.subscription_status === 'trial') return '<span class="badge badge-trial">Trial</span>';
+  if (city.subscription_status === 'expired') return '<span class="badge badge-expired">Expired</span>';
+  return '<span class="badge badge-trial">' + (city.subscription_status || 'Unknown') + '</span>';
+}
+
+// ---------- DEACTIVATE / REACTIVATE ----------
+async function deactivateCity(id, name) {
+  if (!confirm(`Deactivate "${name}"? They will lose access immediately.`)) return;
+  try {
+    await supabase.update('cities', id, { subscription_status: 'deactivated' });
+    await logActivity('admin', `Deactivated city: ${name}`);
+    showToast('City deactivated', 'success');
+    await loadCities();
+    renderCitiesTable();
+    renderDashboard();
+  } catch(e) {
+    showToast('Failed to deactivate', 'error');
+  }
+}
+
+async function reactivateCity(id) {
+  try {
+    const city = cities.find(c => c.id === id);
+    await supabase.update('cities', id, { subscription_status: city?.free_access ? 'active' : 'trial' });
+    await logActivity('admin', `Reactivated city: ${city?.name || id}`);
+    showToast('City reactivated', 'success');
+    await loadCities();
+    renderCitiesTable();
+    renderDashboard();
+  } catch(e) {
+    showToast('Failed to reactivate', 'error');
+  }
+}
+
+// ---------- INVITES ----------
+function openInviteModal() {
+  document.getElementById('inviteModal').classList.remove('hidden');
+  document.getElementById('invCityName').value = '';
+  document.getElementById('invZipCode').value = '';
+  document.getElementById('invEmail').value = '';
+  document.getElementById('invNote').value = '';
+  document.getElementById('invStatePreview').textContent = '';
+  document.getElementById('invAccessType').value = 'free_unlimited';
+  document.getElementById('customDaysWrap').classList.add('hidden');
+}
+
+function closeInviteModal() {
+  document.getElementById('inviteModal').classList.add('hidden');
+}
+
+// Zip code → state preview
+document.getElementById('invZipCode')?.addEventListener('input', function() {
+  const zip = this.value.trim();
+  const state = getStateFromZip(zip);
+  const preview = document.getElementById('invStatePreview');
+  if (state) {
+    const cityName = document.getElementById('invCityName').value.trim();
+    const slug = generateCitySlug(cityName || 'city', state);
+    preview.textContent = `State: ${state} | Slug: ${slug}`;
+  } else {
+    preview.textContent = zip.length >= 3 ? 'Unknown zip code prefix' : '';
+  }
+});
+
+document.getElementById('invCityName')?.addEventListener('input', function() {
+  const zip = document.getElementById('invZipCode').value.trim();
+  const state = getStateFromZip(zip);
+  const preview = document.getElementById('invStatePreview');
+  if (state && this.value.trim()) {
+    const slug = generateCitySlug(this.value.trim(), state);
+    preview.textContent = `State: ${state} | Slug: ${slug}`;
+  }
+});
+
+document.getElementById('invAccessType')?.addEventListener('change', function() {
+  document.getElementById('customDaysWrap').classList.toggle('hidden', this.value !== 'free_custom');
+});
+
+async function sendInvite() {
+  const cityName = document.getElementById('invCityName').value.trim();
+  const zipCode = document.getElementById('invZipCode').value.trim();
+  const email = document.getElementById('invEmail').value.trim();
+  const accessType = document.getElementById('invAccessType').value;
+  const tier = document.getElementById('invTier').value;
+  const note = document.getElementById('invNote').value.trim();
+
+  if (!cityName || !zipCode || !email) {
+    showToast('Please fill in city name, zip code, and email.', 'error');
+    return;
+  }
+
+  if (zipCode.length !== 5 || !/^\d{5}$/.test(zipCode)) {
+    showToast('Please enter a valid 5-digit zip code.', 'error');
+    return;
+  }
+
+  const state = getStateFromZip(zipCode);
+  if (!state) {
+    showToast('Could not identify state from zip code.', 'error');
+    return;
+  }
+
+  const slug = generateCitySlug(cityName, state);
+
+  // Calculate expiration
+  let expiresAt = null;
+  let daysStr = 'unlimited';
+  if (accessType === 'free_30') { expiresAt = addDays(30); daysStr = '30 days'; }
+  else if (accessType === 'free_60') { expiresAt = addDays(60); daysStr = '60 days'; }
+  else if (accessType === 'free_90') { expiresAt = addDays(90); daysStr = '90 days'; }
+  else if (accessType === 'free_custom') {
+    const customDays = parseInt(document.getElementById('invCustomDays').value);
+    if (!customDays || customDays < 1) { showToast('Enter valid custom days.', 'error'); return; }
+    expiresAt = addDays(customDays);
+    daysStr = customDays + ' days';
+  }
+
+  // Generate magic token
+  const magicToken = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substr(2) + Date.now().toString(36);
+
+  const invite = {
+    city_name: cityName,
+    slug,
+    zip_code: zipCode,
+    state,
+    email,
+    access_type: accessType,
+    expires_at: expiresAt,
+    tier,
+    note,
+    magic_token: magicToken,
+    status: 'pending',
+    created_at: new Date().toISOString()
+  };
+
+  try {
+    if (supabase) {
+      await supabase.insert('admin_invites', invite);
+    }
+    invites.unshift(invite);
+    await logActivity('invite', `Sent invite to ${email} for ${cityName}, ${state} (${daysStr} free access)`);
+
+    // Build magic link
+    const baseUrl = window.location.origin;
+    const magicLink = `${baseUrl}/app?invite=${magicToken}&city=${encodeURIComponent(cityName)}&zip=${zipCode}&tier=${tier}`;
+
+    // Show the link to copy
+    alert(`Magic link generated! Share this with the city admin:\n\n${magicLink}\n\nThey will be able to sign up without payment.`);
+
+    showToast(`Invite sent for ${cityName}, ${state}`, 'success');
+    closeInviteModal();
+    renderInvitesTable();
+  } catch(e) {
+    showToast('Failed to create invite: ' + e.message, 'error');
+  }
+}
+
+function addDays(n) {
+  const d = new Date();
+  d.setDate(d.getDate() + n);
+  return d.toISOString();
+}
+
+// ---------- RENDER: INVITES TABLE ----------
+function renderInvitesTable() {
+  const tbody = document.getElementById('invitesTableBody');
+  if (invites.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:32px;">No invites sent yet.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = invites.map(inv => {
+    const accessLabel = inv.access_type === 'free_unlimited' ? 'Unlimited' : inv.access_type.replace('free_', '') + ' days';
+    const expiry = inv.expires_at ? formatDate(inv.expires_at) : 'Never';
+    const statusBadge = inv.status === 'accepted'
+      ? '<span class="badge badge-active">Accepted</span>'
+      : inv.status === 'expired'
+        ? '<span class="badge badge-expired">Expired</span>'
+        : '<span class="badge badge-warning">Pending</span>';
+
+    return `<tr>
+      <td><strong>${escHtml(inv.city_name)}</strong><br><small style="color:var(--text3)">${inv.state || ''}</small></td>
+      <td>${escHtml(inv.email)}</td>
+      <td>Free — ${accessLabel}</td>
+      <td>${expiry}</td>
+      <td>${statusBadge}</td>
+      <td>${formatDate(inv.created_at)}</td>
+      <td>
+        <button class="btn btn-sm btn-outline" onclick="copyMagicLink('${inv.magic_token}','${encodeURIComponent(inv.city_name)}','${inv.zip_code}','${inv.tier}')">Copy Link</button>
+        ${inv.status === 'pending' ? `<button class="btn btn-sm btn-danger" onclick="revokeInvite('${inv.id || ''}')">Revoke</button>` : ''}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function copyMagicLink(token, city, zip, tier) {
+  const link = `${window.location.origin}/app?invite=${token}&city=${decodeURIComponent(city)}&zip=${zip}&tier=${tier}`;
+  navigator.clipboard.writeText(link).then(() => showToast('Magic link copied!', 'success'));
+}
+
+async function revokeInvite(id) {
+  if (!id || !confirm('Revoke this invite?')) return;
+  try {
+    await supabase.update('admin_invites', id, { status: 'revoked' });
+    await loadInvites();
+    renderInvitesTable();
+    showToast('Invite revoked', 'success');
+  } catch(e) { showToast('Failed', 'error'); }
+}
+
+// ---------- RENDER: ANALYTICS ----------
+function renderAnalytics() {
+  const entries = analyticsData.entries || [];
+  const photos = analyticsData.photos || [];
+  const now = new Date();
+  const thirtyDaysAgo = new Date(now); thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const recent = entries.filter(e => new Date(e.created_at) >= thirtyDaysAgo);
+  const recentPhotos = photos.filter(p => new Date(p.captured_at) >= thirtyDaysAgo);
+  const recentVoice = recent.filter(e => e.audio_url);
+
+  document.getElementById('analSessions').textContent = analyticsData.crew ? analyticsData.crew.filter(c => c.status === 'active').length : 0;
+  document.getElementById('analEntries').textContent = recent.length;
+  document.getElementById('analPhotos').textContent = recentPhotos.length;
+  document.getElementById('analVoice').textContent = recentVoice.length;
+
+  renderDAUChart();
+  renderFeatureChart();
+  renderToolRanking();
+  renderCityRanking();
+}
+
+function updateAnalytics() { renderAnalytics(); }
+
+function renderDAUChart() {
+  const entries = analyticsData.entries || [];
+  const labels = [];
+  const dataCounts = [];
+  const now = new Date();
+
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(now); d.setDate(d.getDate() - i);
+    const key = d.toISOString().split('T')[0];
+    labels.push(d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+    // Approximate DAU by unique created_by per day
+    const dayEntries = entries.filter(e => e.created_at && e.created_at.startsWith(key));
+    dataCounts.push(dayEntries.length);
+  }
+
+  if (dauChartInstance) dauChartInstance.destroy();
+  dauChartInstance = new Chart(document.getElementById('dauChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Activity',
+        data: dataCounts,
+        backgroundColor: 'rgba(59,130,246,0.6)',
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 45 } },
+        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+      }
+    }
+  });
+}
+
+function renderFeatureChart() {
+  const entries = analyticsData.entries || [];
+  const photos = analyticsData.photos || [];
+
+  const features = {
+    'Text Entries': entries.filter(e => !e.audio_url).length,
+    'Voice-to-Text': entries.filter(e => e.audio_url).length,
+    'Photo Uploads': photos.length,
+    'GPS Tagged': entries.filter(e => e.location_lat).length,
+    'CSV/JSON Export': 0  // Would need separate tracking
+  };
+
+  if (featureChartInstance) featureChartInstance.destroy();
+  featureChartInstance = new Chart(document.getElementById('featureChart'), {
+    type: 'polarArea',
+    data: {
+      labels: Object.keys(features),
+      datasets: [{
+        data: Object.values(features),
+        backgroundColor: ['#1E3A5F', '#3B82F6', '#EA580C', '#10B981', '#F59E0B']
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } }
+    }
+  });
+}
+
+function renderToolRanking() {
+  const entries = analyticsData.entries || [];
+  const photos = analyticsData.photos || [];
+  const tools = [
+    { name: 'Text Entries', count: entries.filter(e => !e.audio_url).length, icon: '📝' },
+    { name: 'Voice-to-Text', count: entries.filter(e => e.audio_url).length, icon: '🎙️' },
+    { name: 'Photo Capture', count: photos.length, icon: '📸' },
+    { name: 'GPS Pinning', count: entries.filter(e => e.location_lat).length, icon: '📍' },
+    { name: 'Data Export', count: 0, icon: '📊' }
+  ].sort((a, b) => b.count - a.count);
+
+  const max = Math.max(1, tools[0]?.count || 1);
+  document.getElementById('toolRanking').innerHTML = tools.map((t, i) => `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;${i < tools.length - 1 ? 'border-bottom:1px solid var(--border);' : ''}">
+      <span style="font-size:20px;">${t.icon}</span>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:600;">${t.name}</div>
+        <div style="background:var(--muted);border-radius:4px;height:6px;margin-top:4px;">
+          <div style="background:var(--navy);height:100%;border-radius:4px;width:${(t.count / max * 100)}%;"></div>
+        </div>
+      </div>
+      <span style="font-size:14px;font-weight:700;color:var(--navy);">${t.count}</span>
+    </div>
+  `).join('');
+}
+
+function renderCityRanking() {
+  const entries = analyticsData.entries || [];
+  const cityEntries = {};
+  entries.forEach(e => {
+    if (!cityEntries[e.city_id]) cityEntries[e.city_id] = 0;
+    cityEntries[e.city_id]++;
+  });
+
+  const ranked = Object.entries(cityEntries)
+    .map(([id, count]) => ({ city: cities.find(c => c.id === id), count }))
+    .filter(r => r.city)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10);
+
+  if (ranked.length === 0) {
+    document.getElementById('cityRanking').innerHTML = '<p style="color:var(--text3);font-size:13px;">No data yet.</p>';
+    return;
+  }
+
+  const max = ranked[0].count;
+  document.getElementById('cityRanking').innerHTML = ranked.map((r, i) => `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;${i < ranked.length - 1 ? 'border-bottom:1px solid var(--border);' : ''}">
+      <span style="font-size:14px;font-weight:800;color:var(--text3);width:20px;">${i + 1}</span>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:600;">${escHtml(r.city.name)}</div>
+        <div style="background:var(--muted);border-radius:4px;height:6px;margin-top:4px;">
+          <div style="background:var(--orange);height:100%;border-radius:4px;width:${(r.count / max * 100)}%;"></div>
+        </div>
+      </div>
+      <span style="font-size:14px;font-weight:700;color:var(--orange);">${r.count}</span>
+    </div>
+  `).join('');
+}
+
+// ---------- RENDER: ACTIVITY LOG ----------
+function renderActivityLog() {
+  const el = document.getElementById('fullActivityLog');
+  if (activityLog.length === 0) {
+    el.innerHTML = '<p style="color:var(--text3);font-size:13px;padding:20px 0;">No activity recorded yet.</p>';
+    return;
+  }
+  el.innerHTML = activityLog.map(a => `
+    <div class="activity-item">
+      <div class="activity-dot" style="background:${getActivityColor(a.type)};"></div>
+      <div>
+        <div class="activity-text">${escHtml(a.description)}</div>
+        <div class="activity-time">${timeAgo(a.created_at)} · ${a.type || 'system'}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterActivity() {
+  const filter = document.getElementById('activityFilter').value;
+  const el = document.getElementById('fullActivityLog');
+  const filtered = filter === 'all' ? activityLog : activityLog.filter(a => a.type === filter);
+  el.innerHTML = filtered.map(a => `
+    <div class="activity-item">
+      <div class="activity-dot" style="background:${getActivityColor(a.type)};"></div>
+      <div>
+        <div class="activity-text">${escHtml(a.description)}</div>
+        <div class="activity-time">${timeAgo(a.created_at)} · ${a.type || 'system'}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ---------- ACTIVITY LOGGER ----------
+async function logActivity(type, description) {
+  const entry = { type, description, created_at: new Date().toISOString() };
+  activityLog.unshift(entry);
+  if (supabase) {
+    try { await supabase.insert('admin_activity_log', entry); } catch(e) { /* ok */ }
+  }
+}
+
+// ---------- CITY DETAIL MODAL ----------
+function openCityDetail(id) {
+  const city = cities.find(c => c.id === id);
+  if (!city) return;
+  document.getElementById('cdmTitle').textContent = city.name;
+  document.getElementById('cdmBody').innerHTML = `<pre style="font-size:12px;background:var(--muted);padding:12px;border-radius:8px;overflow:auto;">${JSON.stringify(city, null, 2)}</pre>`;
+  document.getElementById('cityDetailModal').classList.remove('hidden');
+}
+
+function closeCityDetail() {
+  document.getElementById('cityDetailModal').classList.add('hidden');
+}
+
+// ---------- HELPERS ----------
+function escHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function formatDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function timeAgo(iso) {
+  if (!iso) return '';
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return mins + 'm ago';
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return hrs + 'h ago';
+  const days = Math.floor(hrs / 24);
+  return days + 'd ago';
+}
+
+function getActivityColor(type) {
+  const colors = { signup: '#10B981', entry: '#3B82F6', invite: '#EA580C', admin: '#EF4444', system: '#94A3B8' };
+  return colors[type] || '#94A3B8';
+}
+
+function showToast(msg, type = '') {
+  const el = document.getElementById('toastEl');
+  el.textContent = msg;
+  el.className = 'toast' + (type ? ' ' + type : '');
+  el.classList.remove('hidden');
+  setTimeout(() => el.classList.add('hidden'), 3000);
+}
+
+// ---------- INIT ----------
+checkSession();
+</script>
+</body>
+</html>

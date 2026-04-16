@@ -1,4 +1,4 @@
--- MuniVault Migration: Add subscription fields + public slug access
+-- CivicPipeline Migration: Add subscription fields + public slug access
 -- Run this in Supabase SQL Editor if your cities table already exists
 
 -- Add subscription columns to cities table

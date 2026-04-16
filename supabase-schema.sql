@@ -1,4 +1,4 @@
--- MuniVault Database Schema
+-- CivicPipeline Database Schema
 -- Run this in Supabase SQL Editor to set up tables
 
 -- Cities table
@@ -134,5 +134,5 @@ CREATE POLICY "Users can delete own photos" ON entry_photos FOR DELETE USING (
 );
 
 -- Create storage bucket for photos and logos
-INSERT INTO storage.buckets (id, name, public) VALUES ('munivault', 'munivault', true)
+INSERT INTO storage.buckets (id, name, public) VALUES ('civicpipeline', 'civicpipeline', true)
 ON CONFLICT (id) DO NOTHING;

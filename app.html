@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="theme-color" content="#0F1B2D"/>
-<title>MuniVault — Municipal Data Collection</title>
+<title>CivicPipeline — Municipal Data Collection</title>
 
 <!-- Fonts: Clean modern civic -->
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -18,7 +18,7 @@
 
 <style>
 /* ============================================
-   CSS TOKEN SYSTEM — MuniVault Civic Theme
+   CSS TOKEN SYSTEM — CivicPipeline Civic Theme
    Mood: Professional, trustworthy, clean
    North Star: "Government meets modern SaaS"
    ============================================ */
@@ -864,7 +864,7 @@ const { useState, useEffect, useRef, useCallback, useMemo, createContext, useCon
 // ============ SUPABASE CONFIG ============
 const SUPABASE_URL = 'https://ghkiaxshupxssnzdzsiw.supabase.co';
 // Supabase anon key - set via config
-const SUPABASE_ANON_KEY = window.__MUNIVAULT_CONFIG__?.supabaseKey || '';
+const SUPABASE_ANON_KEY = window.__CIVICPIPELINE_CONFIG__?.supabaseKey || '';
 
 let supabase;
 try {
@@ -875,10 +875,10 @@ try {
 }
 
 // ============ CONSTANTS ============
-const APP_NAME = 'MuniVault';
+const APP_NAME = 'CivicPipeline';
 const APP_TAGLINE = 'Your city\'s year, captured.';
 // OpenAI key loaded from server-side config (never exposed in client)
-const OPENAI_API_KEY = window.__MUNIVAULT_CONFIG__?.openaiKey || '';
+const OPENAI_API_KEY = window.__CIVICPIPELINE_CONFIG__?.openaiKey || '';
 const SUPER_ADMIN_EMAIL = 'wilsons043@gmail.com';
 
 // ============ TIER SYSTEM ============
@@ -983,7 +983,7 @@ const STRIPE_PRICE_IDS = {
   extraSeat: 'price_1TLpAjFZkMkR5LSvoJuf8qIr'
 };
 // Stripe publishable key - set via config
-const STRIPE_PUBLISHABLE_KEY = window.__MUNIVAULT_CONFIG__?.stripeKey || '';
+const STRIPE_PUBLISHABLE_KEY = window.__CIVICPIPELINE_CONFIG__?.stripeKey || '';
 const STRIPE_PORTAL_CONFIG = 'bpc_1TLpBSFZkMkR5LSv238LmY78';
 // Webhook secret is server-side only (Supabase Edge Function)
 const STRIPE_WEBHOOK_SECRET = 'SERVER_SIDE_ONLY';
@@ -994,12 +994,12 @@ async function createCheckoutSession(tierId, cityName, adminEmail, extraSeats) {
   if (!priceId) return null;
 
   // Save selected tier to cityConfig before redirecting to Stripe
-  const storedConfig = localStorage.getItem('munivault_city_config');
+  const storedConfig = localStorage.getItem('civicpipeline_city_config');
   if (storedConfig) {
     const config = JSON.parse(storedConfig);
     config.tier = tierId;
     config.checkoutInitiatedAt = new Date().toISOString();
-    localStorage.setItem('munivault_city_config', JSON.stringify(config));
+    localStorage.setItem('civicpipeline_city_config', JSON.stringify(config));
   }
 
   const lineItems = [{ price: priceId, quantity: 1 }];
@@ -1112,10 +1112,10 @@ const DEFAULT_DEPT_ICONS = {
 };
 
 const STORAGE_KEYS = {
-  session: 'munivault_session',
-  cityConfig: 'munivault_city_config',
-  entries: 'munivault_entries',
-  crewMembers: 'munivault_crew'
+  session: 'civicpipeline_session',
+  cityConfig: 'civicpipeline_city_config',
+  entries: 'civicpipeline_entries',
+  crewMembers: 'civicpipeline_crew'
 };
 
 // ============ AI GRAMMAR CLEANUP ============
@@ -1552,7 +1552,7 @@ function AdminSetupScreen({ user, onComplete }) {
         <div className="auth-subtitle" style={{ marginBottom: 24 }}>Create your admin account</div>
         <div className="auth-card" style={{ maxWidth: 380 }}>
           <h2>Admin Account</h2>
-          <p className="subtitle">You'll manage your city's MuniVault</p>
+          <p className="subtitle">You'll manage your city's CivicPipeline</p>
           <form onSubmit={handleCreateAccount}>
             {error && <div style={{ background: 'var(--color-danger-light)', color: '#991B1B', padding: '10px 14px', borderRadius: 'var(--radius-md)', fontSize: 13, marginBottom: 16 }}>{error}</div>}
             <div className="form-group">
@@ -1585,7 +1585,7 @@ function AdminSetupScreen({ user, onComplete }) {
       <div className="auth-subtitle" style={{ marginBottom: 24 }}>Set up your city</div>
       <div className="auth-card" style={{ maxWidth: 420 }}>
         <h2>City Configuration</h2>
-        <p className="subtitle">Customize MuniVault for your municipality</p>
+        <p className="subtitle">Customize CivicPipeline for your municipality</p>
 
         <div style={{ textAlign: 'center', marginBottom: 20 }}>
           <div className="logo-upload-area" onClick={() => fileRef.current?.click()}>
@@ -1629,7 +1629,7 @@ function AdminSetupScreen({ user, onComplete }) {
 
         <button className="btn btn-primary btn-block btn-lg" onClick={handleSubmit}
           disabled={!cityName.trim() || departments.length === 0}>
-          Launch MuniVault
+          Launch CivicPipeline
         </button>
       </div>
     </div>
@@ -2339,7 +2339,7 @@ function ExportView({ entries, cityConfig }) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `munivault_export_${filterDeptId || 'all'}_${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `civicpipeline_export_${filterDeptId || 'all'}_${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -2375,7 +2375,7 @@ function ExportView({ entries, cityConfig }) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `munivault_${cityConfig?.cityName || 'export'}_${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `civicpipeline_${cityConfig?.cityName || 'export'}_${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -2653,13 +2653,13 @@ function SuperAdminDashboard({ onClose }) {
 
   useEffect(() => {
     // Load all cities from a super admin storage key
-    const stored = JSON.parse(localStorage.getItem('munivault_super_cities') || '[]');
+    const stored = JSON.parse(localStorage.getItem('civicpipeline_super_cities') || '[]');
     setCities(stored);
   }, []);
 
   const saveCities = (updated) => {
     setCities(updated);
-    localStorage.setItem('munivault_super_cities', JSON.stringify(updated));
+    localStorage.setItem('civicpipeline_super_cities', JSON.stringify(updated));
   };
 
   const generateTrialCode = () => {
@@ -3209,7 +3209,7 @@ function App() {
           We couldn't find a city at <strong>/{citySlug}</strong>. Double-check the URL or contact your city administrator.
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          <a href="/" className="btn btn-primary" style={{ textDecoration: 'none' }}>Go to MuniVault Home</a>
+          <a href="/" className="btn btn-primary" style={{ textDecoration: 'none' }}>Go to CivicPipeline Home</a>
           <button className="btn btn-outline" onClick={() => { setCityNotFound(false); setAuthScreen('setup'); }}>Set Up a New City</button>
         </div>
       </div>
@@ -3256,8 +3256,8 @@ function App() {
             {isFirstTime
               ? 'You\'re almost there! Select a plan below to start your 14-day free trial via Stripe. No charge until the trial ends.'
               : trial?.expired
-                ? 'Your 14-day trial is over. Subscribe to continue using MuniVault. Your data is safe and will be available once you subscribe.'
-                : 'Please update your payment to continue using MuniVault. Your data is preserved.'}
+                ? 'Your 14-day trial is over. Subscribe to continue using CivicPipeline. Your data is safe and will be available once you subscribe.'
+                : 'Please update your payment to continue using CivicPipeline. Your data is preserved.'}
           </p>
           {!isFirstTime && (
             <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16 }}>
@@ -3289,7 +3289,7 @@ function App() {
           <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
           <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 8 }}>Access Paused</h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 24, maxWidth: 320 }}>
-            Your city's MuniVault subscription is currently inactive. Please contact your administrator to restore access.
+            Your city's CivicPipeline subscription is currently inactive. Please contact your administrator to restore access.
           </p>
           <button className="btn btn-outline" onClick={handleLogout}>Sign Out</button>
         </div>

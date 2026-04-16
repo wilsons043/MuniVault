@@ -1,4 +1,4 @@
--- MuniVault Migration: Trial Enforcement
+-- CivicPipeline Migration: Trial Enforcement
 -- Prevents cities from resetting their trial or reverting from expired to trial status.
 -- Run this in Supabase SQL Editor.
 
